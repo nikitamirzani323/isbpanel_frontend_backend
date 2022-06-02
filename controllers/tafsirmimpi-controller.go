@@ -2,23 +2,23 @@ package controllers
 
 import (
 	"log"
+	"strings"
 	"time"
 
-	"bitbucket.org/isbtotogroup/isbpanel_frontend_backend/entities"
-	"bitbucket.org/isbtotogroup/isbpanel_frontend_backend/helpers"
-	"bitbucket.org/isbtotogroup/isbpanel_frontend_backend/models"
-	"github.com/buger/jsonparser"
-	"github.com/go-playground/validator/v10"
+	"github.com/go-resty/resty/v2"
 	"github.com/gofiber/fiber/v2"
-	"github.com/golang-jwt/jwt/v4"
 )
 
 const Field_tafsirmimpihome_redis = "LISTTAFSIRMIMPI_BACKEND_ISBPANEL"
 
 func Tafsirmimpihome(c *fiber.Ctx) error {
-	var errors []*helpers.ErrorResponse
-	client := new(entities.Controller_tafsirmimpi)
-	validate := validator.New()
+	type payload_tafsirmimpihome struct {
+		Tafsirmimpi_search string `json:"tafsirmimpi_search"`
+	}
+	hostname := c.Hostname()
+	bearToken := c.Get("Authorization")
+	token := strings.Split(bearToken, " ")
+	client := new(payload_tafsirmimpihome)
 	if err := c.BodyParser(client); err != nil {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
@@ -28,83 +28,64 @@ func Tafsirmimpihome(c *fiber.Ctx) error {
 		})
 	}
 
-	err := validate.Struct(client)
-	if err != nil {
-		for _, err := range err.(validator.ValidationErrors) {
-			var element helpers.ErrorResponse
-			element.Field = err.StructField()
-			element.Tag = err.Tag()
-			errors = append(errors, &element)
-		}
-		c.Status(fiber.StatusBadRequest)
-		return c.JSON(fiber.Map{
-			"status":  fiber.StatusBadRequest,
-			"message": "validation",
-			"record":  errors,
-		})
-	}
-	if client.Tafsirmimpi_search != "" {
-		val_tafsirmimpi := helpers.DeleteRedis(Field_tafsirmimpihome_redis + "_" + client.Tafsirmimpi_search)
-		log.Printf("Redis Delete BACKEND TAFSIRMIMPI : %d", val_tafsirmimpi)
-	}
-	var obj entities.Model_tafsirmimpi
-	var arraobj []entities.Model_tafsirmimpi
+	log.Println("Hostname: ", hostname)
 	render_page := time.Now()
-	resultredis, flag := helpers.GetRedis(Field_tafsirmimpihome_redis + "_" + client.Tafsirmimpi_search)
-	jsonredis := []byte(resultredis)
-	message_RD, _ := jsonparser.GetString(jsonredis, "message")
-	record_RD, _, _, _ := jsonparser.Get(jsonredis, "record")
-	jsonparser.ArrayEach(record_RD, func(value []byte, dataType jsonparser.ValueType, offset int, err error) {
-		tafsirmimpi_id, _ := jsonparser.GetInt(value, "tafsirmimpi_id")
-		tafsirmimpi_mimpi, _ := jsonparser.GetString(value, "tafsirmimpi_mimpi")
-		tafsirmimpi_artimimpi, _ := jsonparser.GetString(value, "tafsirmimpi_artimimpi")
-		tafsirmimpi_angka2d, _ := jsonparser.GetString(value, "tafsirmimpi_angka2d")
-		tafsirmimpi_angka3d, _ := jsonparser.GetString(value, "tafsirmimpi_angka3d")
-		tafsirmimpi_angka4d, _ := jsonparser.GetString(value, "tafsirmimpi_angka4d")
-		tafsirmimpi_status, _ := jsonparser.GetString(value, "tafsirmimpi_status")
-		tafsirmimpi_statuscss, _ := jsonparser.GetString(value, "tafsirmimpi_statuscss")
-		tafsirmimpi_create, _ := jsonparser.GetString(value, "tafsirmimpi_create")
-		tafsirmimpi_update, _ := jsonparser.GetString(value, "tafsirmimpi_update")
-
-		obj.Tafsirmimpi_id = int(tafsirmimpi_id)
-		obj.Tafsirmimpi_mimpi = tafsirmimpi_mimpi
-		obj.Tafsirmimpi_artimimpi = tafsirmimpi_artimimpi
-		obj.Tafsirmimpi_angka2d = tafsirmimpi_angka2d
-		obj.Tafsirmimpi_angka3d = tafsirmimpi_angka3d
-		obj.Tafsirmimpi_angka4d = tafsirmimpi_angka4d
-		obj.Tafsirmimpi_status = tafsirmimpi_status
-		obj.Tafsirmimpi_statuscss = tafsirmimpi_statuscss
-		obj.Tafsirmimpi_create = tafsirmimpi_create
-		obj.Tafsirmimpi_update = tafsirmimpi_update
-		arraobj = append(arraobj, obj)
-	})
-	if !flag {
-		result, err := models.Fetch_tafsirmimpiHome(client.Tafsirmimpi_search)
-		if err != nil {
-			c.Status(fiber.StatusBadRequest)
-			return c.JSON(fiber.Map{
-				"status":  fiber.StatusBadRequest,
-				"message": err.Error(),
-				"record":  nil,
-			})
-		}
-		helpers.SetRedis(Field_tafsirmimpihome_redis+"_"+client.Tafsirmimpi_search, result, 3*time.Minute)
-		log.Println("TAFSIR MIMPI MYSQL")
-		return c.JSON(result)
-	} else {
-		log.Println("TAFSIR MIMPI CACHE")
+	axios := resty.New()
+	resp, err := axios.R().
+		SetResult(responsedefault{}).
+		SetAuthToken(token[1]).
+		SetError(responseerror{}).
+		SetHeader("Content-Type", "application/json").
+		SetBody(map[string]interface{}{
+			"client_hostname":    hostname,
+			"tafsirmimpi_search": client.Tafsirmimpi_search,
+		}).
+		Post(PATH + "api/tafsirmimpi")
+	if err != nil {
+		log.Println(err.Error())
+	}
+	log.Println("Response Info:")
+	log.Println("  Error      :", err)
+	log.Println("  Status Code:", resp.StatusCode())
+	log.Println("  Status     :", resp.Status())
+	log.Println("  Proto      :", resp.Proto())
+	log.Println("  Time       :", resp.Time())
+	log.Println("  Received At:", resp.ReceivedAt())
+	log.Println("  Body       :\n", resp)
+	log.Println()
+	result := resp.Result().(*responsedefault)
+	if result.Status == 200 {
 		return c.JSON(fiber.Map{
-			"status":  fiber.StatusOK,
-			"message": message_RD,
-			"record":  arraobj,
+			"status":  result.Status,
+			"message": result.Message,
+			"record":  result.Record,
+			"time":    time.Since(render_page).String(),
+		})
+	} else {
+		result_error := resp.Error().(*responseerror)
+		return c.JSON(fiber.Map{
+			"status":  result_error.Status,
+			"message": result_error.Message,
 			"time":    time.Since(render_page).String(),
 		})
 	}
 }
 func Tafsirmimpisave(c *fiber.Ctx) error {
-	var errors []*helpers.ErrorResponse
-	client := new(entities.Controller_tafsirmimpisave)
-	validate := validator.New()
+	type payload_tafsirmimpisave struct {
+		Page                  string `json:"page"`
+		Sdata                 string `json:"sdata" `
+		Tafsirmimpi_id        int    `json:"tafsirmimpi_id"`
+		Tafsirmimpi_mimpi     string `json:"tafsirmimpi_mimpi" `
+		Tafsirmimpi_artimimpi string `json:"tafsirmimpi_artimimpi" `
+		Tafsirmimpi_angka2d   string `json:"tafsirmimpi_angka2d" `
+		Tafsirmimpi_angka3d   string `json:"tafsirmimpi_angka3d" `
+		Tafsirmimpi_angka4d   string `json:"tafsirmimpi_angka4d" `
+		Tafsirmimpi_status    string `json:"tafsirmimpi_status"`
+	}
+	hostname := c.Hostname()
+	bearToken := c.Get("Authorization")
+	token := strings.Split(bearToken, " ")
+	client := new(payload_tafsirmimpisave)
 	if err := c.BodyParser(client); err != nil {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
@@ -114,40 +95,53 @@ func Tafsirmimpisave(c *fiber.Ctx) error {
 		})
 	}
 
-	err := validate.Struct(client)
+	log.Println("Hostname: ", hostname)
+	render_page := time.Now()
+	axios := resty.New()
+	resp, err := axios.R().
+		SetResult(responsedefault{}).
+		SetAuthToken(token[1]).
+		SetError(responseerror{}).
+		SetHeader("Content-Type", "application/json").
+		SetBody(map[string]interface{}{
+			"client_hostname":       hostname,
+			"page":                  client.Page,
+			"sdata":                 client.Sdata,
+			"tafsirmimpi_id":        client.Tafsirmimpi_id,
+			"tafsirmimpi_mimpi":     client.Tafsirmimpi_mimpi,
+			"tafsirmimpi_artimimpi": client.Tafsirmimpi_artimimpi,
+			"tafsirmimpi_angka2d":   client.Tafsirmimpi_angka2d,
+			"tafsirmimpi_angka3d":   client.Tafsirmimpi_angka3d,
+			"tafsirmimpi_angka4d":   client.Tafsirmimpi_angka4d,
+			"tafsirmimpi_status":    client.Tafsirmimpi_status,
+		}).
+		Post(PATH + "api/tafsirmimpisave")
 	if err != nil {
-		for _, err := range err.(validator.ValidationErrors) {
-			var element helpers.ErrorResponse
-			element.Field = err.StructField()
-			element.Tag = err.Tag()
-			errors = append(errors, &element)
-		}
-		c.Status(fiber.StatusBadRequest)
+		log.Println(err.Error())
+	}
+	log.Println("Response Info:")
+	log.Println("  Error      :", err)
+	log.Println("  Status Code:", resp.StatusCode())
+	log.Println("  Status     :", resp.Status())
+	log.Println("  Proto      :", resp.Proto())
+	log.Println("  Time       :", resp.Time())
+	log.Println("  Received At:", resp.ReceivedAt())
+	log.Println("  Body       :\n", resp)
+	log.Println()
+	result := resp.Result().(*responsedefault)
+	if result.Status == 200 {
 		return c.JSON(fiber.Map{
-			"status":  fiber.StatusBadRequest,
-			"message": "validation",
-			"record":  errors,
+			"status":  result.Status,
+			"message": result.Message,
+			"record":  result.Record,
+			"time":    time.Since(render_page).String(),
+		})
+	} else {
+		result_error := resp.Error().(*responseerror)
+		return c.JSON(fiber.Map{
+			"status":  result_error.Status,
+			"message": result_error.Message,
+			"time":    time.Since(render_page).String(),
 		})
 	}
-	user := c.Locals("jwt").(*jwt.Token)
-	claims := user.Claims.(jwt.MapClaims)
-	name := claims["name"].(string)
-	temp_decp := helpers.Decryption(name)
-	client_admin, _ := helpers.Parsing_Decry(temp_decp, "==")
-
-	result, err := models.Save_tafsirmimpi(
-		client_admin,
-		client.Tafsirmimpi_mimpi, client.Tafsirmimpi_artimimpi, client.Tafsirmimpi_angka2d,
-		client.Tafsirmimpi_angka3d, client.Tafsirmimpi_angka4d, client.Tafsirmimpi_status, client.Sdata, client.Tafsirmimpi_id)
-	if err != nil {
-		c.Status(fiber.StatusBadRequest)
-		return c.JSON(fiber.Map{
-			"status":  fiber.StatusBadRequest,
-			"message": err.Error(),
-			"record":  nil,
-		})
-	}
-	val_tafsirmimpi := helpers.DeleteRedis(Field_tafsirmimpihome_redis + "_")
-	log.Printf("Redis Delete BACKEND TAFSIRMIMPI : %d", val_tafsirmimpi)
-	return c.JSON(result)
 }

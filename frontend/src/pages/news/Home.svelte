@@ -1,354 +1,354 @@
 <script>
-  import { Input } from "sveltestrap";
-  import Panel from "../../components/Panel.svelte";
-  import Loader from "../../components/Loader.svelte";
-import Button from "../../components/Button.svelte";
-import Modal from "../../components/Modal.svelte";
-  import { createEventDispatcher } from "svelte";
+    import { Input } from "sveltestrap";
+    import Panel from "../../components/Panel.svelte";
+    import Loader from "../../components/Loader.svelte";
+    import Button from "../../components/Button.svelte";
+    import Modal from "../../components/Modal.svelte";
+    import { createEventDispatcher } from "svelte";
 
-  export let table_header_font = ""
-export let table_body_font = ""
-export let token = ""
-export let listHome = []
-export let listPage = []
-export let totalrecord = 0
-  let dispatch = createEventDispatcher();
-  let title_page = "NEWS"
-  let sData = "";
-  let myModal = "";
-  
-  let listnews = []
-  let listcategory = []
-  let record = ""
-  let totalrecordnews = 0
-  let totalrecordcategory = 0
-  let pagingnow = 0;
- 
-  let category_field_idrecord = 0;
-  let category_field_name = "";
-  let category_field_display = 0;
-  let category_field_status = "";
-  let news_field_idrecord = 0;
-  let news_field_title = "";
-  let news_field_descp = "";
-  let news_field_category = "";
-  let news_field_url = "";
-  let news_field_image = "";
-  let searchNews = "";
-  let filterNews = "";
+    export let table_header_font = ""
+    export let table_body_font = ""
+    export let token = ""
+    export let listHome = []
+    export let listPage = []
+    export let totalrecord = 0
+    let dispatch = createEventDispatcher();
+    let title_page = "NEWS"
+    let sData = "";
+    let myModal = "";
+    
+    let listnews = []
+    let listcategory = []
+    let record = ""
+    let totalrecordnews = 0
+    let totalrecordcategory = 0
+    let pagingnow = 0;
+    
+    let category_field_idrecord = 0;
+    let category_field_name = "";
+    let category_field_display = 0;
+    let category_field_status = "";
+    let news_field_idrecord = 0;
+    let news_field_title = "";
+    let news_field_descp = "";
+    let news_field_category = "";
+    let news_field_url = "";
+    let news_field_image = "";
+    let searchNews = "";
+    let filterNews = "";
 
-  let css_loader = "display: none;";
-  let msgloader = "";
+    let css_loader = "display: none;";
+    let msgloader = "";
 
-  $: {
-      if (searchNews) {
-          filterNews = listHome.filter(
-              (item) =>
-                  item.news_title
-                      .toLowerCase()
-                      .includes(searchNews.toLowerCase())
-          );
-      } else {
-          filterNews = [...listHome];
-      }
-  }
-  const RefreshHalaman = () => {
-      dispatch("handleRefreshData", "call");
-  };
-  const handleSelectPaging = (event) => {
-      let page = event.target.value
-      pagingnow = page
-      const movie = {
-              page,
-      };
-      dispatch("handlePaging", movie);
-  };
-  const ShowCategory = () => {
-      sData = ""
-      myModal = new bootstrap.Modal(document.getElementById("modalcategory"));
-      myModal.show();
-      call_category()
-  };
-  const ShowFormCategory = (e,id,name,display,status) => {
-      sData = e
-      if(e == "Edit"){
-          category_field_idrecord = parseInt(id);
-          category_field_name = name;
-          category_field_display = parseInt(display);
-          category_field_status = status;
-      }else{
-          clearfield_category()
-      }
-      
-      myModal = new bootstrap.Modal(document.getElementById("modalcrudcategory"));
-      myModal.show();
-  };
-  const ShowFormNews = (e,id,category,title,descp,url,image) => {
-      sData = e
-      if(e == "New"){
-          clearfield_news()
-      }else{
-          news_field_idrecord = parseInt(id);
-          news_field_title = title;
-          news_field_descp = descp;
-          news_field_category = parseInt(category);
-          news_field_url = url;
-          news_field_image = image;
-      }
-      
-      call_category()
-      myModal = new bootstrap.Modal(document.getElementById("modalcrudnews"));
-      myModal.show();
-  };
- 
-  async function call_category() {
-      listcategory = [];
-      const res = await fetch("/api/categorynews", {
-          method: "POST",
-          headers: {
-              "Content-Type": "application/json",
-              Authorization: "Bearer " + token,
-          },
-          body: JSON.stringify({
-          }),
-      });
-      const json = await res.json();
-      if (json.status == 200) {
-          record = json.record;
-          if (record != null) {
-              totalrecordcategory = record.length;
-              let no = 0
-              for (var i = 0; i < record.length; i++) {
-                  no = no + 1;
-                  listcategory = [
-                  ...listcategory,
-                      {
-                          category_no: no,
-                          category_id: record[i]["category_id"],
-                          category_name: record[i]["category_name"],
-                          category_totalnews: record[i]["category_totalnews"],
-                          category_display: record[i]["category_display"],
-                          category_status: record[i]["category_status"],
-                          category_statuscss: record[i]["category_statuscss"],
-                          category_create: record[i]["category_create"],
-                          category_update: record[i]["category_update"],
-                      },
-                  ];
-              }
-          }
-      } 
-  }
-  async function handleSaveCategory() {
-      let flag = true
-      let msg = ""
-      css_loader = "display: inline-block;";
-      msgloader = "Sending...";
-      if(sData == "New"){
-          if(category_field_name == ""){
-              flag = false
-              msg += "The Name is required\n"
-          }
-          if(category_field_display == ""){
-              flag = false
-              msg += "The Display is required\n"
-          }
-      }
-      if(flag){
-          
-          css_loader = "display: inline-block;";
-          msgloader = "Sending...";
-          const res = await fetch("/api/categorynewssave", {
-              method: "POST",
-              headers: {
-                  "Content-Type": "application/json",
-                  Authorization: "Bearer " + token,
-              },
-              body: JSON.stringify({
-                  sdata: sData,
-                  page:"CATEGORYNEWS-SAVE",
-                  category_id: parseInt(category_field_idrecord),
-                  category_name: category_field_name.toUpperCase(),
-                  category_status: category_field_status,
-                  category_display: parseInt(category_field_display),
-              }),
-          });
-          const json = await res.json();
-          if (json.status == 200) {
-              msgloader = json.message;
-              myModal.hide()
-              call_category()
-              clearfield_category()
-          } else if(json.status == 403){
-              alert(json.message)
-          } else {
-              msgloader = json.message;
-          }
-          setTimeout(function () {
-              css_loader = "display: none;";
-          }, 1000);
-      }else{
-          alert(msg)
-      }
-      
-  }
-  async function handleSave() {
-      let flag = true
-      let msg = ""
-      css_loader = "display: inline-block;";
-      msgloader = "Sending...";
-      const res = await fetch("/api/newssave", {
-          method: "POST",
-          headers: {
-              "Content-Type": "application/json",
-              Authorization: "Bearer " + token,
-          },
-          body: JSON.stringify({
-              sdata: sData,
-              page:"NEWS-SAVE",
-              news_id: news_field_idrecord,
-              news_category: news_field_category,
-              news_title: news_field_title,
-              news_descp: news_field_descp,
-              news_url: news_field_url,
-              news_image: news_field_image,
-          }),
-      });
-      const json = await res.json();
-      if (json.status == 200) {
-          msgloader = json.message;
-          myModal.hide()
-          RefreshHalaman()
-      } else if(json.status == 403){
-          alert(json.message)
-      } else {
-          msgloader = json.message;
-      }
-      setTimeout(function () {
-          css_loader = "display: none;";
-      }, 1000);
-  }
-  async function handleDeleteNews(e) {
-      let flag = true
-      let msg = ""
-      if(e == ""){
-          flag = false
-          msg = "The News is required"
-      }
-      if(flag){
-          css_loader = "display: inline-block;";
-          msgloader = "Sending...";
-          const res = await fetch("/api/newsdelete", {
-              method: "POST",
-              headers: {
-                  "Content-Type": "application/json",
-                  Authorization: "Bearer " + token,
-              },
-              body: JSON.stringify({
-                  page:"NEWS-DELETE",
-                  news_id: parseInt(e),
-              }),
-          });
-          const json = await res.json();
-          if (json.status == 200) {
-              RefreshHalaman()
-              msgloader = json.message;
-          } else if(json.status == 403){
-              alert(json.message)
-          } else {
-              msgloader = json.message;
-          }
-          setTimeout(function () {
-              css_loader = "display: none;";
-          }, 1000);
-      }else{
-          alert(msg)
-      }
-  }
-  async function handleDeleteCategoryNews(e) {
-      let flag = true
-      let msg = ""
-      if(e == ""){
-          flag = false
-          msg = "The Category is required"
-      }
-      if(flag){
-          css_loader = "display: inline-block;";
-          msgloader = "Sending...";
-          const res = await fetch("/api/categorynewsdelete", {
-              method: "POST",
-              headers: {
-                  "Content-Type": "application/json",
-                  Authorization: "Bearer " + token,
-              },
-              body: JSON.stringify({
-                  page:"CATEGORYNEWS-DELETE",
-                  category_id: parseInt(e),
-              }),
-          });
-          const json = await res.json();
-          if (json.status == 200) {
-              call_category()
-              msgloader = json.message;
-          } else if(json.status == 403){
-              alert(json.message)
-          } else {
-              msgloader = json.message;
-          }
-          setTimeout(function () {
-              css_loader = "display: none;";
-          }, 1000);
-      }else{
-          alert(msg)
-      }
-  }
-  function callFunction(event){
-      switch(event.detail){
-          case "CALL_CATEGORY":
-              ShowCategory();
-              break;
-          case "FORMNEW_CATEGORY":
-              ShowFormCategory("New");
-              break;
-          case "SAVE_CATEGORY":
-              handleSaveCategory();
-              break;
-          case "REFRESH":
-              RefreshHalaman();break;
-          case "NEW_NEWS":
-              ShowFormNews("New",0,"","","","","");break;
-          case "SAVE_NEWS":
-              handleSave();break;
-      }
-  }
-  function clearfield_category(){
-      category_field_idrecord = 0;
-      category_field_name = "";
-      category_field_display = 0;
-      category_field_status = "";
-  }
-  function clearfield_news(){
-      news_field_idrecord = 0;
-      news_field_title = "";
-      news_field_descp = "";
-      news_field_category = "";
-      news_field_url = "";
-      news_field_image = "";
-  }
-  const handleKeyboard_checkenter = (e) => {
-      let keyCode = e.which || e.keyCode;
-      if (keyCode === 13) {
-              filterNews = [];
-              listHome = [];
-              const news = {
-                  searchNews,
-              };
-              dispatch("handleNews", news);
-      }  
-  };
+    $: {
+        if (searchNews) {
+            filterNews = listHome.filter(
+                (item) =>
+                    item.news_title
+                        .toLowerCase()
+                        .includes(searchNews.toLowerCase())
+            );
+        } else {
+            filterNews = [...listHome];
+        }
+    }
+    const RefreshHalaman = () => {
+        dispatch("handleRefreshData", "call");
+    };
+    const handleSelectPaging = (event) => {
+        let page = event.target.value
+        pagingnow = page
+        const movie = {
+                page,
+        };
+        dispatch("handlePaging", movie);
+    };
+    const ShowCategory = () => {
+        sData = ""
+        myModal = new bootstrap.Modal(document.getElementById("modalcategory"));
+        myModal.show();
+        call_category()
+    };
+    const ShowFormCategory = (e,id,name,display,status) => {
+        sData = e
+        if(e == "Edit"){
+            category_field_idrecord = parseInt(id);
+            category_field_name = name;
+            category_field_display = parseInt(display);
+            category_field_status = status;
+        }else{
+            clearfield_category()
+        }
+        
+        myModal = new bootstrap.Modal(document.getElementById("modalcrudcategory"));
+        myModal.show();
+    };
+    const ShowFormNews = (e,id,category,title,descp,url,image) => {
+        sData = e
+        if(e == "New"){
+            clearfield_news()
+        }else{
+            news_field_idrecord = parseInt(id);
+            news_field_title = title;
+            news_field_descp = descp;
+            news_field_category = parseInt(category);
+            news_field_url = url;
+            news_field_image = image;
+        }
+        
+        call_category()
+        myModal = new bootstrap.Modal(document.getElementById("modalcrudnews"));
+        myModal.show();
+    };
+    
+    async function call_category() {
+        listcategory = [];
+        const res = await fetch("/api/categorynews", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: "Bearer " + token,
+            },
+            body: JSON.stringify({
+            }),
+        });
+        const json = await res.json();
+        if (json.status == 200) {
+            record = json.record;
+            if (record != null) {
+                totalrecordcategory = record.length;
+                let no = 0
+                for (var i = 0; i < record.length; i++) {
+                    no = no + 1;
+                    listcategory = [
+                    ...listcategory,
+                        {
+                            category_no: no,
+                            category_id: record[i]["category_id"],
+                            category_name: record[i]["category_name"],
+                            category_totalnews: record[i]["category_totalnews"],
+                            category_display: record[i]["category_display"],
+                            category_status: record[i]["category_status"],
+                            category_statuscss: record[i]["category_statuscss"],
+                            category_create: record[i]["category_create"],
+                            category_update: record[i]["category_update"],
+                        },
+                    ];
+                }
+            }
+        } 
+    }
+    async function handleSaveCategory() {
+        let flag = true
+        let msg = ""
+        css_loader = "display: inline-block;";
+        msgloader = "Sending...";
+        if(sData == "New"){
+            if(category_field_name == ""){
+                flag = false
+                msg += "The Name is required\n"
+            }
+            if(category_field_display == ""){
+                flag = false
+                msg += "The Display is required\n"
+            }
+        }
+        if(flag){
+            
+            css_loader = "display: inline-block;";
+            msgloader = "Sending...";
+            const res = await fetch("/api/categorynewssave", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: "Bearer " + token,
+                },
+                body: JSON.stringify({
+                    sdata: sData,
+                    page:"CATEGORYNEWS-SAVE",
+                    category_id: parseInt(category_field_idrecord),
+                    category_name: category_field_name.toUpperCase(),
+                    category_status: category_field_status,
+                    category_display: parseInt(category_field_display),
+                }),
+            });
+            const json = await res.json();
+            if (json.status == 200) {
+                msgloader = json.message;
+                myModal.hide()
+                call_category()
+                clearfield_category()
+            } else if(json.status == 403){
+                alert(json.message)
+            } else {
+                msgloader = json.message;
+            }
+            setTimeout(function () {
+                css_loader = "display: none;";
+            }, 1000);
+        }else{
+            alert(msg)
+        }
+        
+    }
+    async function handleSave() {
+        let flag = true
+        let msg = ""
+        css_loader = "display: inline-block;";
+        msgloader = "Sending...";
+        const res = await fetch("/api/newssave", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: "Bearer " + token,
+            },
+            body: JSON.stringify({
+                sdata: sData,
+                page:"NEWS-SAVE",
+                news_id: news_field_idrecord,
+                news_category: news_field_category,
+                news_title: news_field_title,
+                news_descp: news_field_descp,
+                news_url: news_field_url,
+                news_image: news_field_image,
+            }),
+        });
+        const json = await res.json();
+        if (json.status == 200) {
+            msgloader = json.message;
+            myModal.hide()
+            RefreshHalaman()
+        } else if(json.status == 403){
+            alert(json.message)
+        } else {
+            msgloader = json.message;
+        }
+        setTimeout(function () {
+            css_loader = "display: none;";
+        }, 1000);
+    }
+    async function handleDeleteNews(e) {
+        let flag = true
+        let msg = ""
+        if(e == ""){
+            flag = false
+            msg = "The News is required"
+        }
+        if(flag){
+            css_loader = "display: inline-block;";
+            msgloader = "Sending...";
+            const res = await fetch("/api/newsdelete", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: "Bearer " + token,
+                },
+                body: JSON.stringify({
+                    page:"NEWS-DELETE",
+                    news_id: parseInt(e),
+                }),
+            });
+            const json = await res.json();
+            if (json.status == 200) {
+                RefreshHalaman()
+                msgloader = json.message;
+            } else if(json.status == 403){
+                alert(json.message)
+            } else {
+                msgloader = json.message;
+            }
+            setTimeout(function () {
+                css_loader = "display: none;";
+            }, 1000);
+        }else{
+            alert(msg)
+        }
+    }
+    async function handleDeleteCategoryNews(e) {
+        let flag = true
+        let msg = ""
+        if(e == ""){
+            flag = false
+            msg = "The Category is required"
+        }
+        if(flag){
+            css_loader = "display: inline-block;";
+            msgloader = "Sending...";
+            const res = await fetch("/api/categorynewsdelete", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: "Bearer " + token,
+                },
+                body: JSON.stringify({
+                    page:"CATEGORYNEWS-DELETE",
+                    category_id: parseInt(e),
+                }),
+            });
+            const json = await res.json();
+            if (json.status == 200) {
+                call_category()
+                msgloader = json.message;
+            } else if(json.status == 403){
+                alert(json.message)
+            } else {
+                msgloader = json.message;
+            }
+            setTimeout(function () {
+                css_loader = "display: none;";
+            }, 1000);
+        }else{
+            alert(msg)
+        }
+    }
+    function callFunction(event){
+        switch(event.detail){
+            case "CALL_CATEGORY":
+                ShowCategory();
+                break;
+            case "FORMNEW_CATEGORY":
+                ShowFormCategory("New");
+                break;
+            case "SAVE_CATEGORY":
+                handleSaveCategory();
+                break;
+            case "REFRESH":
+                RefreshHalaman();break;
+            case "NEW_NEWS":
+                ShowFormNews("New",0,"","","","","");break;
+            case "SAVE_NEWS":
+                handleSave();break;
+        }
+    }
+    function clearfield_category(){
+        category_field_idrecord = 0;
+        category_field_name = "";
+        category_field_display = 0;
+        category_field_status = "";
+    }
+    function clearfield_news(){
+        news_field_idrecord = 0;
+        news_field_title = "";
+        news_field_descp = "";
+        news_field_category = "";
+        news_field_url = "";
+        news_field_image = "";
+    }
+    const handleKeyboard_checkenter = (e) => {
+        let keyCode = e.which || e.keyCode;
+        if (keyCode === 13) {
+                filterNews = [];
+                listHome = [];
+                const news = {
+                    searchNews,
+                };
+                dispatch("handleNews", news);
+        }  
+    };
 </script>
 
 <div id="loader" style="margin-left:50%;{css_loader}">
-  {msgloader}
+    {msgloader}
 </div>
 <div class="container-fluid" style="margin-top: 70px;">
   <div class="row">

@@ -2,7 +2,7 @@ package controllers
 
 import (
 	"log"
-	"strconv"
+	"strings"
 	"time"
 
 	"bitbucket.org/isbtotogroup/isbpanel_frontend_backend/entities"
@@ -10,6 +10,7 @@ import (
 	"bitbucket.org/isbtotogroup/isbpanel_frontend_backend/models"
 	"github.com/buger/jsonparser"
 	"github.com/go-playground/validator/v10"
+	"github.com/go-resty/resty/v2"
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v4"
 )
@@ -20,9 +21,14 @@ const Fieldnews_client_home_redis = "LISTNEWS_FRONTEND_ISBPANEL"
 const Fieldnewsmovie_client_home_redis = "LISTNEWSMOVIES_FRONTEND_ISBPANEL"
 
 func Newshome(c *fiber.Ctx) error {
-	var errors []*helpers.ErrorResponse
-	client := new(entities.Controller_news)
-	validate := validator.New()
+	type payload_newshome struct {
+		News_search string `json:"news_search"`
+		News_page   int    `json:"news_page"`
+	}
+	hostname := c.Hostname()
+	bearToken := c.Get("Authorization")
+	token := strings.Split(bearToken, " ")
+	client := new(payload_newshome)
 	if err := c.BodyParser(client); err != nil {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
@@ -32,78 +38,46 @@ func Newshome(c *fiber.Ctx) error {
 		})
 	}
 
-	err := validate.Struct(client)
-	if err != nil {
-		for _, err := range err.(validator.ValidationErrors) {
-			var element helpers.ErrorResponse
-			element.Field = err.StructField()
-			element.Tag = err.Tag()
-			errors = append(errors, &element)
-		}
-		c.Status(fiber.StatusBadRequest)
-		return c.JSON(fiber.Map{
-			"status":  fiber.StatusBadRequest,
-			"message": "validation",
-			"record":  errors,
-		})
-	}
-	if client.News_search != "" {
-		val_news := helpers.DeleteRedis(Fieldnews_home_redis + "_" + strconv.Itoa(client.News_page) + "_" + client.News_search)
-		log.Printf("Redis Delete BACKEND NEWS : %d", val_news)
-	}
-	var obj entities.Model_news
-	var arraobj []entities.Model_news
+	log.Println("Hostname: ", hostname)
 	render_page := time.Now()
-	resultredis, flag := helpers.GetRedis(Fieldnews_home_redis + "_" + strconv.Itoa(client.News_page) + "_" + client.News_search)
-	jsonredis := []byte(resultredis)
-	message_RD, _ := jsonparser.GetString(jsonredis, "message")
-	perpage_RD, _ := jsonparser.GetInt(jsonredis, "perpage")
-	totalrecord_RD, _ := jsonparser.GetInt(jsonredis, "totalrecord")
-	record_RD, _, _, _ := jsonparser.Get(jsonredis, "record")
-	jsonparser.ArrayEach(record_RD, func(value []byte, dataType jsonparser.ValueType, offset int, err error) {
-		news_id, _ := jsonparser.GetInt(value, "news_id")
-		news_title, _ := jsonparser.GetString(value, "news_title")
-		news_idcategory, _ := jsonparser.GetInt(value, "news_idcategory")
-		news_category, _ := jsonparser.GetString(value, "news_category")
-		news_descp, _ := jsonparser.GetString(value, "news_descp")
-		news_url, _ := jsonparser.GetString(value, "news_url")
-		news_image, _ := jsonparser.GetString(value, "news_image")
-		news_create, _ := jsonparser.GetString(value, "news_create")
-		news_update, _ := jsonparser.GetString(value, "news_update")
-
-		obj.News_id = int(news_id)
-		obj.News_idcategory = int(news_idcategory)
-		obj.News_category = news_category
-		obj.News_title = news_title
-		obj.News_descp = news_descp
-		obj.News_url = news_url
-		obj.News_image = news_image
-		obj.News_create = news_create
-		obj.News_update = news_update
-		arraobj = append(arraobj, obj)
-	})
-	if !flag {
-		result, err := models.Fetch_newsHome(client.News_search, client.News_page)
-		if err != nil {
-			c.Status(fiber.StatusBadRequest)
-			return c.JSON(fiber.Map{
-				"status":  fiber.StatusBadRequest,
-				"message": err.Error(),
-				"record":  nil,
-			})
-		}
-		helpers.SetRedis(Fieldnews_home_redis+"_"+strconv.Itoa(client.News_page)+"_"+client.News_search, result, 10*time.Minute)
-		log.Println("NEWS MYSQL")
-		return c.JSON(result)
-	} else {
-		log.Println("NEWS CACHE")
+	axios := resty.New()
+	resp, err := axios.R().
+		SetResult(responsedefault{}).
+		SetAuthToken(token[1]).
+		SetError(responseerror{}).
+		SetHeader("Content-Type", "application/json").
+		SetBody(map[string]interface{}{
+			"client_hostname": hostname,
+			"news_page":       client.News_page,
+			"news_search":     client.News_search,
+		}).
+		Post(PATH + "api/news")
+	if err != nil {
+		log.Println(err.Error())
+	}
+	log.Println("Response Info:")
+	log.Println("  Error      :", err)
+	log.Println("  Status Code:", resp.StatusCode())
+	log.Println("  Status     :", resp.Status())
+	log.Println("  Proto      :", resp.Proto())
+	log.Println("  Time       :", resp.Time())
+	log.Println("  Received At:", resp.ReceivedAt())
+	log.Println("  Body       :\n", resp)
+	log.Println()
+	result := resp.Result().(*responsedefault)
+	if result.Status == 200 {
 		return c.JSON(fiber.Map{
-			"status":      fiber.StatusOK,
-			"message":     message_RD,
-			"record":      arraobj,
-			"perpage":     perpage_RD,
-			"totalrecord": totalrecord_RD,
-			"time":        time.Since(render_page).String(),
+			"status":  result.Status,
+			"message": result.Message,
+			"record":  result.Record,
+			"time":    time.Since(render_page).String(),
+		})
+	} else {
+		result_error := resp.Error().(*responseerror)
+		return c.JSON(fiber.Map{
+			"status":  result_error.Status,
+			"message": result_error.Message,
+			"time":    time.Since(render_page).String(),
 		})
 	}
 }
