@@ -16,7 +16,6 @@
     let title_page = "NEWS"
     let sData = "";
     let myModal = "";
-    
     let listnews = []
     let listcategory = []
     let record = ""

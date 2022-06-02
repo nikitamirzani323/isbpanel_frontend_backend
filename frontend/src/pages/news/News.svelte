@@ -17,7 +17,7 @@
   let page = 0;
   let totalpaging = 0;
   let totalrecordall = 0;
-
+  
   async function initapp() {
     const res = await fetch("/api/valid", {
       method: "POST",
@@ -53,12 +53,14 @@
       }),
     });
     const json = await res.json();
+    
     if (json.status == 200) {
       record = json.record;
       perpage = json.perpage;
       totalrecordall = json.totalrecord;
       record_message = json.message;
       if (record != null) {
+        
         totalpaging = Math.ceil(parseInt(totalrecordall) / parseInt(perpage));
         totalrecord = totalrecordall;
         let no = 0;
