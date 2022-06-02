@@ -1,0 +1,12 @@
+version: '2'
+
+services:
+  isbpanel-frontend-backend:
+    container_name: isbpanel-frontend-backend
+    image: isbpanel-frontend-backend:0.0.1
+    build: .
+    volumes:
+    - ./frontend:/app/frontend
+    ports:
+      - 5051:5051
+    restart: always
