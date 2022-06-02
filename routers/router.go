@@ -73,11 +73,11 @@ func Init() *fiber.App {
 	app.Post("/api/tafsirmimpisave", controllers.Tafsirmimpisave)
 
 	app.Post("/api/news", controllers.Newshome)
-	app.Post("/api/newssave", middleware.JWTProtected(), controllers.Newssave)
-	app.Post("/api/newsdelete", middleware.JWTProtected(), controllers.Newsdelete)
-	app.Post("/api/categorynews", middleware.JWTProtected(), controllers.Categoryhome)
-	app.Post("/api/categorynewssave", middleware.JWTProtected(), controllers.Categorysave)
-	app.Post("/api/categorynewsdelete", middleware.JWTProtected(), controllers.Categorydelete)
+	app.Post("/api/newssave", controllers.Newssave)
+	app.Post("/api/newsdelete", controllers.Newsdelete)
+	app.Post("/api/categorynews", controllers.Categoryhome)
+	app.Post("/api/categorynewssave", controllers.Categorysave)
+	app.Post("/api/categorynewsdelete", controllers.Categorydelete)
 
 	app.Post("/api/movie", middleware.JWTProtected(), controllers.Moviehome)
 	app.Post("/api/movienotcdn", middleware.JWTProtected(), controllers.Moviehomenotcdn)
