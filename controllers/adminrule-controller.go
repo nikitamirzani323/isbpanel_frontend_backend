@@ -2,63 +2,19 @@ package controllers
 
 import (
 	"log"
+	"strings"
 	"time"
 
 	"bitbucket.org/isbtotogroup/isbpanel_frontend_backend/entities"
-	"bitbucket.org/isbtotogroup/isbpanel_frontend_backend/helpers"
-	"bitbucket.org/isbtotogroup/isbpanel_frontend_backend/models"
-	"github.com/buger/jsonparser"
-	"github.com/go-playground/validator/v10"
+	"github.com/go-resty/resty/v2"
 	"github.com/gofiber/fiber/v2"
-	"github.com/golang-jwt/jwt/v4"
 )
 
-const Fieldadminrule_home_redis = "LISTADMINRULE_BACKEND_ISBPANEL"
-
 func Adminrulehome(c *fiber.Ctx) error {
-
-	var obj entities.Responseredis_adminruleall
-	var arraobj []entities.Responseredis_adminruleall
-	render_page := time.Now()
-	resultredis, flag := helpers.GetRedis(Fieldadminrule_home_redis)
-	jsonredis := []byte(resultredis)
-	record_RD, _, _, _ := jsonparser.Get(jsonredis, "record")
-	jsonparser.ArrayEach(record_RD, func(value []byte, dataType jsonparser.ValueType, offset int, err error) {
-		Adminrule_idadmin, _ := jsonparser.GetString(value, "adminrule_idadmin")
-		Adminrule_rule, _ := jsonparser.GetString(value, "adminrule_rule")
-
-		obj.Adminrule_idadmin = Adminrule_idadmin
-		obj.Adminrule_rule = Adminrule_rule
-		arraobj = append(arraobj, obj)
-	})
-
-	if !flag {
-		result, err := models.Fetch_adminruleHome()
-		if err != nil {
-			c.Status(fiber.StatusBadRequest)
-			return c.JSON(fiber.Map{
-				"status":  fiber.StatusBadRequest,
-				"message": err.Error(),
-				"record":  nil,
-			})
-		}
-		helpers.SetRedis(Fieldadminrule_home_redis, result, 60*time.Minute)
-		log.Println("ADMIN RULE MYSQL")
-		return c.JSON(result)
-	} else {
-		log.Println("ADMIN RULE CACHE")
-		return c.JSON(fiber.Map{
-			"status":  fiber.StatusOK,
-			"message": "Success",
-			"record":  arraobj,
-			"time":    time.Since(render_page).String(),
-		})
-	}
-}
-func AdminruleSave(c *fiber.Ctx) error {
-	var errors []*helpers.ErrorResponse
-	client := new(entities.Controller_adminrulesave)
-	validate := validator.New()
+	hostname := c.Hostname()
+	bearToken := c.Get("Authorization")
+	token := strings.Split(bearToken, " ")
+	client := new(entities.Home)
 	if err := c.BodyParser(client); err != nil {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
@@ -68,29 +24,60 @@ func AdminruleSave(c *fiber.Ctx) error {
 		})
 	}
 
-	err := validate.Struct(client)
+	log.Println("Hostname: ", hostname)
+	render_page := time.Now()
+	axios := resty.New()
+	resp, err := axios.R().
+		SetResult(responsedefault{}).
+		SetAuthToken(token[1]).
+		SetError(responseerror{}).
+		SetHeader("Content-Type", "application/json").
+		SetBody(map[string]interface{}{
+			"client_hostname": hostname,
+			"page":            client.Page,
+		}).
+		Post(PATH + "api/alladminrule")
 	if err != nil {
-		for _, err := range err.(validator.ValidationErrors) {
-			var element helpers.ErrorResponse
-			element.Field = err.StructField()
-			element.Tag = err.Tag()
-			errors = append(errors, &element)
-		}
-		c.Status(fiber.StatusBadRequest)
+		log.Println(err.Error())
+	}
+	log.Println("Response Info:")
+	log.Println("  Error      :", err)
+	log.Println("  Status Code:", resp.StatusCode())
+	log.Println("  Status     :", resp.Status())
+	log.Println("  Proto      :", resp.Proto())
+	log.Println("  Time       :", resp.Time())
+	log.Println("  Received At:", resp.ReceivedAt())
+	log.Println("  Body       :\n", resp)
+	log.Println()
+	result := resp.Result().(*responsedefault)
+	if result.Status == 200 {
 		return c.JSON(fiber.Map{
-			"status":  fiber.StatusBadRequest,
-			"message": "validation",
-			"record":  errors,
+			"status":  result.Status,
+			"message": result.Message,
+			"record":  result.Record,
+			"time":    time.Since(render_page).String(),
+		})
+	} else {
+		result_error := resp.Error().(*responseerror)
+		return c.JSON(fiber.Map{
+			"status":  result_error.Status,
+			"message": result_error.Message,
+			"time":    time.Since(render_page).String(),
 		})
 	}
-	user := c.Locals("jwt").(*jwt.Token)
-	claims := user.Claims.(jwt.MapClaims)
-	name := claims["name"].(string)
-	temp_decp := helpers.Decryption(name)
-	client_admin, _ := helpers.Parsing_Decry(temp_decp, "==")
-
-	result, err := models.Save_adminrule(client_admin, client.Idadmin, client.Rule, client.Sdata)
-	if err != nil {
+}
+func AdminruleSave(c *fiber.Ctx) error {
+	type payload_adminrulesave struct {
+		Page    string `json:"page"`
+		Sdata   string `json:"sdata" `
+		Idadmin string `json:"adminrule_idadmin" `
+		Rule    string `json:"adminrule_rule" `
+	}
+	hostname := c.Hostname()
+	bearToken := c.Get("Authorization")
+	token := strings.Split(bearToken, " ")
+	client := new(payload_adminrulesave)
+	if err := c.BodyParser(client); err != nil {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
 			"status":  fiber.StatusBadRequest,
@@ -99,7 +86,48 @@ func AdminruleSave(c *fiber.Ctx) error {
 		})
 	}
 
-	val_master := helpers.DeleteRedis(Fieldadminrule_home_redis)
-	log.Printf("Redis Delete BACKEND ADMIN RULE : %d", val_master)
-	return c.JSON(result)
+	log.Println("Hostname: ", hostname)
+	render_page := time.Now()
+	axios := resty.New()
+	resp, err := axios.R().
+		SetResult(responsedefault{}).
+		SetAuthToken(token[1]).
+		SetError(responseerror{}).
+		SetHeader("Content-Type", "application/json").
+		SetBody(map[string]interface{}{
+			"client_hostname":   hostname,
+			"page":              client.Page,
+			"sdata":             client.Sdata,
+			"adminrule_idadmin": client.Idadmin,
+			"adminrule_rule":    client.Rule,
+		}).
+		Post(PATH + "api/saveadminrule")
+	if err != nil {
+		log.Println(err.Error())
+	}
+	log.Println("Response Info:")
+	log.Println("  Error      :", err)
+	log.Println("  Status Code:", resp.StatusCode())
+	log.Println("  Status     :", resp.Status())
+	log.Println("  Proto      :", resp.Proto())
+	log.Println("  Time       :", resp.Time())
+	log.Println("  Received At:", resp.ReceivedAt())
+	log.Println("  Body       :\n", resp)
+	log.Println()
+	result := resp.Result().(*responsedefault)
+	if result.Status == 200 {
+		return c.JSON(fiber.Map{
+			"status":  result.Status,
+			"message": result.Message,
+			"record":  result.Record,
+			"time":    time.Since(render_page).String(),
+		})
+	} else {
+		result_error := resp.Error().(*responseerror)
+		return c.JSON(fiber.Map{
+			"status":  result_error.Status,
+			"message": result_error.Message,
+			"time":    time.Since(render_page).String(),
+		})
+	}
 }

@@ -3,13 +3,14 @@ package controllers
 import (
 	"log"
 	"strconv"
+	"strings"
 	"time"
 
 	"bitbucket.org/isbtotogroup/isbpanel_frontend_backend/entities"
 	"bitbucket.org/isbtotogroup/isbpanel_frontend_backend/helpers"
 	"bitbucket.org/isbtotogroup/isbpanel_frontend_backend/models"
-	"github.com/buger/jsonparser"
 	"github.com/go-playground/validator/v10"
+	"github.com/go-resty/resty/v2"
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v4"
 )
@@ -17,9 +18,14 @@ import (
 const Fieldgame_home_redis = "LISTGAME_BACKEND_ISBPANEL"
 
 func Gamehome(c *fiber.Ctx) error {
-	var errors []*helpers.ErrorResponse
-	client := new(entities.Controller_game)
-	validate := validator.New()
+	type payload_game struct {
+		Game_search string `json:"game_search"`
+		Game_page   int    `json:"game_page"`
+	}
+	hostname := c.Hostname()
+	bearToken := c.Get("Authorization")
+	token := strings.Split(bearToken, " ")
+	client := new(payload_game)
 	if err := c.BodyParser(client); err != nil {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
@@ -29,68 +35,46 @@ func Gamehome(c *fiber.Ctx) error {
 		})
 	}
 
-	err := validate.Struct(client)
-	if err != nil {
-		for _, err := range err.(validator.ValidationErrors) {
-			var element helpers.ErrorResponse
-			element.Field = err.StructField()
-			element.Tag = err.Tag()
-			errors = append(errors, &element)
-		}
-		c.Status(fiber.StatusBadRequest)
-		return c.JSON(fiber.Map{
-			"status":  fiber.StatusBadRequest,
-			"message": "validation",
-			"record":  errors,
-		})
-	}
-	if client.Game_search != "" {
-		val_news := helpers.DeleteRedis(Fieldgame_home_redis + "_" + strconv.Itoa(client.Game_page) + "_" + client.Game_search)
-		log.Printf("Redis Delete BACKEND NEWS : %d", val_news)
-	}
-	var obj entities.Model_game
-	var arraobj []entities.Model_game
+	log.Println("Hostname: ", hostname)
 	render_page := time.Now()
-	resultredis, flag := helpers.GetRedis(Fieldgame_home_redis + "_" + strconv.Itoa(client.Game_page) + "_" + client.Game_search)
-	jsonredis := []byte(resultredis)
-	message_RD, _ := jsonparser.GetString(jsonredis, "message")
-	perpage_RD, _ := jsonparser.GetInt(jsonredis, "perpage")
-	totalrecord_RD, _ := jsonparser.GetInt(jsonredis, "totalrecord")
-	record_RD, _, _, _ := jsonparser.Get(jsonredis, "record")
-	jsonparser.ArrayEach(record_RD, func(value []byte, dataType jsonparser.ValueType, offset int, err error) {
-		game_id, _ := jsonparser.GetInt(value, "game_id")
-		game_name, _ := jsonparser.GetString(value, "game_name")
-		game_create, _ := jsonparser.GetString(value, "game_create")
-		game_update, _ := jsonparser.GetString(value, "game_update")
-
-		obj.Game_id = int(game_id)
-		obj.Game_name = game_name
-		obj.Game_create = game_create
-		obj.Game_update = game_update
-		arraobj = append(arraobj, obj)
-	})
-	if !flag {
-		result, err := models.Fetch_gameHome(client.Game_search, client.Game_page)
-		if err != nil {
-			c.Status(fiber.StatusBadRequest)
-			return c.JSON(fiber.Map{
-				"status":  fiber.StatusBadRequest,
-				"message": err.Error(),
-				"record":  nil,
-			})
-		}
-		helpers.SetRedis(Fieldgame_home_redis+"_"+strconv.Itoa(client.Game_page)+"_"+client.Game_search, result, 1*time.Hour)
-		log.Println("AGEN MYSQL")
-		return c.JSON(result)
-	} else {
-		log.Println("AGEN CACHE")
+	axios := resty.New()
+	resp, err := axios.R().
+		SetResult(responsedefault{}).
+		SetAuthToken(token[1]).
+		SetError(responseerror{}).
+		SetHeader("Content-Type", "application/json").
+		SetBody(map[string]interface{}{
+			"client_hostname": hostname,
+			"game_page":       client.Game_page,
+			"game_search":     client.Game_search,
+		}).
+		Post(PATH + "api/game")
+	if err != nil {
+		log.Println(err.Error())
+	}
+	log.Println("Response Info:")
+	log.Println("  Error      :", err)
+	log.Println("  Status Code:", resp.StatusCode())
+	log.Println("  Status     :", resp.Status())
+	log.Println("  Proto      :", resp.Proto())
+	log.Println("  Time       :", resp.Time())
+	log.Println("  Received At:", resp.ReceivedAt())
+	log.Println("  Body       :\n", resp)
+	log.Println()
+	result := resp.Result().(*responsedefault)
+	if result.Status == 200 {
 		return c.JSON(fiber.Map{
-			"status":      fiber.StatusOK,
-			"message":     message_RD,
-			"record":      arraobj,
-			"perpage":     perpage_RD,
-			"totalrecord": totalrecord_RD,
-			"time":        time.Since(render_page).String(),
+			"status":  result.Status,
+			"message": result.Message,
+			"record":  result.Record,
+			"time":    time.Since(render_page).String(),
+		})
+	} else {
+		result_error := resp.Error().(*responseerror)
+		return c.JSON(fiber.Map{
+			"status":  result_error.Status,
+			"message": result_error.Message,
+			"time":    time.Since(render_page).String(),
 		})
 	}
 }

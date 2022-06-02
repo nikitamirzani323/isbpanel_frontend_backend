@@ -56,8 +56,8 @@ func Init() *fiber.App {
 	app.Post("/api/detailadmin", controllers.AdminDetail)
 	app.Post("/api/saveadmin", controllers.AdminSave)
 
-	app.Post("/api/alladminrule", middleware.JWTProtected(), controllers.Adminrulehome)
-	app.Post("/api/saveadminrule", middleware.JWTProtected(), controllers.AdminruleSave)
+	app.Post("/api/alladminrule", controllers.Adminrulehome)
+	app.Post("/api/saveadminrule", controllers.AdminruleSave)
 
 	app.Post("/api/pasaran", middleware.JWTProtected(), controllers.Pasaranhome)
 	app.Post("/api/pasaransave", middleware.JWTProtected(), controllers.Pasaransave)
@@ -106,12 +106,12 @@ func Init() *fiber.App {
 	app.Post("/api/slidersave", middleware.JWTProtected(), controllers.Slidersave)
 	app.Post("/api/sliderdelete", middleware.JWTProtected(), controllers.Sliderdelete)
 
-	app.Post("/api/domain", middleware.JWTProtected(), controllers.Domainhome)
-	app.Post("/api/domainsave", middleware.JWTProtected(), controllers.DomainSave)
+	app.Post("/api/domain", controllers.Domainhome)
+	app.Post("/api/domainsave", controllers.DomainSave)
 
 	app.Post("/api/webagen", middleware.JWTProtected(), controllers.Websiteagenhome)
 	app.Post("/api/webagensave", middleware.JWTProtected(), controllers.Websiteagensave)
-	app.Post("/api/game", middleware.JWTProtected(), controllers.Gamehome)
+	app.Post("/api/game", controllers.Gamehome)
 	app.Post("/api/gamesave", middleware.JWTProtected(), controllers.Gamesave)
 
 	app.Post("/api/cloudflare", middleware.JWTProtected(), controllers.Moviecloud2)
