@@ -59,15 +59,15 @@ func Init() *fiber.App {
 	app.Post("/api/alladminrule", controllers.Adminrulehome)
 	app.Post("/api/saveadminrule", controllers.AdminruleSave)
 
-	app.Post("/api/pasaran", middleware.JWTProtected(), controllers.Pasaranhome)
-	app.Post("/api/pasaransave", middleware.JWTProtected(), controllers.Pasaransave)
-	app.Post("/api/keluaran", middleware.JWTProtected(), controllers.Keluaranhome)
-	app.Post("/api/keluaransave", middleware.JWTProtected(), controllers.Keluaransave)
-	app.Post("/api/keluarandelete", middleware.JWTProtected(), controllers.Keluarandelete)
+	app.Post("/api/pasaran", controllers.Pasaranhome)
+	app.Post("/api/pasaransave", controllers.Pasaransave)
+	app.Post("/api/keluaran", controllers.Keluaranhome)
+	app.Post("/api/keluaransave", controllers.Keluaransave)
+	app.Post("/api/keluarandelete", controllers.Keluarandelete)
 
-	app.Post("/api/prediksi", middleware.JWTProtected(), controllers.Prediksihome)
-	app.Post("/api/prediksisave", middleware.JWTProtected(), controllers.Prediksisave)
-	app.Post("/api/prediksidelete", middleware.JWTProtected(), controllers.Prediksidelete)
+	app.Post("/api/prediksi", controllers.Prediksihome)
+	app.Post("/api/prediksisave", controllers.Prediksisave)
+	app.Post("/api/prediksidelete", controllers.Prediksidelete)
 
 	app.Post("/api/tafsirmimpi", middleware.JWTProtected(), controllers.Tafsirmimpihome)
 	app.Post("/api/tafsirmimpisave", middleware.JWTProtected(), controllers.Tafsirmimpisave)

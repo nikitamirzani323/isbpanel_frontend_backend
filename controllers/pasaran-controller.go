@@ -2,15 +2,12 @@ package controllers
 
 import (
 	"log"
+	"strings"
 	"time"
 
 	"bitbucket.org/isbtotogroup/isbpanel_frontend_backend/entities"
-	"bitbucket.org/isbtotogroup/isbpanel_frontend_backend/helpers"
-	"bitbucket.org/isbtotogroup/isbpanel_frontend_backend/models"
-	"github.com/buger/jsonparser"
-	"github.com/go-playground/validator/v10"
+	"github.com/go-resty/resty/v2"
 	"github.com/gofiber/fiber/v2"
-	"github.com/golang-jwt/jwt/v4"
 )
 
 const Field_home_redis = "LISTPASARAN_BACKEND_ISBPANEL"
@@ -21,68 +18,77 @@ const Field_client_pasaran_redis = "LISTPASARAN_FRONTEND_ISBPANEL"
 const Field_client_keluaran_redis = "LISTKELUARAN_FRONTEND_ISBPANEL"
 
 func Pasaranhome(c *fiber.Ctx) error {
-	var obj entities.Model_pasaran
-	var arraobj []entities.Model_pasaran
-	render_page := time.Now()
-	resultredis, flag := helpers.GetRedis(Field_home_redis)
-	jsonredis := []byte(resultredis)
-	message_RD, _ := jsonparser.GetString(jsonredis, "message")
-	record_RD, _, _, _ := jsonparser.Get(jsonredis, "record")
-	jsonparser.ArrayEach(record_RD, func(value []byte, dataType jsonparser.ValueType, offset int, err error) {
-		pasaran_id, _ := jsonparser.GetString(value, "pasaran_id")
-		pasaran_name, _ := jsonparser.GetString(value, "pasaran_name")
-		pasaran_url, _ := jsonparser.GetString(value, "pasaran_url")
-		pasaran_diundi, _ := jsonparser.GetString(value, "pasaran_diundi")
-		pasaran_jamjadwal, _ := jsonparser.GetString(value, "pasaran_jamjadwal")
-		pasaran_display, _ := jsonparser.GetInt(value, "pasaran_display")
-		pasaran_status, _ := jsonparser.GetString(value, "pasaran_status")
-		pasaran_statuscss, _ := jsonparser.GetString(value, "pasaran_statuscss")
-		pasaran_keluaran, _ := jsonparser.GetString(value, "pasaran_keluaran")
-		pasaran_prediksi, _ := jsonparser.GetString(value, "pasaran_prediksi")
-		pasaran_create, _ := jsonparser.GetString(value, "pasaran_create")
-		pasaran_update, _ := jsonparser.GetString(value, "pasaran_update")
-
-		obj.Pasaran_id = pasaran_id
-		obj.Pasaran_name = pasaran_name
-		obj.Pasaran_url = pasaran_url
-		obj.Pasaran_diundi = pasaran_diundi
-		obj.Pasaran_jamjadwal = pasaran_jamjadwal
-		obj.Pasaran_display = int(pasaran_display)
-		obj.Pasaran_status = pasaran_status
-		obj.Pasaran_statuscss = pasaran_statuscss
-		obj.Pasaran_keluaran = pasaran_keluaran
-		obj.Pasaran_prediksi = pasaran_prediksi
-		obj.Pasaran_create = pasaran_create
-		obj.Pasaran_update = pasaran_update
-		arraobj = append(arraobj, obj)
-	})
-	if !flag {
-		result, err := models.Fetch_pasaranHome()
-		if err != nil {
-			c.Status(fiber.StatusBadRequest)
-			return c.JSON(fiber.Map{
-				"status":  fiber.StatusBadRequest,
-				"message": err.Error(),
-				"record":  nil,
-			})
-		}
-		helpers.SetRedis(Field_home_redis, result, 0)
-		log.Println("PASARAN MYSQL")
-		return c.JSON(result)
-	} else {
-		log.Println("PASARAN CACHE")
+	hostname := c.Hostname()
+	bearToken := c.Get("Authorization")
+	token := strings.Split(bearToken, " ")
+	client := new(entities.Home)
+	if err := c.BodyParser(client); err != nil {
+		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
-			"status":  fiber.StatusOK,
-			"message": message_RD,
-			"record":  arraobj,
+			"status":  fiber.StatusBadRequest,
+			"message": err.Error(),
+			"record":  nil,
+		})
+	}
+
+	log.Println("Hostname: ", hostname)
+	render_page := time.Now()
+	axios := resty.New()
+	resp, err := axios.R().
+		SetResult(responsedefault{}).
+		SetAuthToken(token[1]).
+		SetError(responseerror{}).
+		SetHeader("Content-Type", "application/json").
+		SetBody(map[string]interface{}{
+			"client_hostname": hostname,
+			"page":            client.Page,
+		}).
+		Post(PATH + "api/pasaran")
+	if err != nil {
+		log.Println(err.Error())
+	}
+	log.Println("Response Info:")
+	log.Println("  Error      :", err)
+	log.Println("  Status Code:", resp.StatusCode())
+	log.Println("  Status     :", resp.Status())
+	log.Println("  Proto      :", resp.Proto())
+	log.Println("  Time       :", resp.Time())
+	log.Println("  Received At:", resp.ReceivedAt())
+	log.Println("  Body       :\n", resp)
+	log.Println()
+	result := resp.Result().(*responsedefault)
+	if result.Status == 200 {
+		return c.JSON(fiber.Map{
+			"status":  result.Status,
+			"message": result.Message,
+			"record":  result.Record,
+			"time":    time.Since(render_page).String(),
+		})
+	} else {
+		result_error := resp.Error().(*responseerror)
+		return c.JSON(fiber.Map{
+			"status":  result_error.Status,
+			"message": result_error.Message,
 			"time":    time.Since(render_page).String(),
 		})
 	}
 }
 func Pasaransave(c *fiber.Ctx) error {
-	var errors []*helpers.ErrorResponse
-	client := new(entities.Controller_pasaransave)
-	validate := validator.New()
+	type payload_pasaransave struct {
+		Page              string `json:"page"`
+		Sdata             string `json:"sdata" `
+		Pasaran_id        string `json:"pasaran_id"`
+		Pasaran_name      string `json:"pasaran_name" `
+		Pasaran_url       string `json:"pasaran_url" `
+		Pasaran_diundi    string `json:"pasaran_diundi" `
+		Pasaran_jamjadwal string `json:"pasaran_jamjadwal" `
+		Pasaran_display   int    `json:"pasaran_display" `
+		Pasaran_status    string `json:"pasaran_status" `
+	}
+	hostname := c.Hostname()
+	bearToken := c.Get("Authorization")
+	token := strings.Split(bearToken, " ")
+	client := new(payload_pasaransave)
 	if err := c.BodyParser(client); err != nil {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
@@ -92,49 +98,65 @@ func Pasaransave(c *fiber.Ctx) error {
 		})
 	}
 
-	err := validate.Struct(client)
+	log.Println("Hostname: ", hostname)
+	render_page := time.Now()
+	axios := resty.New()
+	resp, err := axios.R().
+		SetResult(responsedefault{}).
+		SetAuthToken(token[1]).
+		SetError(responseerror{}).
+		SetHeader("Content-Type", "application/json").
+		SetBody(map[string]interface{}{
+			"client_hostname":   hostname,
+			"page":              client.Page,
+			"sdata":             client.Sdata,
+			"pasaran_id":        client.Pasaran_id,
+			"pasaran_name":      client.Pasaran_name,
+			"pasaran_url":       client.Pasaran_url,
+			"pasaran_diundi":    client.Pasaran_diundi,
+			"pasaran_jamjadwal": client.Pasaran_jamjadwal,
+			"pasaran_display":   client.Pasaran_display,
+			"pasaran_status":    client.Pasaran_status,
+		}).
+		Post(PATH + "api/pasaransave")
 	if err != nil {
-		for _, err := range err.(validator.ValidationErrors) {
-			var element helpers.ErrorResponse
-			element.Field = err.StructField()
-			element.Tag = err.Tag()
-			errors = append(errors, &element)
-		}
-		c.Status(fiber.StatusBadRequest)
+		log.Println(err.Error())
+	}
+	log.Println("Response Info:")
+	log.Println("  Error      :", err)
+	log.Println("  Status Code:", resp.StatusCode())
+	log.Println("  Status     :", resp.Status())
+	log.Println("  Proto      :", resp.Proto())
+	log.Println("  Time       :", resp.Time())
+	log.Println("  Received At:", resp.ReceivedAt())
+	log.Println("  Body       :\n", resp)
+	log.Println()
+	result := resp.Result().(*responsedefault)
+	if result.Status == 200 {
 		return c.JSON(fiber.Map{
-			"status":  fiber.StatusBadRequest,
-			"message": "validation",
-			"record":  errors,
+			"status":  result.Status,
+			"message": result.Message,
+			"record":  result.Record,
+			"time":    time.Since(render_page).String(),
+		})
+	} else {
+		result_error := resp.Error().(*responseerror)
+		return c.JSON(fiber.Map{
+			"status":  result_error.Status,
+			"message": result_error.Message,
+			"time":    time.Since(render_page).String(),
 		})
 	}
-	user := c.Locals("jwt").(*jwt.Token)
-	claims := user.Claims.(jwt.MapClaims)
-	name := claims["name"].(string)
-	temp_decp := helpers.Decryption(name)
-	client_admin, _ := helpers.Parsing_Decry(temp_decp, "==")
-
-	result, err := models.Save_pasaran(
-		client_admin,
-		client.Pasaran_id, client.Pasaran_name, client.Pasaran_url,
-		client.Pasaran_diundi, client.Pasaran_jamjadwal, client.Pasaran_status, client.Sdata, client.Pasaran_display)
-	if err != nil {
-		c.Status(fiber.StatusBadRequest)
-		return c.JSON(fiber.Map{
-			"status":  fiber.StatusBadRequest,
-			"message": err.Error(),
-			"record":  nil,
-		})
-	}
-	val_pasaran := helpers.DeleteRedis(Field_home_redis)
-	log.Printf("Redis Delete BACKEND PASARAN : %d", val_pasaran)
-	val_client_pasaran := helpers.DeleteRedis(Field_client_pasaran_redis)
-	log.Printf("Redis Delete CLIENT PASARAN : %d", val_client_pasaran)
-	return c.JSON(result)
 }
 func Keluaranhome(c *fiber.Ctx) error {
-	var errors []*helpers.ErrorResponse
-	client := new(entities.Controller_keluaran)
-	validate := validator.New()
+	type payload_keluaranhome struct {
+		Page       string `json:"page"`
+		Pasaran_id string `json:"pasaran_id" `
+	}
+	hostname := c.Hostname()
+	bearToken := c.Get("Authorization")
+	token := strings.Split(bearToken, " ")
+	client := new(payload_keluaranhome)
 	if err := c.BodyParser(client); err != nil {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
@@ -144,68 +166,61 @@ func Keluaranhome(c *fiber.Ctx) error {
 		})
 	}
 
-	err := validate.Struct(client)
-	if err != nil {
-		for _, err := range err.(validator.ValidationErrors) {
-			var element helpers.ErrorResponse
-			element.Field = err.StructField()
-			element.Tag = err.Tag()
-			errors = append(errors, &element)
-		}
-		c.Status(fiber.StatusBadRequest)
-		return c.JSON(fiber.Map{
-			"status":  fiber.StatusBadRequest,
-			"message": "validation",
-			"record":  errors,
-		})
-	}
-
-	var obj entities.Model_keluaran
-	var arraobj []entities.Model_keluaran
+	log.Println("Hostname: ", hostname)
 	render_page := time.Now()
-	resultredis, flag := helpers.GetRedis(Field_keluaran_redis)
-	jsonredis := []byte(resultredis)
-	message_RD, _ := jsonparser.GetString(jsonredis, "message")
-	record_RD, _, _, _ := jsonparser.Get(jsonredis, "record")
-	jsonparser.ArrayEach(record_RD, func(value []byte, dataType jsonparser.ValueType, offset int, err error) {
-		keluaran_id, _ := jsonparser.GetInt(value, "keluaran_id")
-		keluaran_tanggal, _ := jsonparser.GetString(value, "keluaran_tanggal")
-		keluaran_periode, _ := jsonparser.GetString(value, "keluaran_periode")
-		keluaran_nomor, _ := jsonparser.GetString(value, "keluaran_nomor")
-
-		obj.Keluaran_id = int(keluaran_id)
-		obj.Keluaran_tanggal = keluaran_tanggal
-		obj.Keluaran_periode = keluaran_periode
-		obj.Keluaran_nomor = keluaran_nomor
-		arraobj = append(arraobj, obj)
-	})
-	if !flag {
-		result, err := models.Fetch_keluaran(client.Pasaran_id)
-		if err != nil {
-			c.Status(fiber.StatusBadRequest)
-			return c.JSON(fiber.Map{
-				"status":  fiber.StatusBadRequest,
-				"message": err.Error(),
-				"record":  nil,
-			})
-		}
-		helpers.SetRedis(Field_keluaran_redis+"_"+client.Pasaran_id, result, 0)
-		log.Println("KELUARAN MYSQL")
-		return c.JSON(result)
-	} else {
-		log.Println("KELUARAN CACHE")
+	axios := resty.New()
+	resp, err := axios.R().
+		SetResult(responsedefault{}).
+		SetAuthToken(token[1]).
+		SetError(responseerror{}).
+		SetHeader("Content-Type", "application/json").
+		SetBody(map[string]interface{}{
+			"client_hostname": hostname,
+			"page":            client.Page,
+			"pasaran_id":      client.Pasaran_id,
+		}).
+		Post(PATH + "api/keluaran")
+	if err != nil {
+		log.Println(err.Error())
+	}
+	log.Println("Response Info:")
+	log.Println("  Error      :", err)
+	log.Println("  Status Code:", resp.StatusCode())
+	log.Println("  Status     :", resp.Status())
+	log.Println("  Proto      :", resp.Proto())
+	log.Println("  Time       :", resp.Time())
+	log.Println("  Received At:", resp.ReceivedAt())
+	log.Println("  Body       :\n", resp)
+	log.Println()
+	result := resp.Result().(*responsedefault)
+	if result.Status == 200 {
 		return c.JSON(fiber.Map{
-			"status":  fiber.StatusOK,
-			"message": message_RD,
-			"record":  arraobj,
+			"status":  result.Status,
+			"message": result.Message,
+			"record":  result.Record,
+			"time":    time.Since(render_page).String(),
+		})
+	} else {
+		result_error := resp.Error().(*responseerror)
+		return c.JSON(fiber.Map{
+			"status":  result_error.Status,
+			"message": result_error.Message,
 			"time":    time.Since(render_page).String(),
 		})
 	}
 }
 func Keluaransave(c *fiber.Ctx) error {
-	var errors []*helpers.ErrorResponse
-	client := new(entities.Controller_keluaransave)
-	validate := validator.New()
+	type payload_keluaransave struct {
+		Page             string `json:"page"`
+		Sdata            string `json:"sdata" `
+		Pasaran_id       string `json:"pasaran_id"`
+		Keluaran_tanggal string `json:"keluaran_tanggal"`
+		Keluaran_nomor   string `json:"keluaran_nomor"`
+	}
+	hostname := c.Hostname()
+	bearToken := c.Get("Authorization")
+	token := strings.Split(bearToken, " ")
+	client := new(payload_keluaransave)
 	if err := c.BodyParser(client); err != nil {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
@@ -215,177 +230,63 @@ func Keluaransave(c *fiber.Ctx) error {
 		})
 	}
 
-	err := validate.Struct(client)
-	if err != nil {
-		for _, err := range err.(validator.ValidationErrors) {
-			var element helpers.ErrorResponse
-			element.Field = err.StructField()
-			element.Tag = err.Tag()
-			errors = append(errors, &element)
-		}
-		c.Status(fiber.StatusBadRequest)
-		return c.JSON(fiber.Map{
-			"status":  fiber.StatusBadRequest,
-			"message": "validation",
-			"record":  errors,
-		})
-	}
-	user := c.Locals("jwt").(*jwt.Token)
-	claims := user.Claims.(jwt.MapClaims)
-	name := claims["name"].(string)
-	temp_decp := helpers.Decryption(name)
-	client_admin, _ := helpers.Parsing_Decry(temp_decp, "==")
-
-	result, err := models.Save_keluaran(
-		client_admin,
-		client.Pasaran_id, client.Keluaran_tanggal, client.Keluaran_nomor)
-	if err != nil {
-		c.Status(fiber.StatusBadRequest)
-		return c.JSON(fiber.Map{
-			"status":  fiber.StatusBadRequest,
-			"message": err.Error(),
-			"record":  nil,
-		})
-	}
-	val_pasaran := helpers.DeleteRedis(Field_home_redis)
-	val_keluaran := helpers.DeleteRedis(Field_keluaran_redis + "_" + client.Pasaran_id)
-	log.Printf("Redis Delete BACKEND PASARAN : %d", val_pasaran)
-	log.Printf("Redis Delete BACKEND KELUARAN : %d", val_keluaran)
-	val_client_pasaran := helpers.DeleteRedis(Field_client_pasaran_redis)
-	log.Printf("Redis Delete CLIENT PASARAN : %d", val_client_pasaran)
-	val_client_keluaran := helpers.DeleteRedis(Field_client_keluaran_redis + "_" + client.Pasaran_id)
-	log.Printf("Redis Delete CLIENT KELUARAN : %d", val_client_keluaran)
-
-	return c.JSON(result)
-}
-func Keluarandelete(c *fiber.Ctx) error {
-	var errors []*helpers.ErrorResponse
-	client := new(entities.Controller_keluarandelete)
-	validate := validator.New()
-	if err := c.BodyParser(client); err != nil {
-		c.Status(fiber.StatusBadRequest)
-		return c.JSON(fiber.Map{
-			"status":  fiber.StatusBadRequest,
-			"message": err.Error(),
-			"record":  nil,
-		})
-	}
-
-	err := validate.Struct(client)
-	if err != nil {
-		for _, err := range err.(validator.ValidationErrors) {
-			var element helpers.ErrorResponse
-			element.Field = err.StructField()
-			element.Tag = err.Tag()
-			errors = append(errors, &element)
-		}
-		c.Status(fiber.StatusBadRequest)
-		return c.JSON(fiber.Map{
-			"status":  fiber.StatusBadRequest,
-			"message": "validation",
-			"record":  errors,
-		})
-	}
-	user := c.Locals("jwt").(*jwt.Token)
-	claims := user.Claims.(jwt.MapClaims)
-	name := claims["name"].(string)
-	temp_decp := helpers.Decryption(name)
-	client_admin, _ := helpers.Parsing_Decry(temp_decp, "==")
-
-	result, err := models.Delete_keluaran(client_admin, client.Pasaran_id, client.Keluaran_id)
-	if err != nil {
-		c.Status(fiber.StatusBadRequest)
-		return c.JSON(fiber.Map{
-			"status":  fiber.StatusBadRequest,
-			"message": err.Error(),
-			"record":  nil,
-		})
-	}
-	val_pasaran := helpers.DeleteRedis(Field_home_redis)
-	val_keluaran := helpers.DeleteRedis(Field_keluaran_redis + "_" + client.Pasaran_id)
-	log.Printf("Redis Delete BACKEND PASARAN : %d", val_pasaran)
-	log.Printf("Redis Delete BACKEND KELUARAN : %d", val_keluaran)
-	val_client_pasaran := helpers.DeleteRedis(Field_client_pasaran_redis)
-	log.Printf("Redis Delete CLIENT PASARAN : %d", val_client_pasaran)
-	val_client_keluaran := helpers.DeleteRedis(Field_client_keluaran_redis + "_" + client.Pasaran_id)
-	log.Printf("Redis Delete CLIENT KELUARAN : %d", val_client_keluaran)
-	return c.JSON(result)
-}
-func Prediksihome(c *fiber.Ctx) error {
-	var errors []*helpers.ErrorResponse
-	client := new(entities.Controller_keluaran)
-	validate := validator.New()
-	if err := c.BodyParser(client); err != nil {
-		c.Status(fiber.StatusBadRequest)
-		return c.JSON(fiber.Map{
-			"status":  fiber.StatusBadRequest,
-			"message": err.Error(),
-			"record":  nil,
-		})
-	}
-
-	err := validate.Struct(client)
-	if err != nil {
-		for _, err := range err.(validator.ValidationErrors) {
-			var element helpers.ErrorResponse
-			element.Field = err.StructField()
-			element.Tag = err.Tag()
-			errors = append(errors, &element)
-		}
-		c.Status(fiber.StatusBadRequest)
-		return c.JSON(fiber.Map{
-			"status":  fiber.StatusBadRequest,
-			"message": "validation",
-			"record":  errors,
-		})
-	}
-
-	var obj entities.Model_prediksi
-	var arraobj []entities.Model_prediksi
+	log.Println("Hostname: ", hostname)
 	render_page := time.Now()
-	resultredis, flag := helpers.GetRedis(Field_prediksi_redis)
-	jsonredis := []byte(resultredis)
-	message_RD, _ := jsonparser.GetString(jsonredis, "message")
-	record_RD, _, _, _ := jsonparser.Get(jsonredis, "record")
-	jsonparser.ArrayEach(record_RD, func(value []byte, dataType jsonparser.ValueType, offset int, err error) {
-		prediksi_id, _ := jsonparser.GetInt(value, "prediksi_id")
-		prediksi_tanggal, _ := jsonparser.GetString(value, "prediksi_tanggal")
-		prediksi_bbfs, _ := jsonparser.GetString(value, "prediksi_bbfs")
-		prediksi_nomor, _ := jsonparser.GetString(value, "prediksi_nomor")
-
-		obj.Prediksi_id = int(prediksi_id)
-		obj.Prediksi_tanggal = prediksi_tanggal
-		obj.Prediksi_bbfs = prediksi_bbfs
-		obj.Prediksi_nomor = prediksi_nomor
-		arraobj = append(arraobj, obj)
-	})
-	if !flag {
-		result, err := models.Fetch_prediksi(client.Pasaran_id)
-		if err != nil {
-			c.Status(fiber.StatusBadRequest)
-			return c.JSON(fiber.Map{
-				"status":  fiber.StatusBadRequest,
-				"message": err.Error(),
-				"record":  nil,
-			})
-		}
-		helpers.SetRedis(Field_prediksi_redis+"_"+client.Pasaran_id, result, 0)
-		log.Println("PREDIKSI MYSQL")
-		return c.JSON(result)
-	} else {
-		log.Println("PREDIKSI CACHE")
+	axios := resty.New()
+	resp, err := axios.R().
+		SetResult(responsedefault{}).
+		SetAuthToken(token[1]).
+		SetError(responseerror{}).
+		SetHeader("Content-Type", "application/json").
+		SetBody(map[string]interface{}{
+			"client_hostname":  hostname,
+			"page":             client.Page,
+			"sdata":            client.Sdata,
+			"pasaran_id":       client.Pasaran_id,
+			"keluaran_tanggal": client.Keluaran_tanggal,
+			"keluaran_nomor":   client.Keluaran_nomor,
+		}).
+		Post(PATH + "api/keluaransave")
+	if err != nil {
+		log.Println(err.Error())
+	}
+	log.Println("Response Info:")
+	log.Println("  Error      :", err)
+	log.Println("  Status Code:", resp.StatusCode())
+	log.Println("  Status     :", resp.Status())
+	log.Println("  Proto      :", resp.Proto())
+	log.Println("  Time       :", resp.Time())
+	log.Println("  Received At:", resp.ReceivedAt())
+	log.Println("  Body       :\n", resp)
+	log.Println()
+	result := resp.Result().(*responsedefault)
+	if result.Status == 200 {
 		return c.JSON(fiber.Map{
-			"status":  fiber.StatusOK,
-			"message": message_RD,
-			"record":  arraobj,
+			"status":  result.Status,
+			"message": result.Message,
+			"record":  result.Record,
+			"time":    time.Since(render_page).String(),
+		})
+	} else {
+		result_error := resp.Error().(*responseerror)
+		return c.JSON(fiber.Map{
+			"status":  result_error.Status,
+			"message": result_error.Message,
 			"time":    time.Since(render_page).String(),
 		})
 	}
 }
-func Prediksisave(c *fiber.Ctx) error {
-	var errors []*helpers.ErrorResponse
-	client := new(entities.Controller_prediksisave)
-	validate := validator.New()
+func Keluarandelete(c *fiber.Ctx) error {
+	type payload_keluarandelete struct {
+		Page        string `json:"page"`
+		Sdata       string `json:"sdata" `
+		Pasaran_id  string `json:"pasaran_id"`
+		Keluaran_id int    `json:"keluaran_id"`
+	}
+	hostname := c.Hostname()
+	bearToken := c.Get("Authorization")
+	token := strings.Split(bearToken, " ")
+	client := new(payload_keluarandelete)
 	if err := c.BodyParser(client); err != nil {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
@@ -395,31 +296,61 @@ func Prediksisave(c *fiber.Ctx) error {
 		})
 	}
 
-	err := validate.Struct(client)
+	log.Println("Hostname: ", hostname)
+	render_page := time.Now()
+	axios := resty.New()
+	resp, err := axios.R().
+		SetResult(responsedefault{}).
+		SetAuthToken(token[1]).
+		SetError(responseerror{}).
+		SetHeader("Content-Type", "application/json").
+		SetBody(map[string]interface{}{
+			"client_hostname": hostname,
+			"page":            client.Page,
+			"sdata":           client.Sdata,
+			"pasaran_id":      client.Pasaran_id,
+			"keluaran_id":     client.Keluaran_id,
+		}).
+		Post(PATH + "api/keluarandelete")
 	if err != nil {
-		for _, err := range err.(validator.ValidationErrors) {
-			var element helpers.ErrorResponse
-			element.Field = err.StructField()
-			element.Tag = err.Tag()
-			errors = append(errors, &element)
-		}
-		c.Status(fiber.StatusBadRequest)
+		log.Println(err.Error())
+	}
+	log.Println("Response Info:")
+	log.Println("  Error      :", err)
+	log.Println("  Status Code:", resp.StatusCode())
+	log.Println("  Status     :", resp.Status())
+	log.Println("  Proto      :", resp.Proto())
+	log.Println("  Time       :", resp.Time())
+	log.Println("  Received At:", resp.ReceivedAt())
+	log.Println("  Body       :\n", resp)
+	log.Println()
+	result := resp.Result().(*responsedefault)
+	if result.Status == 200 {
 		return c.JSON(fiber.Map{
-			"status":  fiber.StatusBadRequest,
-			"message": "validation",
-			"record":  errors,
+			"status":  result.Status,
+			"message": result.Message,
+			"record":  result.Record,
+			"time":    time.Since(render_page).String(),
+		})
+	} else {
+		result_error := resp.Error().(*responseerror)
+		return c.JSON(fiber.Map{
+			"status":  result_error.Status,
+			"message": result_error.Message,
+			"time":    time.Since(render_page).String(),
 		})
 	}
-	user := c.Locals("jwt").(*jwt.Token)
-	claims := user.Claims.(jwt.MapClaims)
-	name := claims["name"].(string)
-	temp_decp := helpers.Decryption(name)
-	client_admin, _ := helpers.Parsing_Decry(temp_decp, "==")
-
-	result, err := models.Save_prediksi(
-		client_admin,
-		client.Pasaran_id, client.Prediksi_tanggal, client.Prediksi_bbfs, client.Prediksi_nomor)
-	if err != nil {
+}
+func Prediksihome(c *fiber.Ctx) error {
+	type payload_prediksihome struct {
+		Page       string `json:"page"`
+		Pasaran_id string `json:"pasaran_id" `
+	}
+	hostname := c.Hostname()
+	bearToken := c.Get("Authorization")
+	token := strings.Split(bearToken, " ")
+	client := new(payload_prediksihome)
+	if err := c.BodyParser(client); err != nil {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
 			"status":  fiber.StatusBadRequest,
@@ -427,20 +358,131 @@ func Prediksisave(c *fiber.Ctx) error {
 			"record":  nil,
 		})
 	}
-	val_pasaran := helpers.DeleteRedis(Field_home_redis)
-	val_prediksi := helpers.DeleteRedis(Field_prediksi_redis + "_" + client.Pasaran_id)
-	log.Printf("Redis Delete BACKEND PASARAN : %d", val_pasaran)
-	log.Printf("Redis Delete BACKEND PREDIKSI : %d", val_prediksi)
-	val_client_pasaran := helpers.DeleteRedis(Field_client_pasaran_redis)
-	log.Printf("Redis Delete CLIENT PASARAN : %d", val_client_pasaran)
-	val_client_keluaran := helpers.DeleteRedis(Field_client_keluaran_redis + "_" + client.Pasaran_id)
-	log.Printf("Redis Delete CLIENT KELUARAN : %d", val_client_keluaran)
-	return c.JSON(result)
+
+	log.Println("Hostname: ", hostname)
+	render_page := time.Now()
+	axios := resty.New()
+	resp, err := axios.R().
+		SetResult(responsedefault{}).
+		SetAuthToken(token[1]).
+		SetError(responseerror{}).
+		SetHeader("Content-Type", "application/json").
+		SetBody(map[string]interface{}{
+			"client_hostname": hostname,
+			"page":            client.Page,
+			"pasaran_id":      client.Pasaran_id,
+		}).
+		Post(PATH + "api/prediksi")
+	if err != nil {
+		log.Println(err.Error())
+	}
+	log.Println("Response Info:")
+	log.Println("  Error      :", err)
+	log.Println("  Status Code:", resp.StatusCode())
+	log.Println("  Status     :", resp.Status())
+	log.Println("  Proto      :", resp.Proto())
+	log.Println("  Time       :", resp.Time())
+	log.Println("  Received At:", resp.ReceivedAt())
+	log.Println("  Body       :\n", resp)
+	log.Println()
+	result := resp.Result().(*responsedefault)
+	if result.Status == 200 {
+		return c.JSON(fiber.Map{
+			"status":  result.Status,
+			"message": result.Message,
+			"record":  result.Record,
+			"time":    time.Since(render_page).String(),
+		})
+	} else {
+		result_error := resp.Error().(*responseerror)
+		return c.JSON(fiber.Map{
+			"status":  result_error.Status,
+			"message": result_error.Message,
+			"time":    time.Since(render_page).String(),
+		})
+	}
+
+}
+func Prediksisave(c *fiber.Ctx) error {
+	type payload_prediksisave struct {
+		Page             string `json:"page"`
+		Sdata            string `json:"sdata" `
+		Pasaran_id       string `json:"pasaran_id"`
+		Prediksi_tanggal string `json:"prediksi_tanggal"`
+		Prediksi_bbfs    string `json:"prediksi_bbfs"`
+		Prediksi_nomor   string `json:"prediksi_nomor"`
+	}
+	hostname := c.Hostname()
+	bearToken := c.Get("Authorization")
+	token := strings.Split(bearToken, " ")
+	client := new(payload_prediksisave)
+	if err := c.BodyParser(client); err != nil {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"status":  fiber.StatusBadRequest,
+			"message": err.Error(),
+			"record":  nil,
+		})
+	}
+
+	log.Println("Hostname: ", hostname)
+	render_page := time.Now()
+	axios := resty.New()
+	resp, err := axios.R().
+		SetResult(responsedefault{}).
+		SetAuthToken(token[1]).
+		SetError(responseerror{}).
+		SetHeader("Content-Type", "application/json").
+		SetBody(map[string]interface{}{
+			"client_hostname":  hostname,
+			"page":             client.Page,
+			"sdata":            client.Sdata,
+			"pasaran_id":       client.Pasaran_id,
+			"prediksi_tanggal": client.Prediksi_tanggal,
+			"prediksi_bbfs":    client.Prediksi_bbfs,
+			"prediksi_nomor":   client.Prediksi_nomor,
+		}).
+		Post(PATH + "api/prediksisave")
+	if err != nil {
+		log.Println(err.Error())
+	}
+	log.Println("Response Info:")
+	log.Println("  Error      :", err)
+	log.Println("  Status Code:", resp.StatusCode())
+	log.Println("  Status     :", resp.Status())
+	log.Println("  Proto      :", resp.Proto())
+	log.Println("  Time       :", resp.Time())
+	log.Println("  Received At:", resp.ReceivedAt())
+	log.Println("  Body       :\n", resp)
+	log.Println()
+	result := resp.Result().(*responsedefault)
+	if result.Status == 200 {
+		return c.JSON(fiber.Map{
+			"status":  result.Status,
+			"message": result.Message,
+			"record":  result.Record,
+			"time":    time.Since(render_page).String(),
+		})
+	} else {
+		result_error := resp.Error().(*responseerror)
+		return c.JSON(fiber.Map{
+			"status":  result_error.Status,
+			"message": result_error.Message,
+			"time":    time.Since(render_page).String(),
+		})
+	}
 }
 func Prediksidelete(c *fiber.Ctx) error {
-	var errors []*helpers.ErrorResponse
-	client := new(entities.Controller_prediksidelete)
-	validate := validator.New()
+	type payload_prediksidelete struct {
+		Page        string `json:"page"`
+		Sdata       string `json:"sdata" `
+		Pasaran_id  string `json:"pasaran_id"`
+		Prediksi_id int    `json:"prediksi_id"`
+	}
+	hostname := c.Hostname()
+	bearToken := c.Get("Authorization")
+	token := strings.Split(bearToken, " ")
+	client := new(payload_prediksidelete)
 	if err := c.BodyParser(client); err != nil {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
@@ -450,43 +492,48 @@ func Prediksidelete(c *fiber.Ctx) error {
 		})
 	}
 
-	err := validate.Struct(client)
+	log.Println("Hostname: ", hostname)
+	render_page := time.Now()
+	axios := resty.New()
+	resp, err := axios.R().
+		SetResult(responsedefault{}).
+		SetAuthToken(token[1]).
+		SetError(responseerror{}).
+		SetHeader("Content-Type", "application/json").
+		SetBody(map[string]interface{}{
+			"client_hostname": hostname,
+			"page":            client.Page,
+			"sdata":           client.Sdata,
+			"pasaran_id":      client.Pasaran_id,
+			"prediksi_id":     client.Prediksi_id,
+		}).
+		Post(PATH + "api/prediksidelete")
 	if err != nil {
-		for _, err := range err.(validator.ValidationErrors) {
-			var element helpers.ErrorResponse
-			element.Field = err.StructField()
-			element.Tag = err.Tag()
-			errors = append(errors, &element)
-		}
-		c.Status(fiber.StatusBadRequest)
+		log.Println(err.Error())
+	}
+	log.Println("Response Info:")
+	log.Println("  Error      :", err)
+	log.Println("  Status Code:", resp.StatusCode())
+	log.Println("  Status     :", resp.Status())
+	log.Println("  Proto      :", resp.Proto())
+	log.Println("  Time       :", resp.Time())
+	log.Println("  Received At:", resp.ReceivedAt())
+	log.Println("  Body       :\n", resp)
+	log.Println()
+	result := resp.Result().(*responsedefault)
+	if result.Status == 200 {
 		return c.JSON(fiber.Map{
-			"status":  fiber.StatusBadRequest,
-			"message": "validation",
-			"record":  errors,
+			"status":  result.Status,
+			"message": result.Message,
+			"record":  result.Record,
+			"time":    time.Since(render_page).String(),
+		})
+	} else {
+		result_error := resp.Error().(*responseerror)
+		return c.JSON(fiber.Map{
+			"status":  result_error.Status,
+			"message": result_error.Message,
+			"time":    time.Since(render_page).String(),
 		})
 	}
-	user := c.Locals("jwt").(*jwt.Token)
-	claims := user.Claims.(jwt.MapClaims)
-	name := claims["name"].(string)
-	temp_decp := helpers.Decryption(name)
-	client_admin, _ := helpers.Parsing_Decry(temp_decp, "==")
-
-	result, err := models.Delete_prediksi(client_admin, client.Pasaran_id, client.Prediksi_id)
-	if err != nil {
-		c.Status(fiber.StatusBadRequest)
-		return c.JSON(fiber.Map{
-			"status":  fiber.StatusBadRequest,
-			"message": err.Error(),
-			"record":  nil,
-		})
-	}
-	val_pasaran := helpers.DeleteRedis(Field_home_redis)
-	val_prediksi := helpers.DeleteRedis(Field_prediksi_redis + "_" + client.Pasaran_id)
-	log.Printf("Redis Delete BACKEND PASARAN : %d", val_pasaran)
-	log.Printf("Redis Delete BACKEND PREDIKSI : %d", val_prediksi)
-	val_client_pasaran := helpers.DeleteRedis(Field_client_pasaran_redis)
-	log.Printf("Redis Delete CLIENT PASARAN : %d", val_client_pasaran)
-	val_client_keluaran := helpers.DeleteRedis(Field_client_keluaran_redis + "_" + client.Pasaran_id)
-	log.Printf("Redis Delete CLIENT KELUARAN : %d", val_client_keluaran)
-	return c.JSON(result)
 }
