@@ -10,13 +10,6 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-const Field_home_redis = "LISTPASARAN_BACKEND_ISBPANEL"
-const Field_keluaran_redis = "LISTKELUARAN_BACKEND_ISBPANEL"
-const Field_prediksi_redis = "LISTPREDIKSI_BACKEND_ISBPANEL"
-
-const Field_client_pasaran_redis = "LISTPASARAN_FRONTEND_ISBPANEL"
-const Field_client_keluaran_redis = "LISTKELUARAN_FRONTEND_ISBPANEL"
-
 func Pasaranhome(c *fiber.Ctx) error {
 	hostname := c.Hostname()
 	bearToken := c.Get("Authorization")
