@@ -39,7 +39,7 @@ func Gamehome(c *fiber.Ctx) error {
 	render_page := time.Now()
 	axios := resty.New()
 	resp, err := axios.R().
-		SetResult(responsedefault{}).
+		SetResult(helpers.Responsepaging{}).
 		SetAuthToken(token[1]).
 		SetError(responseerror{}).
 		SetHeader("Content-Type", "application/json").
@@ -61,13 +61,15 @@ func Gamehome(c *fiber.Ctx) error {
 	log.Println("  Received At:", resp.ReceivedAt())
 	log.Println("  Body       :\n", resp)
 	log.Println()
-	result := resp.Result().(*responsedefault)
+	result := resp.Result().(*helpers.Responsepaging)
 	if result.Status == 200 {
 		return c.JSON(fiber.Map{
-			"status":  result.Status,
-			"message": result.Message,
-			"record":  result.Record,
-			"time":    time.Since(render_page).String(),
+			"status":      result.Status,
+			"perpage":     result.Perpage,
+			"totalrecord": result.Totalrecord,
+			"message":     result.Message,
+			"record":      result.Record,
+			"time":        time.Since(render_page).String(),
 		})
 	} else {
 		result_error := resp.Error().(*responseerror)

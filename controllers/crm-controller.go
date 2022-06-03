@@ -6,17 +6,10 @@ import (
 	"strings"
 	"time"
 
+	"bitbucket.org/isbtotogroup/isbpanel_frontend_backend/helpers"
 	"github.com/go-resty/resty/v2"
 	"github.com/gofiber/fiber/v2"
 )
-
-type response_crm struct {
-	Status      int         `json:"status"`
-	Perpage     int         `json:"perpage"`
-	Totalrecord int         `json:"totalrecord"`
-	Message     string      `json:"message"`
-	Record      interface{} `json:"record"`
-}
 
 func Crmhome(c *fiber.Ctx) error {
 	type payload_crmhome struct {
@@ -40,7 +33,7 @@ func Crmhome(c *fiber.Ctx) error {
 	render_page := time.Now()
 	axios := resty.New()
 	resp, err := axios.R().
-		SetResult(response_crm{}).
+		SetResult(helpers.Responsepaging{}).
 		SetAuthToken(token[1]).
 		SetError(responseerror{}).
 		SetHeader("Content-Type", "application/json").
@@ -62,7 +55,7 @@ func Crmhome(c *fiber.Ctx) error {
 	log.Println("  Received At:", resp.ReceivedAt())
 	log.Println("  Body       :\n", resp)
 	log.Println()
-	result := resp.Result().(*response_crm)
+	result := resp.Result().(*helpers.Responsepaging)
 	if result.Status == 200 {
 		return c.JSON(fiber.Map{
 			"status":      result.Status,
@@ -103,7 +96,7 @@ func Crmisbtvhome(c *fiber.Ctx) error {
 	render_page := time.Now()
 	axios := resty.New()
 	resp, err := axios.R().
-		SetResult(response_crm{}).
+		SetResult(helpers.Responsepaging{}).
 		SetAuthToken(token[1]).
 		SetError(responseerror{}).
 		SetHeader("Content-Type", "application/json").
@@ -125,7 +118,7 @@ func Crmisbtvhome(c *fiber.Ctx) error {
 	log.Println("  Received At:", resp.ReceivedAt())
 	log.Println("  Body       :\n", resp)
 	log.Println()
-	result := resp.Result().(*response_crm)
+	result := resp.Result().(*helpers.Responsepaging)
 	if result.Status == 200 {
 		return c.JSON(fiber.Map{
 			"status":      result.Status,
@@ -166,7 +159,7 @@ func Crmduniafilm(c *fiber.Ctx) error {
 	render_page := time.Now()
 	axios := resty.New()
 	resp, err := axios.R().
-		SetResult(response_crm{}).
+		SetResult(helpers.Responsepaging{}).
 		SetAuthToken(token[1]).
 		SetError(responseerror{}).
 		SetHeader("Content-Type", "application/json").
@@ -188,7 +181,7 @@ func Crmduniafilm(c *fiber.Ctx) error {
 	log.Println("  Received At:", resp.ReceivedAt())
 	log.Println("  Body       :\n", resp)
 	log.Println()
-	result := resp.Result().(*response_crm)
+	result := resp.Result().(*helpers.Responsepaging)
 	if result.Status == 200 {
 		return c.JSON(fiber.Map{
 			"status":      result.Status,

@@ -6,22 +6,10 @@ import (
 	"time"
 
 	"bitbucket.org/isbtotogroup/isbpanel_frontend_backend/entities"
+	"bitbucket.org/isbtotogroup/isbpanel_frontend_backend/helpers"
 	"github.com/go-resty/resty/v2"
 	"github.com/gofiber/fiber/v2"
 )
-
-const Fieldnews_home_redis = "LISTNEWS_BACKEND_ISBPANEL"
-const Fieldcategory_home_redis = "LISTCATEGORY_BACKEND_ISBPANEL"
-const Fieldnews_client_home_redis = "LISTNEWS_FRONTEND_ISBPANEL"
-const Fieldnewsmovie_client_home_redis = "LISTNEWSMOVIES_FRONTEND_ISBPANEL"
-
-type response_news struct {
-	Status      int         `json:"status"`
-	Perpage     int         `json:"perpage"`
-	Totalrecord int         `json:"totalrecord"`
-	Message     string      `json:"message"`
-	Record      interface{} `json:"record"`
-}
 
 func Newshome(c *fiber.Ctx) error {
 	type payload_newshome struct {
@@ -45,7 +33,7 @@ func Newshome(c *fiber.Ctx) error {
 	render_page := time.Now()
 	axios := resty.New()
 	resp, err := axios.R().
-		SetResult(response_news{}).
+		SetResult(helpers.Responsepaging{}).
 		SetAuthToken(token[1]).
 		SetError(responseerror{}).
 		SetHeader("Content-Type", "application/json").
@@ -67,7 +55,7 @@ func Newshome(c *fiber.Ctx) error {
 	log.Println("  Received At:", resp.ReceivedAt())
 	log.Println("  Body       :\n", resp)
 	log.Println()
-	result := resp.Result().(*response_news)
+	result := resp.Result().(*helpers.Responsepaging)
 	if result.Status == 200 {
 		return c.JSON(fiber.Map{
 			"status":      result.Status,

@@ -14,6 +14,14 @@ type Responsemovie struct {
 	Totalrecord int         `json:"totalrecord"`
 	Time        string      `json:"time"`
 }
+type Responsepaging struct {
+	Status      int         `json:"status"`
+	Message     string      `json:"message"`
+	Record      interface{} `json:"record"`
+	Perpage     int         `json:"perpage"`
+	Totalrecord int         `json:"totalrecord"`
+	Time        string      `json:"time"`
+}
 type ResponseAdmin struct {
 	Status   int         `json:"status"`
 	Message  string      `json:"message"`

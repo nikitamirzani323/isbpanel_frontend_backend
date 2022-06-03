@@ -62,7 +62,7 @@ func Moviehome(c *fiber.Ctx) error {
 	render_page := time.Now()
 	axios := resty.New()
 	resp, err := axios.R().
-		SetResult(response_movie{}).
+		SetResult(helpers.Responsepaging{}).
 		SetAuthToken(token[1]).
 		SetError(responseerror{}).
 		SetHeader("Content-Type", "application/json").
@@ -84,7 +84,7 @@ func Moviehome(c *fiber.Ctx) error {
 	log.Println("  Received At:", resp.ReceivedAt())
 	log.Println("  Body       :\n", resp)
 	log.Println()
-	result := resp.Result().(*response_movie)
+	result := resp.Result().(*helpers.Responsepaging)
 	if result.Status == 200 {
 		return c.JSON(fiber.Map{
 			"status":      result.Status,
