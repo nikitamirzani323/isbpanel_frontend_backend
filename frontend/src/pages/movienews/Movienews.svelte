@@ -43,7 +43,8 @@
                 Authorization: "Bearer " + token,
             },
             body: JSON.stringify({
-                news_search: e
+                news_page: 0,
+                news_search: e,
             }),
         });
         const json = await res.json();
@@ -54,6 +55,7 @@
                 totalrecord = record.length;
                 let no = 0
                 for (var i = 0; i < record.length; i++) {
+                    console.log("tai")
                     if(record[i]["news_category"] == "MOVIE"){
                         no = no + 1;
                         listHome = [
@@ -86,7 +88,7 @@
         listHome = [];
         totalrecord = 0;
         setTimeout(function () {
-            initHome();
+            initHome(search);
         }, 500);
     };
     const handleNews = (e) => {
