@@ -114,7 +114,7 @@ func Init() *fiber.App {
 	app.Post("/api/game", controllers.Gamehome)
 	app.Post("/api/gamesave", controllers.Gamesave)
 
-	app.Post("/api/cloudflare", middleware.JWTProtected(), controllers.Moviecloud2)
+	app.Post("/api/cloudflare", controllers.Moviecloud2)
 	app.Post("/api/album", controllers.Albumhome)
 	app.Post("/api/albumsave", controllers.Albumsave)
 

@@ -1449,8 +1449,8 @@ func Genredelete(c *fiber.Ctx) error {
 }
 
 type responseuploadcloudflare struct {
-	Status bool        `json:"success"`
-	Record interface{} `json:"result"`
+	Status bool        `json:"status"`
+	Record interface{} `json:"record"`
 }
 
 func Movieuploadcloud(c *fiber.Ctx) error {
@@ -1685,9 +1685,14 @@ func Moviecloud(c *fiber.Ctx) error {
 	})
 }
 func Moviecloud2(c *fiber.Ctx) error {
-	var errors []*helpers.ErrorResponse
-	client := new(entities.Controller_albumcloudflare)
-	validate := validator.New()
+	type payload_fetch struct {
+		Album_page      int `json:"album_page"`
+		Album_pagecloud int `json:"album_pagecloud"`
+	}
+	hostname := c.Hostname()
+	bearToken := c.Get("Authorization")
+	token := strings.Split(bearToken, " ")
+	client := new(payload_fetch)
 	if err := c.BodyParser(client); err != nil {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
@@ -1697,34 +1702,31 @@ func Moviecloud2(c *fiber.Ctx) error {
 		})
 	}
 
-	err := validate.Struct(client)
-	if err != nil {
-		for _, err := range err.(validator.ValidationErrors) {
-			var element helpers.ErrorResponse
-			element.Field = err.StructField()
-			element.Tag = err.Tag()
-			errors = append(errors, &element)
-		}
-		c.Status(fiber.StatusBadRequest)
-		return c.JSON(fiber.Map{
-			"status":  fiber.StatusBadRequest,
-			"message": "validation",
-			"record":  errors,
-		})
-	}
-
+	log.Println("Hostname: ", hostname)
 	axios := resty.New()
-	perpagecloud := 100
-	pagecloud := client.Album_pagecloud
-	path_url := "https://api.cloudflare.com/client/v4/accounts/dc5ba4b3b061907a5e1f8cdf1ae1ec96/images/v1?per_page=" + strconv.Itoa(perpagecloud) + "&page=" + strconv.Itoa(pagecloud)
 	resp, err := axios.R().
 		SetResult(responseuploadcloudflare{}).
-		SetError(responseuploadcloudflare{}).
-		SetAuthToken("8x02SSARJt_A5B77KnL2oW74qwDPFKA_9DORcf1-").
-		Get(path_url)
+		SetAuthToken(token[1]).
+		SetError(responseerror{}).
+		SetHeader("Content-Type", "application/json").
+		SetBody(map[string]interface{}{
+			"client_hostname": hostname,
+			"album_page":      client.Album_page,
+			"album_pagecloud": client.Album_pagecloud,
+		}).
+		Post(PATH + "api/cloudflare")
 	if err != nil {
 		log.Println(err.Error())
 	}
+	log.Println("Response Info:")
+	log.Println("  Error      :", err)
+	log.Println("  Status Code:", resp.StatusCode())
+	log.Println("  Status     :", resp.Status())
+	log.Println("  Proto      :", resp.Proto())
+	log.Println("  Time       :", resp.Time())
+	log.Println("  Received At:", resp.ReceivedAt())
+	log.Println("  Body       :\n", resp)
+	log.Println()
 	result := resp.Result().(*responseuploadcloudflare)
 	return c.JSON(fiber.Map{
 		"status": result.Status,
