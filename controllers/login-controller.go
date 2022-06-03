@@ -25,9 +25,10 @@ type responseerror struct {
 	Message string `json:"message"`
 }
 
-const PATH string = configs.PATH_API
+var PATH string = configs.GetPathAPI()
 
 func CheckLogin(c *fiber.Ctx) error {
+	log.Println("PATH: ", PATH)
 	hostname := c.Hostname()
 	client := new(entities.Login)
 	if err := c.BodyParser(client); err != nil {

@@ -15,11 +15,12 @@ func main() {
 	if err != nil {
 		panic("Failed to load env file")
 	}
+
 	app := routers.Init()
 	go func() {
 		port := os.Getenv("PORT")
 		if port == "" {
-			port = "5051"
+			port = "1011"
 		}
 
 		if err := app.Listen(":" + port); err != nil {
