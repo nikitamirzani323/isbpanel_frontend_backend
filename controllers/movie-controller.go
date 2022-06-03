@@ -32,10 +32,23 @@ const Fieldmovieseriesepisode_home_redis = "LISTMOVIEEPISODE_BACKEND_ISBPANEL"
 
 const Fieldmovie_client_redis = "LISTMOVIE_FRONTEND_ISBPANEL"
 
+type response_movie struct {
+	Status      int         `json:"status"`
+	Perpage     int         `json:"perpage"`
+	Totalrecord int         `json:"totalrecord"`
+	Message     string      `json:"message"`
+	Record      interface{} `json:"record"`
+}
+
 func Moviehome(c *fiber.Ctx) error {
-	var errors []*helpers.ErrorResponse
-	client := new(entities.Controller_movie)
-	validate := validator.New()
+	type payload_moviehome struct {
+		Movie_search string `json:"movie_search"`
+		Movie_page   int    `json:"movie_page"`
+	}
+	hostname := c.Hostname()
+	bearToken := c.Get("Authorization")
+	token := strings.Split(bearToken, " ")
+	client := new(payload_moviehome)
 	if err := c.BodyParser(client); err != nil {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
@@ -45,123 +58,48 @@ func Moviehome(c *fiber.Ctx) error {
 		})
 	}
 
-	err := validate.Struct(client)
-	if err != nil {
-		for _, err := range err.(validator.ValidationErrors) {
-			var element helpers.ErrorResponse
-			element.Field = err.StructField()
-			element.Tag = err.Tag()
-			errors = append(errors, &element)
-		}
-		c.Status(fiber.StatusBadRequest)
-		return c.JSON(fiber.Map{
-			"status":  fiber.StatusBadRequest,
-			"message": "validation",
-			"record":  errors,
-		})
-	}
-	log.Println(client.Movie_page)
-	if client.Movie_search != "" {
-		val_movie := helpers.DeleteRedis(Fieldmovie_home_redis + "_" + strconv.Itoa(client.Movie_page) + "_" + client.Movie_search)
-		log.Printf("Redis Delete BACKEND MOVIE : %d", val_movie)
-	}
-	var obj entities.Model_movie
-	var arraobj []entities.Model_movie
+	log.Println("Hostname: ", hostname)
 	render_page := time.Now()
-	resultredis, flag := helpers.GetRedis(Fieldmovie_home_redis + "_" + strconv.Itoa(client.Movie_page) + "_" + client.Movie_search)
-	jsonredis := []byte(resultredis)
-	message_RD, _ := jsonparser.GetString(jsonredis, "message")
-	perpage_RD, _ := jsonparser.GetInt(jsonredis, "perpage")
-	totalrecord_RD, _ := jsonparser.GetInt(jsonredis, "totalrecord")
-	record_RD, _, _, _ := jsonparser.Get(jsonredis, "record")
-	jsonparser.ArrayEach(record_RD, func(value []byte, dataType jsonparser.ValueType, offset int, err error) {
-		movie_id, _ := jsonparser.GetInt(value, "movie_id")
-		movie_date, _ := jsonparser.GetString(value, "movie_date")
-		movie_type, _ := jsonparser.GetString(value, "movie_type")
-		movie_title, _ := jsonparser.GetString(value, "movie_title")
-		movie_label, _ := jsonparser.GetString(value, "movie_label")
-		movie_slug, _ := jsonparser.GetString(value, "movie_slug")
-		movie_descp, _ := jsonparser.GetString(value, "movie_descp")
-		movie_imgcdn, _ := jsonparser.GetString(value, "movie_imgcdn")
-		movie_thumbnail, _ := jsonparser.GetString(value, "movie_thumbnail")
-		movie_year, _ := jsonparser.GetInt(value, "movie_year")
-		movie_rating, _ := jsonparser.GetFloat(value, "movie_rating")
-		movie_imdb, _ := jsonparser.GetFloat(value, "movie_imdb")
-		movie_view, _ := jsonparser.GetInt(value, "movie_view")
-		movie_comment, _ := jsonparser.GetInt(value, "movie_comment")
-		movie_status, _ := jsonparser.GetString(value, "movie_status")
-		movie_statuscss, _ := jsonparser.GetString(value, "movie_statuscss")
-		movie_create, _ := jsonparser.GetString(value, "movie_create")
-		movie_update, _ := jsonparser.GetString(value, "movie_update")
-
-		var objmoviegenre entities.Model_moviegenre
-		var arraobjmoviegenre []entities.Model_moviegenre
-		record_moviegenre_RD, _, _, _ := jsonparser.Get(value, "movie_genre")
-		jsonparser.ArrayEach(record_moviegenre_RD, func(value []byte, dataType jsonparser.ValueType, offset int, err error) {
-			moviegenre_id, _ := jsonparser.GetInt(value, "moviegenre_id")
-			moviegenre_name, _ := jsonparser.GetString(value, "moviegenre_name")
-			objmoviegenre.Moviegenre_id = int(moviegenre_id)
-			objmoviegenre.Moviegenre_name = moviegenre_name
-			arraobjmoviegenre = append(arraobjmoviegenre, objmoviegenre)
-		})
-
-		var objmoviesource entities.Model_moviesource
-		var arraobjmoviesource []entities.Model_moviesource
-		record_moviesource_RD, _, _, _ := jsonparser.Get(value, "movie_source")
-		jsonparser.ArrayEach(record_moviesource_RD, func(value []byte, dataType jsonparser.ValueType, offset int, err error) {
-			moviesource_id, _ := jsonparser.GetInt(value, "moviesource_id")
-			moviesource_stream, _ := jsonparser.GetString(value, "moviesource_stream")
-			moviesource_url, _ := jsonparser.GetString(value, "moviesource_url")
-			objmoviesource.Moviesource_id = int(moviesource_id)
-			objmoviesource.Moviesource_stream = moviesource_stream
-			objmoviesource.Moviesource_url = moviesource_url
-			arraobjmoviesource = append(arraobjmoviesource, objmoviesource)
-		})
-
-		obj.Movie_id = int(movie_id)
-		obj.Movie_date = movie_date
-		obj.Movie_type = movie_type
-		obj.Movie_title = movie_title
-		obj.Movie_label = movie_label
-		obj.Movie_slug = movie_slug
-		obj.Movie_descp = movie_descp
-		obj.Movie_imgcdn = movie_imgcdn
-		obj.Movie_thumbnail = movie_thumbnail
-		obj.Movie_year = int(movie_year)
-		obj.Movie_rating = float32(movie_rating)
-		obj.Movie_imdb = float32(movie_imdb)
-		obj.Movie_comment = int(movie_comment)
-		obj.Movie_view = int(movie_view)
-		obj.Movie_status = movie_status
-		obj.Movie_statuscss = movie_statuscss
-		obj.Movie_genre = arraobjmoviegenre
-		obj.Movie_source = arraobjmoviesource
-		obj.Movie_create = movie_create
-		obj.Movie_update = movie_update
-		arraobj = append(arraobj, obj)
-	})
-	if !flag {
-		result, err := models.Fetch_movieHome(client.Movie_search, client.Movie_page, 1)
-		if err != nil {
-			c.Status(fiber.StatusBadRequest)
-			return c.JSON(fiber.Map{
-				"status":  fiber.StatusBadRequest,
-				"message": err.Error(),
-				"record":  nil,
-			})
-		}
-		helpers.SetRedis(Fieldmovie_home_redis+"_"+strconv.Itoa(client.Movie_page)+"_"+client.Movie_search, result, 10*time.Minute)
-		log.Println("MOVIE MYSQL")
-		return c.JSON(result)
-	} else {
-		log.Println("MOVIE CACHE")
+	axios := resty.New()
+	resp, err := axios.R().
+		SetResult(response_movie{}).
+		SetAuthToken(token[1]).
+		SetError(responseerror{}).
+		SetHeader("Content-Type", "application/json").
+		SetBody(map[string]interface{}{
+			"client_hostname": hostname,
+			"movie_search":    client.Movie_search,
+			"movie_page":      client.Movie_page,
+		}).
+		Post(PATH + "api/movie")
+	if err != nil {
+		log.Println(err.Error())
+	}
+	log.Println("Response Info:")
+	log.Println("  Error      :", err)
+	log.Println("  Status Code:", resp.StatusCode())
+	log.Println("  Status     :", resp.Status())
+	log.Println("  Proto      :", resp.Proto())
+	log.Println("  Time       :", resp.Time())
+	log.Println("  Received At:", resp.ReceivedAt())
+	log.Println("  Body       :\n", resp)
+	log.Println()
+	result := resp.Result().(*response_movie)
+	if result.Status == 200 {
 		return c.JSON(fiber.Map{
-			"status":      fiber.StatusOK,
-			"message":     message_RD,
-			"record":      arraobj,
-			"perpage":     perpage_RD,
-			"totalrecord": totalrecord_RD,
+			"status":      result.Status,
+			"perpage":     result.Perpage,
+			"totalrecord": result.Totalrecord,
+			"message":     result.Message,
+			"record":      result.Record,
 			"time":        time.Since(render_page).String(),
+		})
+	} else {
+		result_error := resp.Error().(*responseerror)
+		return c.JSON(fiber.Map{
+			"status":  result_error.Status,
+			"message": result_error.Message,
+			"time":    time.Since(render_page).String(),
 		})
 	}
 }
