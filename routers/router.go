@@ -2,7 +2,6 @@ package routers
 
 import (
 	"bitbucket.org/isbtotogroup/isbpanel_frontend_backend/controllers"
-	"bitbucket.org/isbtotogroup/isbpanel_frontend_backend/middleware"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/compress"
 	"github.com/gofiber/fiber/v2/middleware/logger"
@@ -95,9 +94,9 @@ func Init() *fiber.App {
 	app.Post("/api/movieseriesepisodesave", controllers.Episodesave)
 	app.Post("/api/movieseriesepisodedelete", controllers.Episodedelete)
 	app.Post("/api/moviecloudualbum", controllers.Moviecloud)
-	app.Post("/api/moviecloudupdate", middleware.JWTProtected(), controllers.Movieupdatecloud)
-	app.Post("/api/movieclouddelete", middleware.JWTProtected(), controllers.Moviedeletecloud)
-	app.Post("/api/moviecloudupload", middleware.JWTProtected(), controllers.Movieuploadcloud)
+	app.Post("/api/moviecloudupdate", controllers.Movieupdatecloud)
+	app.Post("/api/movieclouddelete", controllers.Moviedeletecloud)
+	app.Post("/api/moviecloudupload", controllers.Movieuploadcloud)
 	app.Post("/api/genremovie", controllers.Genrehome)
 	app.Post("/api/genremoviesave", controllers.Genresave)
 	app.Post("/api/genremoviedelete", controllers.Genredelete)

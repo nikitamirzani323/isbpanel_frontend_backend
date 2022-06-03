@@ -11,11 +11,8 @@ import (
 
 	"bitbucket.org/isbtotogroup/isbpanel_frontend_backend/entities"
 	"bitbucket.org/isbtotogroup/isbpanel_frontend_backend/helpers"
-	"bitbucket.org/isbtotogroup/isbpanel_frontend_backend/models"
-	"github.com/go-playground/validator/v10"
 	"github.com/go-resty/resty/v2"
 	"github.com/gofiber/fiber/v2"
-	"github.com/golang-jwt/jwt/v4"
 	"github.com/google/uuid"
 )
 
@@ -1289,9 +1286,17 @@ func Movieuploadcloud(c *fiber.Ctx) error {
 	})
 }
 func Movieupdatecloud(c *fiber.Ctx) error {
-	var errors []*helpers.ErrorResponse
-	client := new(entities.Controller_cloudflaremovieupdate)
-	validate := validator.New()
+	type payload_fetch struct {
+		Page       string `json:"page" `
+		Sdata      string `json:"sdata" `
+		Movie_id   string `json:"movie_id" `
+		Movie_tipe string `json:"movie_tipe" `
+		Album_id   int    `json:"album_id" `
+	}
+	hostname := c.Hostname()
+	bearToken := c.Get("Authorization")
+	token := strings.Split(bearToken, " ")
+	client := new(payload_fetch)
 	if err := c.BodyParser(client); err != nil {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
@@ -1301,74 +1306,52 @@ func Movieupdatecloud(c *fiber.Ctx) error {
 		})
 	}
 
-	err := validate.Struct(client)
+	log.Println("Hostname: ", hostname)
+	axios := resty.New()
+	resp, err := axios.R().
+		SetResult(responseuploadcloudflare{}).
+		SetAuthToken(token[1]).
+		SetError(responseerror{}).
+		SetHeader("Content-Type", "application/json").
+		SetBody(map[string]interface{}{
+			"client_hostname": hostname,
+			"page":            client.Page,
+			"sdata":           client.Sdata,
+			"movie_id":        client.Movie_id,
+			"movie_tipe":      client.Movie_tipe,
+			"album_id":        client.Album_id,
+		}).
+		Post(PATH + "api/moviecloudupdate")
 	if err != nil {
-		for _, err := range err.(validator.ValidationErrors) {
-			var element helpers.ErrorResponse
-			element.Field = err.StructField()
-			element.Tag = err.Tag()
-			errors = append(errors, &element)
-		}
-		c.Status(fiber.StatusBadRequest)
-		return c.JSON(fiber.Map{
-			"status":  fiber.StatusBadRequest,
-			"message": "validation",
-			"record":  errors,
-		})
+		log.Println(err.Error())
 	}
-	flag_lock := false
-	if client.Movie_tipe == "LOCK" {
-		flag_lock = true
-	}
-	user := c.Locals("jwt").(*jwt.Token)
-	claims := user.Claims.(jwt.MapClaims)
-	name := claims["name"].(string)
-	temp_decp := helpers.Decryption(name)
-	client_admin, idruleadmin := helpers.Parsing_Decry(temp_decp, "==")
-	log.Println("RULE :" + client.Page)
-	ruleadmin := models.Get_AdminRule("ruleadmingroup", idruleadmin)
-	flag := models.Get_listitemsearch(ruleadmin, ",", client.Page)
-
-	if !flag {
-		c.Status(fiber.StatusForbidden)
-		return c.JSON(fiber.Map{
-			"status":  fiber.StatusForbidden,
-			"message": "Anda tidak bisa akses halaman ini",
-			"record":  nil,
-		})
-	} else {
-		axios := resty.New()
-		resp, err := axios.R().
-			SetResult(responseuploadcloudflare{}).
-			SetError(responseuploadcloudflare{}).
-			SetAuthToken("8x02SSARJt_A5B77KnL2oW74qwDPFKA_9DORcf1-").
-			SetBody(map[string]interface{}{
-				"id":                client.Movie_id,
-				"requireSignedURLs": flag_lock,
-			}).
-			SetContentLength(true).
-			Patch("https://api.cloudflare.com/client/v4/accounts/dc5ba4b3b061907a5e1f8cdf1ae1ec96/images/v1/" + client.Movie_id)
-		if err != nil {
-			log.Println(err.Error())
-		}
-		result := resp.Result().(*responseuploadcloudflare)
-
-		if client.Album_id > 0 {
-			flag_album := models.Update_album(client_admin, client.Movie_tipe, client.Album_id)
-			log.Printf("Update Album : %t", flag_album)
-		}
-		val_album := helpers.DeleteRedis(Fieldalbum_home_redis)
-		log.Printf("Redis Delete BACKEND ALBUM : %d", val_album)
-		return c.JSON(fiber.Map{
-			"status": result.Status,
-			"record": result.Record,
-		})
-	}
+	log.Println("Response Info:")
+	log.Println("  Error      :", err)
+	log.Println("  Status Code:", resp.StatusCode())
+	log.Println("  Status     :", resp.Status())
+	log.Println("  Proto      :", resp.Proto())
+	log.Println("  Time       :", resp.Time())
+	log.Println("  Received At:", resp.ReceivedAt())
+	log.Println("  Body       :\n", resp)
+	log.Println()
+	result := resp.Result().(*responseuploadcloudflare)
+	return c.JSON(fiber.Map{
+		"status": result.Status,
+		"record": result.Record,
+	})
 }
 func Moviedeletecloud(c *fiber.Ctx) error {
-	var errors []*helpers.ErrorResponse
-	client := new(entities.Controller_cloudflaremoviedelete)
-	validate := validator.New()
+	type payload_fetch struct {
+		Page          string `json:"page" `
+		Sdata         string `json:"sdata" `
+		Cloudflare_id string `json:"cloudflare_id" `
+		Movie_id      int    `json:"movie_id" `
+		Album_id      int    `json:"album_id" `
+	}
+	hostname := c.Hostname()
+	bearToken := c.Get("Authorization")
+	token := strings.Split(bearToken, " ")
+	client := new(payload_fetch)
 	if err := c.BodyParser(client); err != nil {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
@@ -1378,73 +1361,39 @@ func Moviedeletecloud(c *fiber.Ctx) error {
 		})
 	}
 
-	err := validate.Struct(client)
+	log.Println("Hostname: ", hostname)
+	axios := resty.New()
+	resp, err := axios.R().
+		SetResult(responseuploadcloudflare{}).
+		SetAuthToken(token[1]).
+		SetError(responseerror{}).
+		SetHeader("Content-Type", "application/json").
+		SetBody(map[string]interface{}{
+			"client_hostname": hostname,
+			"page":            client.Page,
+			"sdata":           client.Sdata,
+			"cloudflare_id":   client.Cloudflare_id,
+			"movie_id":        client.Movie_id,
+			"album_id":        client.Album_id,
+		}).
+		Post(PATH + "api/movieclouddelete")
 	if err != nil {
-		for _, err := range err.(validator.ValidationErrors) {
-			var element helpers.ErrorResponse
-			element.Field = err.StructField()
-			element.Tag = err.Tag()
-			errors = append(errors, &element)
-		}
-		c.Status(fiber.StatusBadRequest)
-		return c.JSON(fiber.Map{
-			"status":  fiber.StatusBadRequest,
-			"message": "validation",
-			"record":  errors,
-		})
+		log.Println(err.Error())
 	}
-	user := c.Locals("jwt").(*jwt.Token)
-	claims := user.Claims.(jwt.MapClaims)
-	name := claims["name"].(string)
-	temp_decp := helpers.Decryption(name)
-	client_admin, idruleadmin := helpers.Parsing_Decry(temp_decp, "==")
-	log.Println("RULE :" + client.Page)
-	ruleadmin := models.Get_AdminRule("ruleadmingroup", idruleadmin)
-	flag := models.Get_listitemsearch(ruleadmin, ",", client.Page)
-
-	if !flag {
-		c.Status(fiber.StatusForbidden)
-		return c.JSON(fiber.Map{
-			"status":  fiber.StatusForbidden,
-			"message": "Anda tidak bisa akses halaman ini",
-			"record":  nil,
-		})
-	} else {
-		axios := resty.New()
-		resp, err := axios.R().
-			SetResult(responseuploadcloudflare{}).
-			SetError(responseuploadcloudflare{}).
-			SetAuthToken("8x02SSARJt_A5B77KnL2oW74qwDPFKA_9DORcf1-").
-			SetContentLength(true).
-			Delete("https://api.cloudflare.com/client/v4/accounts/dc5ba4b3b061907a5e1f8cdf1ae1ec96/images/v1/" + client.Cloudflare_id)
-		if err != nil {
-			log.Println(err.Error())
-		}
-		result := resp.Result().(*responseuploadcloudflare)
-		log.Println("Response Info:")
-		log.Println("  Error      :", err)
-		log.Println("  Status Code:", resp.StatusCode())
-		log.Println("  Status     :", resp.Status())
-		log.Println("  Proto      :", resp.Proto())
-		log.Println("  Time       :", resp.Time())
-		log.Println("  Received At:", resp.ReceivedAt())
-		log.Println("  Body       :\n", resp)
-		log.Println()
-		if result.Status {
-			if client.Album_id > 0 {
-				flag_album := models.Delete_album(client_admin, client.Album_id, client.Movie_id)
-				log.Printf("Delete Album : %t", flag_album)
-			}
-		}
-
-		val_album := helpers.DeleteRedis(Fieldalbum_home_redis)
-		log.Printf("Redis Delete BACKEND ALBUM : %d", val_album)
-
-		return c.JSON(fiber.Map{
-			"status": result.Status,
-			"record": result.Record,
-		})
-	}
+	log.Println("Response Info:")
+	log.Println("  Error      :", err)
+	log.Println("  Status Code:", resp.StatusCode())
+	log.Println("  Status     :", resp.Status())
+	log.Println("  Proto      :", resp.Proto())
+	log.Println("  Time       :", resp.Time())
+	log.Println("  Received At:", resp.ReceivedAt())
+	log.Println("  Body       :\n", resp)
+	log.Println()
+	result := resp.Result().(*responseuploadcloudflare)
+	return c.JSON(fiber.Map{
+		"status": result.Status,
+		"record": result.Record,
+	})
 }
 func Moviecloud(c *fiber.Ctx) error {
 	hostname := c.Hostname()
