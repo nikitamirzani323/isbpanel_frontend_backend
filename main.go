@@ -20,7 +20,7 @@ func main() {
 	go func() {
 		port := os.Getenv("PORT")
 		if port == "" {
-			port = "1011"
+			port = "3011"
 		}
 
 		if err := app.Listen(":" + port); err != nil {

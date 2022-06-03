@@ -3,10 +3,10 @@ version: '2'
 services:
   isbpanel-frontend-backend:
     container_name: isbpanel-frontend-backend
-    image: isbpanel-frontend-backend:0.0.1
+    image: isbpanel-frontend-backend:0.0.2
     build: .
     volumes:
     - ./frontend:/app/frontend
     ports:
-      - 1011:1011
+      - 3011:3011
     restart: always
