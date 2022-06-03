@@ -1,27 +1,32 @@
 package controllers
 
 import (
+	"encoding/json"
 	"log"
-	"strconv"
+	"strings"
 	"time"
 
-	"bitbucket.org/isbtotogroup/isbpanel_frontend_backend/entities"
-	"bitbucket.org/isbtotogroup/isbpanel_frontend_backend/helpers"
-	"bitbucket.org/isbtotogroup/isbpanel_frontend_backend/models"
-	"github.com/buger/jsonparser"
-	"github.com/go-playground/validator/v10"
+	"github.com/go-resty/resty/v2"
 	"github.com/gofiber/fiber/v2"
-	"github.com/golang-jwt/jwt/v4"
 )
 
-const Fieldcrm_home_redis = "LISTCRM_BACKEND_ISBPANEL"
-const Fieldcrmisbtv_home_redis = "LISTCRMISBTV_BACKEND_ISBPANEL"
-const Fieldcrmduniafilm_home_redis = "LISTCRMDUNIAFILM_BACKEND_ISBPANEL"
+type response_crm struct {
+	Status      int         `json:"status"`
+	Perpage     int         `json:"perpage"`
+	Totalrecord int         `json:"totalrecord"`
+	Message     string      `json:"message"`
+	Record      interface{} `json:"record"`
+}
 
 func Crmhome(c *fiber.Ctx) error {
-	var errors []*helpers.ErrorResponse
-	client := new(entities.Controller_crm)
-	validate := validator.New()
+	type payload_crmhome struct {
+		Crm_search string `json:"crm_search"`
+		Crm_page   int    `json:"crm_page"`
+	}
+	hostname := c.Hostname()
+	bearToken := c.Get("Authorization")
+	token := strings.Split(bearToken, " ")
+	client := new(payload_crmhome)
 	if err := c.BodyParser(client); err != nil {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
@@ -31,83 +36,60 @@ func Crmhome(c *fiber.Ctx) error {
 		})
 	}
 
-	err := validate.Struct(client)
-	if err != nil {
-		for _, err := range err.(validator.ValidationErrors) {
-			var element helpers.ErrorResponse
-			element.Field = err.StructField()
-			element.Tag = err.Tag()
-			errors = append(errors, &element)
-		}
-		c.Status(fiber.StatusBadRequest)
-		return c.JSON(fiber.Map{
-			"status":  fiber.StatusBadRequest,
-			"message": "validation",
-			"record":  errors,
-		})
-	}
-	if client.Crm_search != "" {
-		val_news := helpers.DeleteRedis(Fieldcrm_home_redis + "_" + strconv.Itoa(client.Crm_page) + "_" + client.Crm_search)
-		log.Printf("Redis Delete BACKEND NEWS : %d", val_news)
-	}
-	var obj entities.Model_crm
-	var arraobj []entities.Model_crm
+	log.Println("Hostname: ", hostname)
 	render_page := time.Now()
-	resultredis, flag := helpers.GetRedis(Fieldcrm_home_redis + "_" + strconv.Itoa(client.Crm_page) + "_" + client.Crm_search)
-	jsonredis := []byte(resultredis)
-	perpage_RD, _ := jsonparser.GetInt(jsonredis, "perpage")
-	totalrecord_RD, _ := jsonparser.GetInt(jsonredis, "totalrecord")
-	record_RD, _, _, _ := jsonparser.Get(jsonredis, "record")
-	jsonparser.ArrayEach(record_RD, func(value []byte, dataType jsonparser.ValueType, offset int, err error) {
-		crm_id, _ := jsonparser.GetInt(value, "crm_id")
-		crm_phone, _ := jsonparser.GetString(value, "crm_phone")
-		crm_name, _ := jsonparser.GetString(value, "crm_name")
-		crm_source, _ := jsonparser.GetString(value, "crm_source")
-		crm_status, _ := jsonparser.GetString(value, "crm_status")
-		crm_statuscss, _ := jsonparser.GetString(value, "crm_statuscss")
-		crm_create, _ := jsonparser.GetString(value, "crm_create")
-		crm_update, _ := jsonparser.GetString(value, "crm_update")
-
-		obj.Crm_id = int(crm_id)
-		obj.Crm_phone = crm_phone
-		obj.Crm_name = crm_name
-		obj.Crm_source = crm_source
-		obj.Crm_status = crm_status
-		obj.Crm_statuscss = crm_statuscss
-		obj.Crm_create = crm_create
-		obj.Crm_update = crm_update
-		arraobj = append(arraobj, obj)
-	})
-
-	if !flag {
-		result, err := models.Fetch_crm(client.Crm_search, client.Crm_page)
-		if err != nil {
-			c.Status(fiber.StatusBadRequest)
-			return c.JSON(fiber.Map{
-				"status":  fiber.StatusBadRequest,
-				"message": err.Error(),
-				"record":  nil,
-			})
-		}
-		helpers.SetRedis(Fieldcrm_home_redis+"_"+strconv.Itoa(client.Crm_page)+"_"+client.Crm_search, result, 60*time.Minute)
-		log.Println("CRM  MYSQL")
-		return c.JSON(result)
-	} else {
-		log.Println("CRM  CACHE")
+	axios := resty.New()
+	resp, err := axios.R().
+		SetResult(response_crm{}).
+		SetAuthToken(token[1]).
+		SetError(responseerror{}).
+		SetHeader("Content-Type", "application/json").
+		SetBody(map[string]interface{}{
+			"client_hostname": hostname,
+			"crm_search":      client.Crm_search,
+			"crm_page":        client.Crm_page,
+		}).
+		Post(PATH + "api/crm")
+	if err != nil {
+		log.Println(err.Error())
+	}
+	log.Println("Response Info:")
+	log.Println("  Error      :", err)
+	log.Println("  Status Code:", resp.StatusCode())
+	log.Println("  Status     :", resp.Status())
+	log.Println("  Proto      :", resp.Proto())
+	log.Println("  Time       :", resp.Time())
+	log.Println("  Received At:", resp.ReceivedAt())
+	log.Println("  Body       :\n", resp)
+	log.Println()
+	result := resp.Result().(*response_crm)
+	if result.Status == 200 {
 		return c.JSON(fiber.Map{
-			"status":      fiber.StatusOK,
-			"message":     "Success",
-			"record":      arraobj,
-			"perpage":     perpage_RD,
-			"totalrecord": totalrecord_RD,
+			"status":      result.Status,
+			"perpage":     result.Perpage,
+			"totalrecord": result.Totalrecord,
+			"message":     result.Message,
+			"record":      result.Record,
 			"time":        time.Since(render_page).String(),
+		})
+	} else {
+		result_error := resp.Error().(*responseerror)
+		return c.JSON(fiber.Map{
+			"status":  result_error.Status,
+			"message": result_error.Message,
+			"time":    time.Since(render_page).String(),
 		})
 	}
 }
 func Crmisbtvhome(c *fiber.Ctx) error {
-	var errors []*helpers.ErrorResponse
-	client := new(entities.Controller_crmisbtv)
-	validate := validator.New()
+	type payload_crmisbtvhome struct {
+		Crmisbtv_search string `json:"crmisbtv_search"`
+		Crmisbtv_page   int    `json:"crmisbtv_page"`
+	}
+	hostname := c.Hostname()
+	bearToken := c.Get("Authorization")
+	token := strings.Split(bearToken, " ")
+	client := new(payload_crmisbtvhome)
 	if err := c.BodyParser(client); err != nil {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
@@ -117,83 +99,60 @@ func Crmisbtvhome(c *fiber.Ctx) error {
 		})
 	}
 
-	err := validate.Struct(client)
-	if err != nil {
-		for _, err := range err.(validator.ValidationErrors) {
-			var element helpers.ErrorResponse
-			element.Field = err.StructField()
-			element.Tag = err.Tag()
-			errors = append(errors, &element)
-		}
-		c.Status(fiber.StatusBadRequest)
-		return c.JSON(fiber.Map{
-			"status":  fiber.StatusBadRequest,
-			"message": "validation",
-			"record":  errors,
-		})
-	}
-	if client.Crmisbtv_search != "" {
-		val_news := helpers.DeleteRedis(Fieldcrmisbtv_home_redis + "_" + strconv.Itoa(client.Crmisbtv_page) + "_" + client.Crmisbtv_search)
-		log.Printf("Redis Delete BACKEND NEWS : %d", val_news)
-	}
-	var obj entities.Model_crmisbtv
-	var arraobj []entities.Model_crmisbtv
+	log.Println("Hostname: ", hostname)
 	render_page := time.Now()
-	resultredis, flag := helpers.GetRedis(Fieldcrmisbtv_home_redis + "_" + strconv.Itoa(client.Crmisbtv_page) + "_" + client.Crmisbtv_search)
-	jsonredis := []byte(resultredis)
-	perpage_RD, _ := jsonparser.GetInt(jsonredis, "perpage")
-	totalrecord_RD, _ := jsonparser.GetInt(jsonredis, "totalrecord")
-	record_RD, _, _, _ := jsonparser.Get(jsonredis, "record")
-	jsonparser.ArrayEach(record_RD, func(value []byte, dataType jsonparser.ValueType, offset int, err error) {
-		crmisbtv_username, _ := jsonparser.GetString(value, "crmisbtv_username")
-		crmisbtv_name, _ := jsonparser.GetString(value, "crmisbtv_name")
-		crmisbtv_coderef, _ := jsonparser.GetString(value, "crmisbtv_coderef")
-		crmisbtv_point, _ := jsonparser.GetInt(value, "crmisbtv_point")
-		crmisbtv_status, _ := jsonparser.GetString(value, "crmisbtv_status")
-		crmisbtv_lastlogin, _ := jsonparser.GetString(value, "crmisbtv_lastlogin")
-		crmisbtv_create, _ := jsonparser.GetString(value, "crmisbtv_create")
-		crmisbtv_update, _ := jsonparser.GetString(value, "crmisbtv_update")
-
-		obj.Crmisbtv_username = crmisbtv_username
-		obj.Crmisbtv_name = crmisbtv_name
-		obj.Crmisbtv_coderef = crmisbtv_coderef
-		obj.Crmisbtv_point = int(crmisbtv_point)
-		obj.Crmisbtv_status = crmisbtv_status
-		obj.Crmisbtv_lastlogin = crmisbtv_lastlogin
-		obj.Crmisbtv_create = crmisbtv_create
-		obj.Crmisbtv_update = crmisbtv_update
-		arraobj = append(arraobj, obj)
-	})
-
-	if !flag {
-		result, err := models.Fetch_crmisbtv(client.Crmisbtv_search, client.Crmisbtv_page)
-		if err != nil {
-			c.Status(fiber.StatusBadRequest)
-			return c.JSON(fiber.Map{
-				"status":  fiber.StatusBadRequest,
-				"message": err.Error(),
-				"record":  nil,
-			})
-		}
-		helpers.SetRedis(Fieldcrmisbtv_home_redis+"_"+strconv.Itoa(client.Crmisbtv_page)+"_"+client.Crmisbtv_search, result, 60*time.Minute)
-		log.Println("CRM ISBTV MYSQL")
-		return c.JSON(result)
-	} else {
-		log.Println("CRM ISBTV CACHE")
+	axios := resty.New()
+	resp, err := axios.R().
+		SetResult(response_crm{}).
+		SetAuthToken(token[1]).
+		SetError(responseerror{}).
+		SetHeader("Content-Type", "application/json").
+		SetBody(map[string]interface{}{
+			"client_hostname": hostname,
+			"crmisbtv_page":   client.Crmisbtv_page,
+			"crmisbtv_search": client.Crmisbtv_search,
+		}).
+		Post(PATH + "api/crmisbtv")
+	if err != nil {
+		log.Println(err.Error())
+	}
+	log.Println("Response Info:")
+	log.Println("  Error      :", err)
+	log.Println("  Status Code:", resp.StatusCode())
+	log.Println("  Status     :", resp.Status())
+	log.Println("  Proto      :", resp.Proto())
+	log.Println("  Time       :", resp.Time())
+	log.Println("  Received At:", resp.ReceivedAt())
+	log.Println("  Body       :\n", resp)
+	log.Println()
+	result := resp.Result().(*response_crm)
+	if result.Status == 200 {
 		return c.JSON(fiber.Map{
-			"status":      fiber.StatusOK,
-			"message":     "Success",
-			"record":      arraobj,
-			"perpage":     perpage_RD,
-			"totalrecord": totalrecord_RD,
+			"status":      result.Status,
+			"perpage":     result.Perpage,
+			"totalrecord": result.Totalrecord,
+			"message":     result.Message,
+			"record":      result.Record,
 			"time":        time.Since(render_page).String(),
+		})
+	} else {
+		result_error := resp.Error().(*responseerror)
+		return c.JSON(fiber.Map{
+			"status":  result_error.Status,
+			"message": result_error.Message,
+			"time":    time.Since(render_page).String(),
 		})
 	}
 }
 func Crmduniafilm(c *fiber.Ctx) error {
-	var errors []*helpers.ErrorResponse
-	client := new(entities.Controller_crmisbtv)
-	validate := validator.New()
+	type payload_crmisbtvhome struct {
+		Crmisbtv_search string `json:"crmisbtv_search"`
+		Crmisbtv_page   int    `json:"crmisbtv_page"`
+	}
+	hostname := c.Hostname()
+	bearToken := c.Get("Authorization")
+	token := strings.Split(bearToken, " ")
+	client := new(payload_crmisbtvhome)
 	if err := c.BodyParser(client); err != nil {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
@@ -203,72 +162,66 @@ func Crmduniafilm(c *fiber.Ctx) error {
 		})
 	}
 
-	err := validate.Struct(client)
-	if err != nil {
-		for _, err := range err.(validator.ValidationErrors) {
-			var element helpers.ErrorResponse
-			element.Field = err.StructField()
-			element.Tag = err.Tag()
-			errors = append(errors, &element)
-		}
-		c.Status(fiber.StatusBadRequest)
-		return c.JSON(fiber.Map{
-			"status":  fiber.StatusBadRequest,
-			"message": "validation",
-			"record":  errors,
-		})
-	}
-	if client.Crmisbtv_search != "" {
-		val_news := helpers.DeleteRedis(Fieldcrmduniafilm_home_redis + "_" + strconv.Itoa(client.Crmisbtv_page) + "_" + client.Crmisbtv_search)
-		log.Printf("Redis Delete BACKEND NEWS : %d", val_news)
-	}
-	var obj entities.Model_crmduniafilm
-	var arraobj []entities.Model_crmduniafilm
+	log.Println("Hostname: ", hostname)
 	render_page := time.Now()
-	resultredis, flag := helpers.GetRedis(Fieldcrmduniafilm_home_redis + "_" + strconv.Itoa(client.Crmisbtv_page) + "_" + client.Crmisbtv_search)
-	jsonredis := []byte(resultredis)
-	perpage_RD, _ := jsonparser.GetInt(jsonredis, "perpage")
-	totalrecord_RD, _ := jsonparser.GetInt(jsonredis, "totalrecord")
-	record_RD, _, _, _ := jsonparser.Get(jsonredis, "record")
-	jsonparser.ArrayEach(record_RD, func(value []byte, dataType jsonparser.ValueType, offset int, err error) {
-		crmduniafilm_username, _ := jsonparser.GetString(value, "crmduniafilm_username")
-		crmduniafilm_name, _ := jsonparser.GetString(value, "crmduniafilm_name")
-
-		obj.Crmduniafilm_username = crmduniafilm_username
-		obj.Crmduniafilm_name = crmduniafilm_name
-		arraobj = append(arraobj, obj)
-	})
-
-	if !flag {
-		result, err := models.Fetch_crmduniafilm(client.Crmisbtv_search, client.Crmisbtv_page)
-		if err != nil {
-			c.Status(fiber.StatusBadRequest)
-			return c.JSON(fiber.Map{
-				"status":  fiber.StatusBadRequest,
-				"message": err.Error(),
-				"record":  nil,
-			})
-		}
-		helpers.SetRedis(Fieldcrmduniafilm_home_redis+"_"+strconv.Itoa(client.Crmisbtv_page)+"_"+client.Crmisbtv_search, result, 60*time.Minute)
-		log.Println("CRM DUNIA FILM MYSQL")
-		return c.JSON(result)
-	} else {
-		log.Println("CRM DUNIA FILM CACHE")
+	axios := resty.New()
+	resp, err := axios.R().
+		SetResult(response_crm{}).
+		SetAuthToken(token[1]).
+		SetError(responseerror{}).
+		SetHeader("Content-Type", "application/json").
+		SetBody(map[string]interface{}{
+			"client_hostname": hostname,
+			"crmisbtv_page":   client.Crmisbtv_page,
+			"crmisbtv_search": client.Crmisbtv_search,
+		}).
+		Post(PATH + "api/crmduniafilm")
+	if err != nil {
+		log.Println(err.Error())
+	}
+	log.Println("Response Info:")
+	log.Println("  Error      :", err)
+	log.Println("  Status Code:", resp.StatusCode())
+	log.Println("  Status     :", resp.Status())
+	log.Println("  Proto      :", resp.Proto())
+	log.Println("  Time       :", resp.Time())
+	log.Println("  Received At:", resp.ReceivedAt())
+	log.Println("  Body       :\n", resp)
+	log.Println()
+	result := resp.Result().(*response_crm)
+	if result.Status == 200 {
 		return c.JSON(fiber.Map{
-			"status":      fiber.StatusOK,
-			"message":     "Success",
-			"record":      arraobj,
-			"perpage":     perpage_RD,
-			"totalrecord": totalrecord_RD,
+			"status":      result.Status,
+			"perpage":     result.Perpage,
+			"totalrecord": result.Totalrecord,
+			"message":     result.Message,
+			"record":      result.Record,
 			"time":        time.Since(render_page).String(),
+		})
+	} else {
+		result_error := resp.Error().(*responseerror)
+		return c.JSON(fiber.Map{
+			"status":  result_error.Status,
+			"message": result_error.Message,
+			"time":    time.Since(render_page).String(),
 		})
 	}
 }
 
 func CrmSave(c *fiber.Ctx) error {
-	var errors []*helpers.ErrorResponse
-	client := new(entities.Controller_crmsave)
-	validate := validator.New()
+	type payload_crmsave struct {
+		Page       string `json:"page"`
+		Sdata      string `json:"sdata" `
+		Crm_page   int    `json:"crm_page"`
+		Crm_id     int    `json:"crm_id"`
+		Crm_phone  string `json:"crm_phone" `
+		Crm_name   string `json:"crm_name" `
+		Crm_status string `json:"crm_status" `
+	}
+	hostname := c.Hostname()
+	bearToken := c.Get("Authorization")
+	token := strings.Split(bearToken, " ")
+	client := new(payload_crmsave)
 	if err := c.BodyParser(client); err != nil {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
@@ -278,47 +231,66 @@ func CrmSave(c *fiber.Ctx) error {
 		})
 	}
 
-	err := validate.Struct(client)
+	log.Println("Hostname: ", hostname)
+	render_page := time.Now()
+	axios := resty.New()
+	resp, err := axios.R().
+		SetResult(responsedefault{}).
+		SetAuthToken(token[1]).
+		SetError(responseerror{}).
+		SetHeader("Content-Type", "application/json").
+		SetBody(map[string]interface{}{
+			"client_hostname": hostname,
+			"page":            client.Page,
+			"sdata":           client.Sdata,
+			"crm_page":        client.Crm_page,
+			"crm_id":          client.Crm_id,
+			"crm_phone":       client.Crm_phone,
+			"crm_name":        client.Crm_name,
+			"crm_status":      client.Crm_status,
+		}).
+		Post(PATH + "api/crmsave")
 	if err != nil {
-		for _, err := range err.(validator.ValidationErrors) {
-			var element helpers.ErrorResponse
-			element.Field = err.StructField()
-			element.Tag = err.Tag()
-			errors = append(errors, &element)
-		}
-		c.Status(fiber.StatusBadRequest)
+		log.Println(err.Error())
+	}
+	log.Println("Response Info:")
+	log.Println("  Error      :", err)
+	log.Println("  Status Code:", resp.StatusCode())
+	log.Println("  Status     :", resp.Status())
+	log.Println("  Proto      :", resp.Proto())
+	log.Println("  Time       :", resp.Time())
+	log.Println("  Received At:", resp.ReceivedAt())
+	log.Println("  Body       :\n", resp)
+	log.Println()
+	result := resp.Result().(*responsedefault)
+	if result.Status == 200 {
 		return c.JSON(fiber.Map{
-			"status":  fiber.StatusBadRequest,
-			"message": "validation",
-			"record":  errors,
+			"status":  result.Status,
+			"message": result.Message,
+			"record":  result.Record,
+			"time":    time.Since(render_page).String(),
+		})
+	} else {
+		result_error := resp.Error().(*responseerror)
+		return c.JSON(fiber.Map{
+			"status":  result_error.Status,
+			"message": result_error.Message,
+			"time":    time.Since(render_page).String(),
 		})
 	}
-	user := c.Locals("jwt").(*jwt.Token)
-	claims := user.Claims.(jwt.MapClaims)
-	name := claims["name"].(string)
-	temp_decp := helpers.Decryption(name)
-	client_admin, _ := helpers.Parsing_Decry(temp_decp, "==")
-
-	result, err := models.Save_crm(
-		client_admin,
-		client.Crm_phone, client.Crm_name, client.Crm_status, client.Sdata, client.Crm_id)
-	if err != nil {
-		c.Status(fiber.StatusBadRequest)
-		return c.JSON(fiber.Map{
-			"status":  fiber.StatusBadRequest,
-			"message": err.Error(),
-			"record":  nil,
-		})
-	}
-
-	val_master := helpers.DeleteRedis(Fieldcrm_home_redis + "_" + strconv.Itoa(client.Crm_page) + "_")
-	log.Printf("Redis Delete BACKEND CRM : %d", val_master)
-	return c.JSON(result)
 }
 func CrmSavesource(c *fiber.Ctx) error {
-	var errors []*helpers.ErrorResponse
-	client := new(entities.Controller_crmsavesource)
-	validate := validator.New()
+	type payload_crmsavesource struct {
+		Page       string          `json:"page"`
+		Sdata      string          `json:"sdata" `
+		Crm_page   int             `json:"crm_page"`
+		Crm_source string          `json:"crm_source" `
+		Crm_data   json.RawMessage `json:"crm_data" `
+	}
+	hostname := c.Hostname()
+	bearToken := c.Get("Authorization")
+	token := strings.Split(bearToken, " ")
+	client := new(payload_crmsavesource)
 	if err := c.BodyParser(client); err != nil {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
@@ -328,40 +300,49 @@ func CrmSavesource(c *fiber.Ctx) error {
 		})
 	}
 
-	err := validate.Struct(client)
+	log.Println("Hostname: ", hostname)
+	render_page := time.Now()
+	axios := resty.New()
+	resp, err := axios.R().
+		SetResult(responsedefault{}).
+		SetAuthToken(token[1]).
+		SetError(responseerror{}).
+		SetHeader("Content-Type", "application/json").
+		SetBody(map[string]interface{}{
+			"client_hostname": hostname,
+			"page":            client.Page,
+			"sdata":           client.Sdata,
+			"crm_page":        client.Crm_page,
+			"crm_source":      client.Crm_source,
+			"crm_data":        client.Crm_data,
+		}).
+		Post(PATH + "api/crmsavesource")
 	if err != nil {
-		for _, err := range err.(validator.ValidationErrors) {
-			var element helpers.ErrorResponse
-			element.Field = err.StructField()
-			element.Tag = err.Tag()
-			errors = append(errors, &element)
-		}
-		c.Status(fiber.StatusBadRequest)
+		log.Println(err.Error())
+	}
+	log.Println("Response Info:")
+	log.Println("  Error      :", err)
+	log.Println("  Status Code:", resp.StatusCode())
+	log.Println("  Status     :", resp.Status())
+	log.Println("  Proto      :", resp.Proto())
+	log.Println("  Time       :", resp.Time())
+	log.Println("  Received At:", resp.ReceivedAt())
+	log.Println("  Body       :\n", resp)
+	log.Println()
+	result := resp.Result().(*responsedefault)
+	if result.Status == 200 {
 		return c.JSON(fiber.Map{
-			"status":  fiber.StatusBadRequest,
-			"message": "validation",
-			"record":  errors,
+			"status":  result.Status,
+			"message": result.Message,
+			"record":  result.Record,
+			"time":    time.Since(render_page).String(),
+		})
+	} else {
+		result_error := resp.Error().(*responseerror)
+		return c.JSON(fiber.Map{
+			"status":  result_error.Status,
+			"message": result_error.Message,
+			"time":    time.Since(render_page).String(),
 		})
 	}
-	user := c.Locals("jwt").(*jwt.Token)
-	claims := user.Claims.(jwt.MapClaims)
-	name := claims["name"].(string)
-	temp_decp := helpers.Decryption(name)
-	client_admin, _ := helpers.Parsing_Decry(temp_decp, "==")
-
-	result, err := models.Save_crmsource(
-		client_admin,
-		string(client.Crm_data), client.Crm_source, client.Sdata)
-	if err != nil {
-		c.Status(fiber.StatusBadRequest)
-		return c.JSON(fiber.Map{
-			"status":  fiber.StatusBadRequest,
-			"message": err.Error(),
-			"record":  nil,
-		})
-	}
-
-	val_master := helpers.DeleteRedis(Fieldcrm_home_redis + "_" + strconv.Itoa(client.Crm_page) + "_")
-	log.Printf("Redis Delete BACKEND CRM : %d", val_master)
-	return c.JSON(result)
 }
