@@ -80,7 +80,7 @@ func Init() *fiber.App {
 	app.Post("/api/categorynewsdelete", controllers.Categorydelete)
 
 	app.Post("/api/movie", controllers.Moviehome)
-	app.Post("/api/movienotcdn", middleware.JWTProtected(), controllers.Moviehomenotcdn)
+	app.Post("/api/movienotcdn", controllers.Moviehomenotcdn)
 	app.Post("/api/movietrouble", middleware.JWTProtected(), controllers.Movietroublehome)
 	app.Post("/api/moviemini", middleware.JWTProtected(), controllers.Movieminihome)
 	app.Post("/api/moviesave", middleware.JWTProtected(), controllers.Moviesave)
@@ -98,13 +98,13 @@ func Init() *fiber.App {
 	app.Post("/api/moviecloudupdate", middleware.JWTProtected(), controllers.Movieupdatecloud)
 	app.Post("/api/movieclouddelete", middleware.JWTProtected(), controllers.Moviedeletecloud)
 	app.Post("/api/moviecloudupload", middleware.JWTProtected(), controllers.Movieuploadcloud)
-	app.Post("/api/genremovie", middleware.JWTProtected(), controllers.Genrehome)
-	app.Post("/api/genremoviesave", middleware.JWTProtected(), controllers.Genresave)
-	app.Post("/api/genremoviedelete", middleware.JWTProtected(), controllers.Genredelete)
+	app.Post("/api/genremovie", controllers.Genrehome)
+	app.Post("/api/genremoviesave", controllers.Genresave)
+	app.Post("/api/genremoviedelete", controllers.Genredelete)
 
-	app.Post("/api/slider", middleware.JWTProtected(), controllers.Sliderhome)
-	app.Post("/api/slidersave", middleware.JWTProtected(), controllers.Slidersave)
-	app.Post("/api/sliderdelete", middleware.JWTProtected(), controllers.Sliderdelete)
+	app.Post("/api/slider", controllers.Sliderhome)
+	app.Post("/api/slidersave", controllers.Slidersave)
+	app.Post("/api/sliderdelete", controllers.Sliderdelete)
 
 	app.Post("/api/domain", controllers.Domainhome)
 	app.Post("/api/domainsave", controllers.DomainSave)
@@ -112,11 +112,11 @@ func Init() *fiber.App {
 	app.Post("/api/webagen", controllers.Websiteagenhome)
 	app.Post("/api/webagensave", controllers.Websiteagensave)
 	app.Post("/api/game", controllers.Gamehome)
-	app.Post("/api/gamesave", middleware.JWTProtected(), controllers.Gamesave)
+	app.Post("/api/gamesave", controllers.Gamesave)
 
 	app.Post("/api/cloudflare", middleware.JWTProtected(), controllers.Moviecloud2)
-	app.Post("/api/album", middleware.JWTProtected(), controllers.Albumhome)
-	app.Post("/api/albumsave", middleware.JWTProtected(), controllers.Albumsave)
+	app.Post("/api/album", controllers.Albumhome)
+	app.Post("/api/albumsave", controllers.Albumsave)
 
 	app.Post("/api/crm", controllers.Crmhome)
 	app.Post("/api/crmisbtv", controllers.Crmisbtvhome)

@@ -29,7 +29,7 @@ const Fieldmovieseries_home_redis = "LISTMOVIESERIES_BACKEND_ISBPANEL"
 const Fieldmovieseriestrouble_home_redis = "LISTMOVIESERIESTROUBLE_BACKEND_ISBPANEL"
 const Fieldmovieseriesseason_home_redis = "LISTMOVIESEASON_BACKEND_ISBPANEL"
 const Fieldmovieseriesepisode_home_redis = "LISTMOVIEEPISODE_BACKEND_ISBPANEL"
-
+const Fieldalbum_home_redis = "LISTALBUM_BACKEND_ISBPANEL"
 const Fieldmovie_client_redis = "LISTMOVIE_FRONTEND_ISBPANEL"
 
 type response_movie struct {
@@ -104,40 +104,57 @@ func Moviehome(c *fiber.Ctx) error {
 	}
 }
 func Moviehomenotcdn(c *fiber.Ctx) error {
-	var obj entities.Model_movienotcdn
-	var arraobj []entities.Model_movienotcdn
-	render_page := time.Now()
-	resultredis, flag := helpers.GetRedis(Fieldmovienotcdn_home_redis)
-	jsonredis := []byte(resultredis)
-	message_RD, _ := jsonparser.GetString(jsonredis, "message")
-	record_RD, _, _, _ := jsonparser.Get(jsonredis, "record")
-	jsonparser.ArrayEach(record_RD, func(value []byte, dataType jsonparser.ValueType, offset int, err error) {
-		movie_id, _ := jsonparser.GetInt(value, "movie_id")
-		movie_title, _ := jsonparser.GetString(value, "movie_title")
-
-		obj.Movie_id = int(movie_id)
-		obj.Movie_title = movie_title
-		arraobj = append(arraobj, obj)
-	})
-	if !flag {
-		result, err := models.Fetch_movieHomeNotCDN()
-		if err != nil {
-			c.Status(fiber.StatusBadRequest)
-			return c.JSON(fiber.Map{
-				"status":  fiber.StatusBadRequest,
-				"message": err.Error(),
-				"record":  nil,
-			})
-		}
-		helpers.SetRedis(Fieldmovienotcdn_home_redis, result, 2*time.Minute)
-		log.Println("MOVIE NOT CDN MYSQL")
-		return c.JSON(result)
-	} else {
-		log.Println("MOVIE NOT CDN")
+	hostname := c.Hostname()
+	bearToken := c.Get("Authorization")
+	token := strings.Split(bearToken, " ")
+	client := new(entities.Home)
+	if err := c.BodyParser(client); err != nil {
+		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
-			"status":  fiber.StatusOK,
-			"message": message_RD,
-			"record":  arraobj,
+			"status":  fiber.StatusBadRequest,
+			"message": err.Error(),
+			"record":  nil,
+		})
+	}
+
+	log.Println("Hostname: ", hostname)
+	render_page := time.Now()
+	axios := resty.New()
+	resp, err := axios.R().
+		SetResult(responsedefault{}).
+		SetAuthToken(token[1]).
+		SetError(responseerror{}).
+		SetHeader("Content-Type", "application/json").
+		SetBody(map[string]interface{}{
+			"client_hostname": hostname,
+			"page":            client.Page,
+		}).
+		Post(PATH + "api/movienotcdn")
+	if err != nil {
+		log.Println(err.Error())
+	}
+	log.Println("Response Info:")
+	log.Println("  Error      :", err)
+	log.Println("  Status Code:", resp.StatusCode())
+	log.Println("  Status     :", resp.Status())
+	log.Println("  Proto      :", resp.Proto())
+	log.Println("  Time       :", resp.Time())
+	log.Println("  Received At:", resp.ReceivedAt())
+	log.Println("  Body       :\n", resp)
+	log.Println()
+	result := resp.Result().(*responsedefault)
+	if result.Status == 200 {
+		return c.JSON(fiber.Map{
+			"status":  result.Status,
+			"message": result.Message,
+			"record":  result.Record,
+			"time":    time.Since(render_page).String(),
+		})
+	} else {
+		result_error := resp.Error().(*responseerror)
+		return c.JSON(fiber.Map{
+			"status":  result_error.Status,
+			"message": result_error.Message,
 			"time":    time.Since(render_page).String(),
 		})
 	}
@@ -1245,54 +1262,73 @@ func Episodedelete(c *fiber.Ctx) error {
 	}
 }
 func Genrehome(c *fiber.Ctx) error {
-	var obj entities.Model_genre
-	var arraobj []entities.Model_genre
-	render_page := time.Now()
-	resultredis, flag := helpers.GetRedis(Fieldgenre_home_redis)
-	jsonredis := []byte(resultredis)
-	message_RD, _ := jsonparser.GetString(jsonredis, "message")
-	record_RD, _, _, _ := jsonparser.Get(jsonredis, "record")
-	jsonparser.ArrayEach(record_RD, func(value []byte, dataType jsonparser.ValueType, offset int, err error) {
-		genre_id, _ := jsonparser.GetInt(value, "genre_id")
-		genre_name, _ := jsonparser.GetString(value, "genre_name")
-		genre_display, _ := jsonparser.GetInt(value, "genre_display")
-		genre_create, _ := jsonparser.GetString(value, "genre_create")
-		genre_update, _ := jsonparser.GetString(value, "genre_update")
-
-		obj.Genre_id = int(genre_id)
-		obj.Genre_name = genre_name
-		obj.Genre_display = int(genre_display)
-		obj.Genre_create = genre_create
-		obj.Genre_update = genre_update
-		arraobj = append(arraobj, obj)
-	})
-	if !flag {
-		result, err := models.Fetch_genre()
-		if err != nil {
-			c.Status(fiber.StatusBadRequest)
-			return c.JSON(fiber.Map{
-				"status":  fiber.StatusBadRequest,
-				"message": err.Error(),
-				"record":  nil,
-			})
-		}
-		helpers.SetRedis(Fieldgenre_home_redis, result, 0)
-		log.Println("GENRE MYSQL")
-		return c.JSON(result)
-	} else {
-		log.Println("GENRE CACHE")
+	hostname := c.Hostname()
+	bearToken := c.Get("Authorization")
+	token := strings.Split(bearToken, " ")
+	client := new(entities.Home)
+	if err := c.BodyParser(client); err != nil {
+		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
-			"status":  fiber.StatusOK,
-			"message": message_RD,
-			"record":  arraobj,
+			"status":  fiber.StatusBadRequest,
+			"message": err.Error(),
+			"record":  nil,
+		})
+	}
+
+	log.Println("Hostname: ", hostname)
+	render_page := time.Now()
+	axios := resty.New()
+	resp, err := axios.R().
+		SetResult(responsedefault{}).
+		SetAuthToken(token[1]).
+		SetError(responseerror{}).
+		SetHeader("Content-Type", "application/json").
+		SetBody(map[string]interface{}{
+			"client_hostname": hostname,
+			"page":            client.Page,
+		}).
+		Post(PATH + "api/genremovie")
+	if err != nil {
+		log.Println(err.Error())
+	}
+	log.Println("Response Info:")
+	log.Println("  Error      :", err)
+	log.Println("  Status Code:", resp.StatusCode())
+	log.Println("  Status     :", resp.Status())
+	log.Println("  Proto      :", resp.Proto())
+	log.Println("  Time       :", resp.Time())
+	log.Println("  Received At:", resp.ReceivedAt())
+	log.Println("  Body       :\n", resp)
+	log.Println()
+	result := resp.Result().(*responsedefault)
+	if result.Status == 200 {
+		return c.JSON(fiber.Map{
+			"status":  result.Status,
+			"message": result.Message,
+			"record":  result.Record,
+			"time":    time.Since(render_page).String(),
+		})
+	} else {
+		result_error := resp.Error().(*responseerror)
+		return c.JSON(fiber.Map{
+			"status":  result_error.Status,
+			"message": result_error.Message,
 			"time":    time.Since(render_page).String(),
 		})
 	}
 }
 func Genresave(c *fiber.Ctx) error {
-	var errors []*helpers.ErrorResponse
-	client := new(entities.Controller_genresave)
-	validate := validator.New()
+	type payload_save struct {
+		Page          string `json:"page"`
+		Sdata         string `json:"sdata" `
+		Genre_id      int    `json:"genre_id"`
+		Genre_name    string `json:"genre_name" `
+		Genre_display int    `json:"genre_display" `
+	}
+	hostname := c.Hostname()
+	bearToken := c.Get("Authorization")
+	token := strings.Split(bearToken, " ")
+	client := new(payload_save)
 	if err := c.BodyParser(client); err != nil {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
@@ -1302,59 +1338,62 @@ func Genresave(c *fiber.Ctx) error {
 		})
 	}
 
-	err := validate.Struct(client)
+	log.Println("Hostname: ", hostname)
+	render_page := time.Now()
+	axios := resty.New()
+	resp, err := axios.R().
+		SetResult(responsedefault{}).
+		SetAuthToken(token[1]).
+		SetError(responseerror{}).
+		SetHeader("Content-Type", "application/json").
+		SetBody(map[string]interface{}{
+			"client_hostname": hostname,
+			"page":            client.Page,
+			"sdata":           client.Sdata,
+			"genre_id":        client.Genre_id,
+			"genre_name":      client.Genre_name,
+			"genre_display":   client.Genre_display,
+		}).
+		Post(PATH + "api/genremoviesave")
 	if err != nil {
-		for _, err := range err.(validator.ValidationErrors) {
-			var element helpers.ErrorResponse
-			element.Field = err.StructField()
-			element.Tag = err.Tag()
-			errors = append(errors, &element)
-		}
-		c.Status(fiber.StatusBadRequest)
-		return c.JSON(fiber.Map{
-			"status":  fiber.StatusBadRequest,
-			"message": "validation",
-			"record":  errors,
-		})
+		log.Println(err.Error())
 	}
-	user := c.Locals("jwt").(*jwt.Token)
-	claims := user.Claims.(jwt.MapClaims)
-	name := claims["name"].(string)
-	temp_decp := helpers.Decryption(name)
-	client_admin, idruleadmin := helpers.Parsing_Decry(temp_decp, "==")
-	log.Println("RULE :" + client.Page)
-	ruleadmin := models.Get_AdminRule("ruleadmingroup", idruleadmin)
-	flag := models.Get_listitemsearch(ruleadmin, ",", client.Page)
-
-	if !flag {
-		c.Status(fiber.StatusForbidden)
+	log.Println("Response Info:")
+	log.Println("  Error      :", err)
+	log.Println("  Status Code:", resp.StatusCode())
+	log.Println("  Status     :", resp.Status())
+	log.Println("  Proto      :", resp.Proto())
+	log.Println("  Time       :", resp.Time())
+	log.Println("  Received At:", resp.ReceivedAt())
+	log.Println("  Body       :\n", resp)
+	log.Println()
+	result := resp.Result().(*responsedefault)
+	if result.Status == 200 {
 		return c.JSON(fiber.Map{
-			"status":  fiber.StatusForbidden,
-			"message": "Anda tidak bisa akses halaman ini",
-			"record":  nil,
+			"status":  result.Status,
+			"message": result.Message,
+			"record":  result.Record,
+			"time":    time.Since(render_page).String(),
 		})
 	} else {
-
-		result, err := models.Save_genre(
-			client_admin,
-			client.Genre_name, client.Sdata, client.Genre_id, client.Genre_display)
-		if err != nil {
-			c.Status(fiber.StatusBadRequest)
-			return c.JSON(fiber.Map{
-				"status":  fiber.StatusBadRequest,
-				"message": err.Error(),
-				"record":  nil,
-			})
-		}
-		val_genre := helpers.DeleteRedis(Fieldgenre_home_redis)
-		log.Printf("Redis Delete BACKEND MOVIE GENRE : %d", val_genre)
-		return c.JSON(result)
+		result_error := resp.Error().(*responseerror)
+		return c.JSON(fiber.Map{
+			"status":  result_error.Status,
+			"message": result_error.Message,
+			"time":    time.Since(render_page).String(),
+		})
 	}
 }
 func Genredelete(c *fiber.Ctx) error {
-	var errors []*helpers.ErrorResponse
-	client := new(entities.Controller_genredelete)
-	validate := validator.New()
+	type payload_delete struct {
+		Page     string `json:"page"`
+		Sdata    string `json:"sdata" `
+		Genre_id int    `json:"genre_id" `
+	}
+	hostname := c.Hostname()
+	bearToken := c.Get("Authorization")
+	token := strings.Split(bearToken, " ")
+	client := new(payload_delete)
 	if err := c.BodyParser(client); err != nil {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
@@ -1364,51 +1403,48 @@ func Genredelete(c *fiber.Ctx) error {
 		})
 	}
 
-	err := validate.Struct(client)
+	log.Println("Hostname: ", hostname)
+	render_page := time.Now()
+	axios := resty.New()
+	resp, err := axios.R().
+		SetResult(responsedefault{}).
+		SetAuthToken(token[1]).
+		SetError(responseerror{}).
+		SetHeader("Content-Type", "application/json").
+		SetBody(map[string]interface{}{
+			"client_hostname": hostname,
+			"page":            client.Page,
+			"sdata":           client.Sdata,
+			"genre_id":        client.Genre_id,
+		}).
+		Post(PATH + "api/genremoviedelete")
 	if err != nil {
-		for _, err := range err.(validator.ValidationErrors) {
-			var element helpers.ErrorResponse
-			element.Field = err.StructField()
-			element.Tag = err.Tag()
-			errors = append(errors, &element)
-		}
-		c.Status(fiber.StatusBadRequest)
-		return c.JSON(fiber.Map{
-			"status":  fiber.StatusBadRequest,
-			"message": "validation",
-			"record":  errors,
-		})
+		log.Println(err.Error())
 	}
-	user := c.Locals("jwt").(*jwt.Token)
-	claims := user.Claims.(jwt.MapClaims)
-	name := claims["name"].(string)
-	temp_decp := helpers.Decryption(name)
-	client_admin, idruleadmin := helpers.Parsing_Decry(temp_decp, "==")
-	log.Println("RULE :" + client.Page)
-	ruleadmin := models.Get_AdminRule("ruleadmingroup", idruleadmin)
-	flag := models.Get_listitemsearch(ruleadmin, ",", client.Page)
-
-	if !flag {
-		c.Status(fiber.StatusForbidden)
+	log.Println("Response Info:")
+	log.Println("  Error      :", err)
+	log.Println("  Status Code:", resp.StatusCode())
+	log.Println("  Status     :", resp.Status())
+	log.Println("  Proto      :", resp.Proto())
+	log.Println("  Time       :", resp.Time())
+	log.Println("  Received At:", resp.ReceivedAt())
+	log.Println("  Body       :\n", resp)
+	log.Println()
+	result := resp.Result().(*responsedefault)
+	if result.Status == 200 {
 		return c.JSON(fiber.Map{
-			"status":  fiber.StatusForbidden,
-			"message": "Anda tidak bisa akses halaman ini",
-			"record":  nil,
+			"status":  result.Status,
+			"message": result.Message,
+			"record":  result.Record,
+			"time":    time.Since(render_page).String(),
 		})
 	} else {
-
-		result, err := models.Delete_genre(client_admin, client.Genre_id)
-		if err != nil {
-			c.Status(fiber.StatusBadRequest)
-			return c.JSON(fiber.Map{
-				"status":  fiber.StatusBadRequest,
-				"message": err.Error(),
-				"record":  nil,
-			})
-		}
-		val_genre := helpers.DeleteRedis(Fieldgenre_home_redis)
-		log.Printf("Redis Delete BACKEND MOVIE GENRE : %d", val_genre)
-		return c.JSON(result)
+		result_error := resp.Error().(*responseerror)
+		return c.JSON(fiber.Map{
+			"status":  result_error.Status,
+			"message": result_error.Message,
+			"time":    time.Since(render_page).String(),
+		})
 	}
 }
 
