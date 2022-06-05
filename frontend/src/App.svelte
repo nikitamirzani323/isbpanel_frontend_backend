@@ -13,6 +13,7 @@
 	import Movienews from "./pages/movienews/Movienews.svelte";
 	import Movietrouble from "./pages/movietrouble/Movietrouble.svelte";
 	import Seriestrouble from "./pages/seriestrouble/Seriestrouble.svelte";
+	import Providerslot from "./pages/providerslot/Providerslot.svelte";
 	import Domain from "./pages/domain/Domain.svelte";
 	import Album from "./pages/album/Album.svelte";
 	import Crm from "./pages/crm/Crm.svelte";
@@ -53,6 +54,13 @@
 			}),
 			"/game": wrap({
 				component: Game,
+				props: {
+					table_header_font: table_header_font,
+					table_body_font: table_body_font,
+				},
+			}),
+			"/providerslot": wrap({
+				component: Providerslot,
 				props: {
 					table_header_font: table_header_font,
 					table_body_font: table_body_font,

@@ -198,7 +198,7 @@
                             on:keypress={handleKeyboard_checkenter}
                             type="text"
                             class="form-control"
-                            placeholder="Search Domain"
+                            placeholder="Search Game"
                             aria-label="Search"/>
                     </div>
                 </slot:template>

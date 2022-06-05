@@ -122,5 +122,12 @@ func Init() *fiber.App {
 	app.Post("/api/crmduniafilm", controllers.Crmduniafilm)
 	app.Post("/api/crmsave", controllers.CrmSave)
 	app.Post("/api/crmsavesource", controllers.CrmSavesource)
+
+	app.Post("/api/providerslot", controllers.Providerslothome)
+	app.Post("/api/providerslotsave", controllers.ProviderslotSave)
+	app.Post("/api/prediksislot", controllers.Gameslothome)
+	app.Post("/api/prediksislotsave", controllers.GameslotSave)
+	app.Post("/api/prediksislotdelete", controllers.GameslotDelete)
+	app.Post("/api/prediksislotgenerator", controllers.GameslotGenerator)
 	return app
 }
