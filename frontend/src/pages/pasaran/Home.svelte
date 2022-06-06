@@ -23,7 +23,12 @@
   let pasaran_diundi = "";
   let pasaran_jamopen = "";
   let pasaran_display = 0;
+  let pasaran_slug = "";
+  let pasaran_meta_title = "";
+  let pasaran_meta_descp = "";
   let pasaran_status = "";
+  let pasaran_create = "";
+  let pasaran_update = "";
   let tanggal_keluaran = "";
   let nomor_keluaran = "";
   let tanggal_prediksi = "";
@@ -36,29 +41,37 @@
   let css_loader = "display: none;";
   let msgloader = "";
 
-  const NewData = () => {
-    clearField();
-    sData = "New";
-    myModal_newentry = new bootstrap.Modal(
-      document.getElementById("modalentry")
-    );
-    myModal_newentry.show();
-  };
+  
   const RefreshHalaman = () => {
     dispatch("handleRefreshData", "call");
   };
+  const crudData = (e,id,nama, url, diundi, jamopen, display, status, slug, meta_title,meta_descp,create,update) => {
+    sData = e;
+    if(sData == "New"){
+      clearField();
+    }else{
+      idrecord = id;
+      pasaran_nama = nama;
+      pasaran_url = url;
+      pasaran_diundi = diundi;
+      pasaran_jamopen = jamopen;
+      pasaran_display = display;
+      pasaran_slug = slug;
+      pasaran_meta_title = meta_title;
+      pasaran_meta_descp = meta_descp;
+      pasaran_create = create;
+      pasaran_update = update;
+      if (status == "SHOW") {
+        status = "Y";
+      }
+      pasaran_status = status;
+    }
+    myModal_newentry = new bootstrap.Modal(document.getElementById("modalentry"));
+    myModal_newentry.show();
+  }
   const EditData = (e, nama, url, diundi, jamopen, display, status) => {
     sData = "Edit";
-    idrecord = e;
-    pasaran_nama = nama;
-    pasaran_url = url;
-    pasaran_diundi = diundi;
-    pasaran_jamopen = jamopen;
-    pasaran_display = display;
-    if (status == "SHOW") {
-      status = "Y";
-    }
-    pasaran_status = status;
+    
     myModal_newentry = new bootstrap.Modal(
       document.getElementById("modalentryedit")
     );
@@ -164,6 +177,9 @@
           pasaran_jamjadwal: pasaran_jamopen,
           pasaran_display: parseInt(pasaran_display),
           pasaran_status: pasaran_status,
+          pasaran_slug: pasaran_slug,
+          pasaran_meta_title: pasaran_meta_title,
+          pasaran_meta_descp: pasaran_meta_descp,
         }),
       });
       const json = await res.json();
@@ -445,11 +461,16 @@
     pasaran_jamopen = "";
     pasaran_display = 0;
     pasaran_status = "";
+    pasaran_slug = "";
+    pasaran_meta_title = "";
+    pasaran_meta_descp = "";
+    pasaran_create = "";
+    pasaran_update = "";
   }
   function callFunction(event) {
     switch (event.detail) {
       case "NEW":
-        NewData();
+        crudData("New","","","","","","","","","","","","");
         break;
       case "NEW_KELUARAN":
         ShowNewKeluaran();
@@ -538,6 +559,12 @@
   function shuffle(array) {
     return array.sort(() => Math.random() - 0.5);
   }
+  function convert_time(e) {
+    let temp = e.split(":")
+    let hour = temp[0]
+    let minute = temp[1]
+    return hour+":"+minute
+  }
 </script>
 
 <div id="loader" style="margin-left:50%;{css_loader}">
@@ -550,163 +577,73 @@
         on:click={callFunction}
         button_function="NEW"
         button_title="New"
-        button_css="btn-dark"
-      />
+        button_css="btn-dark"/>
       <Button
         on:click={callFunction}
         button_function="REFRESH"
         button_title="Refresh"
-        button_css="btn-primary"
-      />
+        button_css="btn-primary"/>
       <Panel card_title={title_page} card_footer={totalrecord}>
         <slot:template slot="card-body">
           <table class="table table-striped table-hover ">
             <thead>
               <tr>
-                <th
-                  NOWRAP
-                  width="1%"
-                  style="text-align: center;vertical-align: top;"
-                  colspan="3">&nbsp;</th
-                >
-                <th
-                  NOWRAP
-                  width="1%"
-                  style="text-align: center;vertical-align: top;font-weight:bold;font-size:{table_header_font};"
-                  >NO</th
-                >
-                <th
-                  NOWRAP
-                  width="1%"
-                  style="text-align: center;vertical-align: top;font-weight:bold;font-size:{table_header_font};"
-                  >STATUS</th
-                >
-                <th
-                  NOWRAP
-                  width="1%"
-                  style="text-align: left;vertical-align: top;font-weight:bold;font-size:{table_header_font};"
-                  >CODE</th
-                >
-                <th
-                  NOWRAP
-                  width="*"
-                  style="text-align: left;vertical-align: top;font-weight:bold;font-size: {table_header_font};"
-                  >PASARAN</th
-                >
-                <th
-                  NOWRAP
-                  width="20%"
-                  style="text-align: left;vertical-align: top;font-weight:bold;font-size: {table_header_font};"
-                  >HARI DIUNDI</th
-                >
-                <th
-                  NOWRAP
-                  width="10%"
-                  style="text-align: center;vertical-align: top;font-weight:bold;font-size: {table_header_font};"
-                  >JADWAL</th
-                >
-                <th
-                  NOWRAP
-                  width="10%"
-                  style="text-align: left;vertical-align: top;font-weight:bold;font-size: {table_header_font};"
-                  >KELUARAN</th
-                >
-                <th
-                  NOWRAP
-                  width="10%"
-                  style="text-align: left;vertical-align: top;font-weight:bold;font-size: {table_header_font};"
-                  >PREDIKSI</th
-                >
+                <th NOWRAP width="1%" style="text-align: center;vertical-align: top;" colspan="3">&nbsp;</th>
+                <th NOWRAP width="1%" style="text-align: center;vertical-align: top;font-weight:bold;font-size:{table_header_font};">NO</th>
+                <th NOWRAP width="1%" style="text-align: center;vertical-align: top;font-weight:bold;font-size:{table_header_font};">STATUS</th>
+                <th NOWRAP width="1%" style="text-align: left;vertical-align: top;font-weight:bold;font-size:{table_header_font};">CODE</th>
+                <th NOWRAP width="*" style="text-align: left;vertical-align: top;font-weight:bold;font-size: {table_header_font};">PASARAN</th>
+                <th NOWRAP width="20%" style="text-align: left;vertical-align: top;font-weight:bold;font-size: {table_header_font};">HARI DIUNDI</th>
+                <th NOWRAP width="10%" style="text-align: center;vertical-align: top;font-weight:bold;font-size: {table_header_font};">JADWAL</th>
+                <th NOWRAP width="10%" style="text-align: left;vertical-align: top;font-weight:bold;font-size: {table_header_font};">KELUARAN</th>
+                <th NOWRAP width="10%" style="text-align: left;vertical-align: top;font-weight:bold;font-size: {table_header_font};">PREDIKSI</th>
               </tr>
             </thead>
             {#if totalrecord > 0}
               <tbody>
                 {#each listHome as rec}
                   <tr>
-                    <td
-                      NOWRAP
-                      style="text-align: center;vertical-align: top;cursor:pointer;"
-                    >
-                      <i
-                        on:click={() => {
-                          EditData(
+                    <td NOWRAP style="text-align: center;vertical-align: top;cursor:pointer;">
+                      <i on:click={() => {
+                          crudData("Edit",
                             rec.pasaran_id,
                             rec.pasaran_name,
                             rec.pasaran_url,
                             rec.pasaran_diundi,
-                            rec.pasaran_jamjadwal,
+                            convert_time(rec.pasaran_jamjadwal),
                             rec.pasaran_display,
-                            rec.pasaran_status
+                            rec.pasaran_status,
+                            rec.pasaran_slug,
+                            rec.pasaran_meta_title,
+                            rec.pasaran_meta_descp,
+                            rec.pasaran_create,
+                            rec.pasaran_update
                           );
                         }}
-                        class="bi bi-pencil"
-                      />
-                    </td>
-                    <td
-                      NOWRAP
-                      style="text-align: center;vertical-align: top;cursor:pointer;"
-                    >
-                      <i
-                        on:click={() => {
+                        class="bi bi-pencil"/></td>
+                    <td NOWRAP style="text-align: center;vertical-align: top;cursor:pointer;">
+                      <i on:click={() => {
                           ShowKeluaran(rec.pasaran_id, rec.pasaran_name);
                         }}
-                        class="bi bi-card-list"
-                      />
+                        class="bi bi-card-list"/>
                     </td>
-                    <td
-                      NOWRAP
-                      style="text-align: center;vertical-align: top;cursor:pointer;"
-                    >
+                    <td NOWRAP style="text-align: center;vertical-align: top;cursor:pointer;">
                       <i
                         on:click={() => {
                           ShowPrediksi(rec.pasaran_id, rec.pasaran_name);
                         }}
-                        class="bi bi-file-binary"
-                      />
+                        class="bi bi-file-binary"/>
                     </td>
-                    <td
-                      NOWRAP
-                      style="text-align: center;vertical-align: top;font-size: {table_body_font};"
-                      >{rec.pasaran_no}</td
-                    >
-                    <td
-                      NOWRAP
-                      style="text-align: center;vertical-align: top;font-size: {table_body_font};{rec.pasaran_statuscss}"
-                      >{rec.pasaran_status}</td
-                    >
-                    <td
-                      NOWRAP
-                      style="text-align: left;vertical-align: top;font-size: {table_body_font};"
-                      >{rec.pasaran_id}</td
-                    >
-                    <td
-                      NOWRAP
-                      style="text-align: left;vertical-align: top;font-size: {table_body_font};"
-                    >
-                      <a href={rec.pasaran_url} target="_blank"
-                        >{rec.pasaran_name}</a
-                      >
+                    <td NOWRAP style="text-align: center;vertical-align: top;font-size: {table_body_font};">{rec.pasaran_no}</td>
+                    <td NOWRAP style="text-align: center;vertical-align: top;font-size: {table_body_font};{rec.pasaran_statuscss}">{rec.pasaran_status}</td>
+                    <td NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.pasaran_id}</td>
+                    <td NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">
+                      <a href={rec.pasaran_url} target="_blank">{rec.pasaran_name}</a>
                     </td>
-                    <td
-                      NOWRAP
-                      style="text-align: left;vertical-align: top;font-size: {table_body_font};"
-                      >{rec.pasaran_diundi}</td
-                    >
-                    <td
-                      NOWRAP
-                      style="text-align: center;vertical-align: top;font-size: {table_body_font};"
-                      >{rec.pasaran_jamjadwal}</td
-                    >
-                    <td
-                      NOWRAP
-                      style="text-align: left;vertical-align: top;font-size: {table_body_font};"
-                      >{rec.pasaran_keluaran}</td
-                    >
-                    <td
-                      NOWRAP
-                      style="text-align: left;vertical-align: top;font-size: {table_body_font};"
-                      >{rec.pasaran_prediksi}</td
-                    >
+                    <td NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.pasaran_diundi}</td>
+                    <td NOWRAP style="text-align: center;vertical-align: top;font-size: {table_body_font};">{convert_time(rec.pasaran_jamjadwal)}</td>
+                    <td NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.pasaran_keluaran}</td>
+                    <td NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.pasaran_prediksi}</td>
                   </tr>
                 {/each}
               </tbody>
@@ -733,8 +670,7 @@
   modal_size="modal-dialog-centered modal-lg"
   modal_title={title_page + "/" + sData}
   modal_footer_css="padding:5px;"
-  modal_footer={true}
->
+  modal_footer={true}>
   <slot:template slot="body">
     <div class="row">
       <div class="col-sm-6">
@@ -747,8 +683,7 @@
             minlength="2"
             maxlength="4"
             type="text"
-            placeholder="Code"
-          />
+            placeholder="Code"/>
         </div>
         <div class="mb-3">
           <label for="exampleForm" class="form-label">Pasaran</label>
@@ -756,8 +691,7 @@
             bind:value={pasaran_nama}
             class="required"
             type="text"
-            placeholder="Pasaran"
-          />
+            placeholder="Pasaran"/>
         </div>
         <div class="mb-3">
           <label for="exampleForm" class="form-label">URL</label>
@@ -765,8 +699,7 @@
             bind:value={pasaran_url}
             class="required"
             type="text"
-            placeholder="URL"
-          />
+            placeholder="URL"/>
         </div>
         <div class="mb-3">
           <label for="exampleForm" class="form-label">Hari diundi</label>
@@ -774,11 +707,8 @@
             bind:value={pasaran_diundi}
             class="required"
             type="text"
-            placeholder="Hari diundi"
-          />
+            placeholder="Hari diundi"/>
         </div>
-      </div>
-      <div class="col-sm-6">
         <div class="mb-3">
           <label for="exampleForm" class="form-label">JADWAL</label>
           <Input
@@ -787,8 +717,7 @@
             class="required"
             style="text-align:center;"
             type="text"
-            placeholder="Jadwal"
-          />
+            placeholder="Jadwal"/>
         </div>
         <div class="mb-3">
           <label for="exampleForm" class="form-label">Display</label>
@@ -798,14 +727,53 @@
             class="required"
             type="text"
             style="text-align:right;"
-            placeholder="Display"
-          />
+            placeholder="Display"/>
         </div>
         <div class="mb-3">
           <label for="exampleForm" class="form-label">Status</label>
           <select class="form-control required" bind:value={pasaran_status}>
             <option value="Y">SHOW</option>
           </select>
+        </div>
+      </div>
+      <div class="col-sm-6">
+        <div class="mb-3">
+          <label for="exampleForm" class="form-label">Slug</label>
+          <Input
+            bind:value={pasaran_slug}
+            class="required"
+            type="text"
+            placeholder="Slug"/>
+            <p class="text-muted">Ex : keluaran-togel-hk or keluaran-togel-cambodia</p>
+        </div>
+        <div class="mb-3">
+          <label for="exampleForm" class="form-label">Meta - Title</label>
+          <Input
+            bind:value={pasaran_meta_title}
+            class="required"
+            type="text"
+            maxlength=60
+            placeholder="Meta - Title"/>
+        </div>
+        <div class="mb-3">
+          <label for="exampleForm" class="form-label">Meta - Deskripsi</label>
+          <textarea
+            style="height: 100px;resize: none;"
+            bind:value={pasaran_meta_descp}
+            class="form-control required"/>
+        </div>
+        {#if sData == "Edit"}
+            <div class="alert alert-dark" role="alert" style="font-size:11px;padding:5px;">
+                Create : {pasaran_create}
+                <br />
+                Update : {pasaran_update}
+            </div>
+        {/if}
+        <div class="alert alert-info" role="alert" style="font-size:12px;padding:5px;">
+          Ex :<br /> 
+          Title SEO : <br />Keluaran Togel Cambodia - Keluaran NOMOR TOGEL
+          <br /> <br />
+          Descp SEO : <br />Result Togel Cambodia, Result nomor togel, keluaran nomor togel, result cambodia
         </div>
       </div>
     </div>
@@ -817,92 +785,11 @@
       }}
       button_function="SAVE"
       button_title="Save"
-      button_css="btn-warning"
-    />
+      button_css="btn-warning"/>
   </slot:template>
 </Modal>
 
-<Modal
-  modal_id="modalentryedit"
-  modal_size="modal-dialog-centered modal-lg"
-  modal_title={title_page + "/" + sData}
-  modal_footer_css="padding:5px;"
-  modal_footer={true}
->
-  <slot:template slot="body">
-    <div class="row">
-      <div class="col-sm-6">
-        <div class="mb-3">
-          <label for="exampleForm" class="form-label">Pasaran</label>
-          <Input
-            bind:value={pasaran_nama}
-            class="required"
-            type="text"
-            placeholder="Pasaran"
-          />
-        </div>
-        <div class="mb-3">
-          <label for="exampleForm" class="form-label">URL</label>
-          <Input
-            bind:value={pasaran_url}
-            class="required"
-            type="text"
-            placeholder="URL"
-          />
-        </div>
-        <div class="mb-3">
-          <label for="exampleForm" class="form-label">Hari diundi</label>
-          <Input
-            bind:value={pasaran_diundi}
-            class="required"
-            type="text"
-            placeholder="Hari diundi"
-          />
-        </div>
-      </div>
-      <div class="col-sm-6">
-        <div class="mb-3">
-          <label for="exampleForm" class="form-label">JADWAL</label>
-          <Input
-            bind:value={pasaran_jamopen}
-            on:keyup={handleKeyboard_format}
-            class="required"
-            style="text-align:center;"
-            type="text"
-            placeholder="Jadwal"
-          />
-        </div>
-        <div class="mb-3">
-          <label for="exampleForm" class="form-label">Display</label>
-          <Input
-            bind:value={pasaran_display}
-            on:keyup={handleKeyboard_format}
-            class="required"
-            type="text"
-            style="text-align:right;"
-            placeholder="Display"
-          />
-        </div>
-        <div class="mb-3">
-          <label for="exampleForm" class="form-label">Status</label>
-          <select class="form-control required" bind:value={pasaran_status}>
-            <option value="Y">SHOW</option>
-          </select>
-        </div>
-      </div>
-    </div>
-  </slot:template>
-  <slot:template slot="footer">
-    <Button
-      on:click={() => {
-        handleSave();
-      }}
-      button_function="SAVE"
-      button_title="Save"
-      button_css="btn-warning"
-    />
-  </slot:template>
-</Modal>
+
 
 <Modal
   modal_id="modallistkeluaran"
@@ -910,67 +797,29 @@
   modal_title="Keluaran : {pasaran_nama}"
   modal_body_css="padding:5px;margin:0px;height:500px;overflow-y: scroll;"
   modal_footer_css="padding:5px;"
-  modal_footer={true}
->
+  modal_footer={true}>
   <slot:template slot="body">
     <table class="table">
       <thead>
         <tr>
-          <th
-            NOWRAP
-            width="1%"
-            style="text-align: center;vertical-align: top;font-weight:bold;font-size:{table_header_font};"
-            >&nbsp;</th
-          >
-          <th
-            NOWRAP
-            width="20%"
-            style="text-align: center;vertical-align: top;font-weight:bold;font-size:{table_header_font};"
-            >DATE</th
-          >
-          <th
-            NOWRAP
-            width="10%"
-            style="text-align: center;vertical-align: top;font-weight:bold;font-size:{table_header_font};"
-            >PERIODE</th
-          >
-          <th
-            NOWRAP
-            width="*"
-            style="text-align: left;vertical-align: top;font-weight:bold;font-size:{table_header_font};"
-            >NOMOR</th
-          >
+          <th NOWRAP width="1%" style="text-align: center;vertical-align: top;font-weight:bold;font-size:{table_header_font};">&nbsp;</th>
+          <th NOWRAP width="20%" style="text-align: center;vertical-align: top;font-weight:bold;font-size:{table_header_font};">DATE</th>
+          <th NOWRAP width="10%" style="text-align: center;vertical-align: top;font-weight:bold;font-size:{table_header_font};">PERIODE</th>
+          <th NOWRAP width="*" style="text-align: left;vertical-align: top;font-weight:bold;font-size:{table_header_font};">NOMOR</th>
         </tr>
       </thead>
       <tbody>
         {#each listKeluaran as rec}
           <tr>
-            <td
-              NOWRAP
-              style="text-align: center;vertical-align: top;cursor:pointer;"
-            >
-              <i
-                on:click={() => {
+            <td NOWRAP style="text-align: center;vertical-align: top;cursor:pointer;">
+              <i on:click={() => {
                   RemoveKeluaran(rec.keluaran_id);
                 }}
-                class="bi bi-trash"
-              />
+                class="bi bi-trash"/>
             </td>
-            <td
-              NOWRAP
-              style="text-align: center;vertical-align: top;font-size: {table_body_font};"
-              >{dayjs(rec.keluaran_tanggal).format("YYYY-MM-DD")}</td
-            >
-            <td
-              NOWRAP
-              style="text-align: center;vertical-align: top;font-size: {table_body_font};"
-              >{rec.keluaran_periode}</td
-            >
-            <td
-              NOWRAP
-              style="text-align: left;vertical-align: top;font-size: {table_body_font};"
-              >{rec.Keluaran_nomor}</td
-            >
+            <td NOWRAP style="text-align: center;vertical-align: top;font-size: {table_body_font};">{dayjs(rec.keluaran_tanggal).format("YYYY-MM-DD")}</td>
+            <td NOWRAP style="text-align: center;vertical-align: top;font-size: {table_body_font};">{rec.keluaran_periode}</td>
+            <td NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.Keluaran_nomor}</td>
           </tr>
         {/each}
       </tbody>
@@ -981,8 +830,7 @@
       on:click={callFunction}
       button_function="NEW_KELUARAN"
       button_title="New"
-      button_css="btn-primary"
-    />
+      button_css="btn-primary"/>
   </slot:template>
 </Modal>
 
@@ -991,8 +839,7 @@
   modal_size="modal-dialog-centered"
   modal_title="Keluaran {pasaran_nama + '/' + sData}"
   modal_footer_css="padding:5px;"
-  modal_footer={true}
->
+  modal_footer={true}>
   <slot:template slot="body">
     <div class="mb-3">
       <label for="exampleForm" class="form-label">Tanggal</label>
@@ -1003,8 +850,7 @@
         name="date"
         id="exampleDate"
         data-date-format="dd-mm-yyyy"
-        placeholder="date placeholder"
-      />
+        placeholder="date placeholder"/>
     </div>
     <div class="mb-3">
       <label for="exampleForm" class="form-label">Nomor</label>
@@ -1015,8 +861,7 @@
         minlength="4"
         maxlength="4"
         type="text"
-        placeholder="Nomor Keluaran"
-      />
+        placeholder="Nomor Keluaran"/>
     </div>
   </slot:template>
   <slot:template slot="footer">
@@ -1024,8 +869,7 @@
       on:click={callFunction}
       button_function="SAVE_KELUARAN"
       button_title="Save"
-      button_css="btn-warning"
-    />
+      button_css="btn-warning"/>
   </slot:template>
 </Modal>
 
@@ -1035,67 +879,29 @@
   modal_title="Prediksi : {pasaran_nama}"
   modal_body_css="padding:5px;margin:0px;height:500px;overflow-y: scroll;"
   modal_footer_css="padding:5px;"
-  modal_footer={true}
->
+  modal_footer={true}>
   <slot:template slot="body">
     <table class="table">
       <thead>
         <tr>
-          <th
-            NOWRAP
-            width="1%"
-            style="text-align: center;vertical-align: top;font-weight:bold;font-size:{table_header_font};"
-            >&nbsp;</th
-          >
-          <th
-            NOWRAP
-            width="*"
-            style="text-align: center;vertical-align: top;font-weight:bold;font-size:{table_header_font};"
-            >DATE</th
-          >
-          <th
-            NOWRAP
-            width="20%"
-            style="text-align: center;vertical-align: top;font-weight:bold;font-size:{table_header_font};"
-            >BBFS</th
-          >
-          <th
-            NOWRAP
-            width="20%"
-            style="text-align: center;vertical-align: top;font-weight:bold;font-size:{table_header_font};"
-            >NOMOR</th
-          >
+          <th NOWRAP width="1%" style="text-align: center;vertical-align: top;font-weight:bold;font-size:{table_header_font};">&nbsp;</th>
+          <th NOWRAP width="*" style="text-align: center;vertical-align: top;font-weight:bold;font-size:{table_header_font};">DATE</th>
+          <th NOWRAP width="20%" style="text-align: center;vertical-align: top;font-weight:bold;font-size:{table_header_font};">BBFS</th>
+          <th NOWRAP width="20%" style="text-align: center;vertical-align: top;font-weight:bold;font-size:{table_header_font};">NOMOR</th>
         </tr>
       </thead>
       <tbody>
         {#each listPrediksi as rec}
           <tr>
-            <td
-              NOWRAP
-              style="text-align: center;vertical-align: top;cursor:pointer;"
-            >
-              <i
-                on:click={() => {
+            <td NOWRAP style="text-align: center;vertical-align: top;cursor:pointer;">
+              <i on:click={() => {
                   RemovePrediksi(rec.prediksi_id);
                 }}
-                class="bi bi-trash"
-              />
+                class="bi bi-trash"/>
             </td>
-            <td
-              NOWRAP
-              style="text-align: center;vertical-align: top;font-size: {table_body_font};"
-              >{dayjs(rec.prediksi_tanggal).format("YYYY-MM-DD")}</td
-            >
-            <td
-              NOWRAP
-              style="text-align: center;vertical-align: top;font-size: {table_body_font};"
-              >{rec.prediksi_bbfs}</td
-            >
-            <td
-              NOWRAP
-              style="text-align: center;vertical-align: top;font-size: {table_body_font};"
-              >{rec.prediksi_nomor}</td
-            >
+            <td NOWRAP style="text-align: center;vertical-align: top;font-size: {table_body_font};">{dayjs(rec.prediksi_tanggal).format("YYYY-MM-DD")}</td>
+            <td NOWRAP style="text-align: center;vertical-align: top;font-size: {table_body_font};">{rec.prediksi_bbfs}</td>
+            <td NOWRAP style="text-align: center;vertical-align: top;font-size: {table_body_font};">{rec.prediksi_nomor}</td>
           </tr>
         {/each}
       </tbody>
@@ -1106,8 +912,7 @@
       on:click={callFunction}
       button_function="NEW_PREDIKSI"
       button_title="New"
-      button_css="btn-primary"
-    />
+      button_css="btn-primary"/>
   </slot:template>
 </Modal>
 
@@ -1116,8 +921,7 @@
   modal_size="modal-dialog-centered"
   modal_title="Prediksi {pasaran_nama + '/' + sData}"
   modal_footer_css="padding:5px;"
-  modal_footer={true}
->
+  modal_footer={true}>
   <slot:template slot="body">
     <div class="mb-3">
       <label for="exampleForm" class="form-label">Tanggal</label>
@@ -1128,8 +932,7 @@
         name="date"
         id="exampleDate"
         data-date-format="dd-mm-yyyy"
-        placeholder="date placeholder"
-      />
+        placeholder="date placeholder"/>
     </div>
     <div class="mb-3">
       <label for="exampleForm" class="form-label">BBFS</label>
@@ -1141,15 +944,13 @@
           minlength="6"
           maxlength="6"
           type="text"
-          placeholder="Nomor BBFS"
-        />
+          placeholder="Nomor BBFS"/>
         <button
           on:click={() => {
             generate();
           }}
           type="button"
-          class="btn btn-info">Generate</button
-        >
+          class="btn btn-info">Generate</button>
       </div>
     </div>
     <div class="mb-3">
@@ -1161,8 +962,7 @@
         minlength="6"
         maxlength="6"
         type="text"
-        placeholder="Nomor Prediksi"
-      />
+        placeholder="Nomor Prediksi"/>
     </div>
   </slot:template>
   <slot:template slot="footer">
@@ -1170,7 +970,6 @@
       on:click={callFunction}
       button_function="SAVE_PREDIKSI"
       button_title="Save"
-      button_css="btn-warning"
-    />
+      button_css="btn-warning"/>
   </slot:template>
 </Modal>

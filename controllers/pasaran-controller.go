@@ -68,15 +68,18 @@ func Pasaranhome(c *fiber.Ctx) error {
 }
 func Pasaransave(c *fiber.Ctx) error {
 	type payload_pasaransave struct {
-		Page              string `json:"page"`
-		Sdata             string `json:"sdata" `
-		Pasaran_id        string `json:"pasaran_id"`
-		Pasaran_name      string `json:"pasaran_name" `
-		Pasaran_url       string `json:"pasaran_url" `
-		Pasaran_diundi    string `json:"pasaran_diundi" `
-		Pasaran_jamjadwal string `json:"pasaran_jamjadwal" `
-		Pasaran_display   int    `json:"pasaran_display" `
-		Pasaran_status    string `json:"pasaran_status" `
+		Page               string `json:"page"`
+		Sdata              string `json:"sdata" `
+		Pasaran_id         string `json:"pasaran_id"`
+		Pasaran_name       string `json:"pasaran_name" `
+		Pasaran_url        string `json:"pasaran_url" `
+		Pasaran_diundi     string `json:"pasaran_diundi" `
+		Pasaran_jamjadwal  string `json:"pasaran_jamjadwal" `
+		Pasaran_display    int    `json:"pasaran_display" `
+		Pasaran_slug       string `json:"pasaran_slug" `
+		Pasaran_meta_title string `json:"pasaran_meta_title" `
+		Pasaran_meta_descp string `json:"pasaran_meta_descp" `
+		Pasaran_status     string `json:"pasaran_status" `
 	}
 	hostname := c.Hostname()
 	bearToken := c.Get("Authorization")
@@ -100,16 +103,19 @@ func Pasaransave(c *fiber.Ctx) error {
 		SetError(responseerror{}).
 		SetHeader("Content-Type", "application/json").
 		SetBody(map[string]interface{}{
-			"client_hostname":   hostname,
-			"page":              client.Page,
-			"sdata":             client.Sdata,
-			"pasaran_id":        client.Pasaran_id,
-			"pasaran_name":      client.Pasaran_name,
-			"pasaran_url":       client.Pasaran_url,
-			"pasaran_diundi":    client.Pasaran_diundi,
-			"pasaran_jamjadwal": client.Pasaran_jamjadwal,
-			"pasaran_display":   client.Pasaran_display,
-			"pasaran_status":    client.Pasaran_status,
+			"client_hostname":    hostname,
+			"page":               client.Page,
+			"sdata":              client.Sdata,
+			"pasaran_id":         client.Pasaran_id,
+			"pasaran_name":       client.Pasaran_name,
+			"pasaran_url":        client.Pasaran_url,
+			"pasaran_diundi":     client.Pasaran_diundi,
+			"pasaran_jamjadwal":  client.Pasaran_jamjadwal,
+			"pasaran_display":    client.Pasaran_display,
+			"pasaran_slug":       client.Pasaran_slug,
+			"pasaran_meta_title": client.Pasaran_meta_title,
+			"pasaran_meta_descp": client.Pasaran_meta_descp,
+			"pasaran_status":     client.Pasaran_status,
 		}).
 		Post(PATH + "api/pasaransave")
 	if err != nil {
