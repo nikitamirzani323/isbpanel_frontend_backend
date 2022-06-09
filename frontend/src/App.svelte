@@ -15,6 +15,7 @@
 	import Seriestrouble from "./pages/seriestrouble/Seriestrouble.svelte";
 	import Providerslot from "./pages/providerslot/Providerslot.svelte";
 	import Domain from "./pages/domain/Domain.svelte";
+	import Banner from "./pages/banner/Banner.svelte";
 	import Album from "./pages/album/Album.svelte";
 	import Crm from "./pages/crm/Crm.svelte";
 	import Crmisbtv from "./pages/crmisbtv/Crmisbtv.svelte";
@@ -44,6 +45,13 @@
 					table_body_font: table_body_font,
 				},
 				component: Dashboard,
+			}),
+			"/banner": wrap({
+				component: Banner,
+				props: {
+					table_header_font: table_header_font,
+					table_body_font: table_body_font,
+				},
 			}),
 			"/webagen": wrap({
 				component: Websiteagen,

@@ -101,6 +101,7 @@
                         <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
                             <li>
                                 <a class="dropdown-item" use:link href="/domain" style="font-size: 13px;">DOMAIN MANAGEMENT</a>
+                                <a class="dropdown-item" use:link href="/banner" style="font-size: 13px;">BANNER MANAGEMENT</a>
                                 <a class="dropdown-item" use:link href="/game" style="font-size: 13px;">GAME MANAGEMENT</a>
                                 <a class="dropdown-item" use:link href="/webagen" style="font-size: 13px;">WEBSITE MANAGEMENT</a>
                                 <a class="dropdown-item" use:link href="/album" style="font-size: 13px;">ALBUM MANAGEMENT</a>

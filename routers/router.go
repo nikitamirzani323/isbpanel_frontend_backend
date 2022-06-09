@@ -129,5 +129,8 @@ func Init() *fiber.App {
 	app.Post("/api/prediksislotsave", controllers.GameslotSave)
 	app.Post("/api/prediksislotdelete", controllers.GameslotDelete)
 	app.Post("/api/prediksislotgenerator", controllers.GameslotGenerator)
+
+	app.Post("/api/banner", controllers.Bannerhome)
+	app.Post("/api/bannersave", controllers.BannerSave)
 	return app
 }
