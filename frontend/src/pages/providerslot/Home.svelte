@@ -191,7 +191,7 @@
                 },
                 body: JSON.stringify({
                     sdata: sData,
-                    page:"DOMAIN-SAVE",
+                    page:"SLOT-SAVE",
                     providerslot_id: parseInt(idrecord),
                     providerslot_name: name_field,
                     providerslot_display: parseInt(display_field),
@@ -333,7 +333,7 @@
                     Authorization: "Bearer " + token,
                 },
                 body: JSON.stringify({
-                    page: "MOVIE-DELETE",
+                    page: "SLOT-SAVE",
                     prediksislot_id: parseInt(idprediksislot),
                     providerslot_id: parseInt(providerslot_id_field),
                 }),
@@ -371,7 +371,7 @@
                     Authorization: "Bearer " + token,
                 },
                 body: JSON.stringify({
-                    page: "MOVIE-DELETE",
+                    page: "SLOT-SAVE",
                     providerslot_id: parseInt(idprovider),
                 }),
             });

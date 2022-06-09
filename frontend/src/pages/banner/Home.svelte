@@ -107,7 +107,7 @@
                 },
                 body: JSON.stringify({
                     sdata: sData,
-                    page:"DOMAIN-SAVE",
+                    page:"BANNER-SAVE",
                     banner_id: parseInt(idrecord),
                     banner_name: nmbanner_field,
                     banner_url: urlbanner_field,

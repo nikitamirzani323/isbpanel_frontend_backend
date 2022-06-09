@@ -214,7 +214,7 @@
                             on:keypress={handleKeyboard_checkenter}
                             type="text"
                             class="form-control"
-                            placeholder="Search Domain"
+                            placeholder="Search Website Agen"
                             aria-label="Search"/>
                     </div>
                 </slot:template>

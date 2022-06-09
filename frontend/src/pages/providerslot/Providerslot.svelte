@@ -20,7 +20,7 @@
                 Authorization: "Bearer " + token,
             },
             body: JSON.stringify({
-                page: "DOMAIN-VIEW",
+                page: "SLOT-VIEW",
             }),
         });
         const json = await res.json();

@@ -343,6 +343,7 @@
                         <thead>
                             <tr>
                                 <th colspan="2" NOWRAP>NEWS</th>
+                                <th colspan="2" NOWRAP>SLOTS</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -354,6 +355,13 @@
                                         value="NEWS-VIEW">
                                 </td>
                                 <td width="*">VIEW</td>
+                                <td width="1%">
+                                    <input
+                                        bind:group={adminrule_rule_field}
+                                        type="checkbox"
+                                        value="SLOT-VIEW">
+                                </td>
+                                <td width="*">VIEW</td>
                             </tr>
                             <tr>
                                 <td width="1%">
@@ -361,6 +369,13 @@
                                         bind:group={adminrule_rule_field}
                                         type="checkbox"
                                         value="NEWS-SAVE"/>
+                                </td>
+                                <td width="*">SAVE</td>
+                                <td width="1%">
+                                    <input
+                                        bind:group={adminrule_rule_field}
+                                        type="checkbox"
+                                        value="SLOT-SAVE"/>
                                 </td>
                                 <td width="*">SAVE</td>
                             </tr>
@@ -437,6 +452,7 @@
                         <thead>
                             <tr>
                                 <th colspan="2">DOMAIN MANAGEMENT</th>
+                                <th colspan="2">BANNER MANAGEMENT</th>
                                 <th colspan="2">WEBSITEAGEN MANAGEMENT</th>
                                 <th colspan="2">GAME MANAGEMENT</th>
                                 <th colspan="2">ALBUM MANAGEMENT</th>
@@ -451,6 +467,13 @@
                                         bind:group={adminrule_rule_field}
                                         type="checkbox"
                                         value="DOMAIN-VIEW"/>
+                                </td>
+                                <td width="*">VIEW</td>
+                                <td width="1%">
+                                    <input
+                                        bind:group={adminrule_rule_field}
+                                        type="checkbox"
+                                        value="BANNER-VIEW"/>
                                 </td>
                                 <td width="*">VIEW</td>
                                 <td width="1%">
@@ -495,6 +518,13 @@
                                         bind:group={adminrule_rule_field}
                                         type="checkbox"
                                         value="DOMAIN-SAVE"/>
+                                </td>
+                                <td width="*">SAVE</td>
+                                <td width="1%">
+                                    <input
+                                        bind:group={adminrule_rule_field}
+                                        type="checkbox"
+                                        value="BANNER-SAVE"/>
                                 </td>
                                 <td width="*">SAVE</td>
                                 <td width="1%">
