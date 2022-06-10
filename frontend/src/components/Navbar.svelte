@@ -96,6 +96,24 @@
                             role="button"
                             data-bs-toggle="dropdown"
                             aria-expanded="false" style="font-size: 13px;">
+                            EMPLOYEE
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                            <li>
+                                <a class="dropdown-item" use:link href="/departement" style="font-size: 13px;">DEPARTEMENT</a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" use:link href="/employee" style="font-size: 13px;">EMPLOYEE</a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a
+                            class="nav-link dropdown-toggle"
+                            id="navbarDropdown"
+                            role="button"
+                            data-bs-toggle="dropdown"
+                            aria-expanded="false" style="font-size: 13px;">
                             MASTER
                         </a>
                         <ul class="dropdown-menu" aria-labelledby="navbarDropdown">

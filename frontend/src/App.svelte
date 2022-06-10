@@ -3,6 +3,8 @@
 	import { wrap } from "svelte-spa-router/wrap";
 	import Navbar from "./components/Navbar.svelte";
 	import Dashboard from "./pages/dashboard/Dashboard.svelte";
+	import Departement from "./pages/departement/Departement.svelte";
+	import Employee from "./pages/employee/Employee.svelte";
 	import Admin from "./pages/admin/Admin.svelte";
 	import Adminrule from "./pages/adminrule/Adminrule.svelte";
 	import Pasaran from "./pages/pasaran/Pasaran.svelte";
@@ -45,6 +47,20 @@
 					table_body_font: table_body_font,
 				},
 				component: Dashboard,
+			}),
+			"/departement": wrap({
+				component: Departement,
+				props: {
+					table_header_font: table_header_font,
+					table_body_font: table_body_font,
+				},
+			}),
+			"/employee": wrap({
+				component: Employee,
+				props: {
+					table_header_font: table_header_font,
+					table_body_font: table_body_font,
+				},
 			}),
 			"/banner": wrap({
 				component: Banner,

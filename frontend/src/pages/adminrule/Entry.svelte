@@ -342,12 +342,28 @@
                     <table class="table">
                         <thead>
                             <tr>
+                                <th colspan="2" NOWRAP>DEPARTEMENT</th>
+                                <th colspan="2" NOWRAP>EMPLOYEE</th>
                                 <th colspan="2" NOWRAP>NEWS</th>
                                 <th colspan="2" NOWRAP>SLOTS</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr>
+                                <td width="1%">
+                                    <input
+                                        bind:group={adminrule_rule_field}
+                                        type="checkbox"
+                                        value="DEPARTEMENT-VIEW">
+                                </td>
+                                <td width="*">VIEW</td>
+                                <td width="1%">
+                                    <input
+                                        bind:group={adminrule_rule_field}
+                                        type="checkbox"
+                                        value="EMPLOYEE-VIEW">
+                                </td>
+                                <td width="*">VIEW</td>
                                 <td width="1%">
                                     <input
                                         bind:group={adminrule_rule_field}
@@ -368,6 +384,20 @@
                                     <input
                                         bind:group={adminrule_rule_field}
                                         type="checkbox"
+                                        value="DEPARTEMENT-SAVE"/>
+                                </td>
+                                <td width="*">SAVE</td>
+                                <td width="1%">
+                                    <input
+                                        bind:group={adminrule_rule_field}
+                                        type="checkbox"
+                                        value="EMPLOYEE-SAVE"/>
+                                </td>
+                                <td width="*">SAVE</td>
+                                <td width="1%">
+                                    <input
+                                        bind:group={adminrule_rule_field}
+                                        type="checkbox"
                                         value="NEWS-SAVE"/>
                                 </td>
                                 <td width="*">SAVE</td>
@@ -380,6 +410,7 @@
                                 <td width="*">SAVE</td>
                             </tr>
                             <tr>
+                                <td width="1%" colspan=4></td>
                                 <td width="1%">
                                     <input
                                         bind:group={adminrule_rule_field}
