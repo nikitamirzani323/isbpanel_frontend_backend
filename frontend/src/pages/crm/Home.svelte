@@ -18,6 +18,8 @@
     let myModal = "";
     
   
+    let listcrmsales = []
+    let listemployee = []
     let listisbtv = []
     let listPage_isbtv = []
     let totalrecord_isbtv = 0;
@@ -30,7 +32,10 @@
     let title_modal = "";
     let switchsource_path = "";
     let switchsource_tipe = "";
+    let employee_field = "";
+    let member_field = "";
    
+    let total_sales = 0;
     let field_idrecord = 0;
     let field_nama = "";
     let field_phone = "";
@@ -72,7 +77,7 @@
         };
         dispatch("handlePaging", movie);
     };
-    const NewData = (e,id,nama,phone,status) => {
+    const NewData = (e,id,nama,phone,status,totalsales) => {
         sData = e
         if(sData == "New"){
             clearfield_user()
@@ -82,8 +87,24 @@
             field_nama = nama;
             field_phone = phone;
             field_status = status;
+            total_sales = totalsales
         }
         myModal = new bootstrap.Modal(document.getElementById("modalcruduser"));
+        myModal.show();
+        
+    };
+    const DistribusiSales = (e,idcrm,nama,phone,status) => {
+        call_employeedepart()
+        call_crmsales(phone)
+        sData = e
+        field_idrecord = parseInt(idcrm);
+        field_nama = nama;
+        field_phone = phone;
+        field_status = status;
+
+        member_field = phone;
+
+        myModal = new bootstrap.Modal(document.getElementById("modalcrmmapping"));
         myModal.show();
         
     };
@@ -160,6 +181,117 @@
             alert(msg)
         }
     }
+    async function handleSaveStatus(idcrm,status) {
+        css_loader = "display: inline-block;";
+        msgloader = "Sending...";
+        const res = await fetch("/api/crmsavestatus", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: "Bearer " + token,
+            },
+            body: JSON.stringify({
+                sdata: sData,
+                page:"CRM-SAVE",
+                crm_id: parseInt(idcrm),
+                crm_page: parseInt(pagingnow),
+                crm_status: status,
+            }),
+        });
+        const json = await res.json();
+        if (json.status == 200) {
+            
+            msgloader = json.message;
+            RefreshHalaman()
+        } else if(json.status == 403){
+            alert(json.message)
+        } else {
+            msgloader = json.message;
+        }
+        setTimeout(function () {
+            css_loader = "display: none;";
+        }, 1000);
+    }
+    async function handleSave_crmsales() {
+        let flag = true
+        let msg = ""
+        if(member_field == ""){
+            flag = false
+            msg += "The Member is required\n"
+        }
+        if(employee_field == ""){
+            flag = false
+            msg += "The Sales is required\n"
+        }
+        
+        if(flag){
+            css_loader = "display: inline-block;";
+            msgloader = "Sending...";
+            const res = await fetch("/api/crmsalessave", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: "Bearer " + token,
+                },
+                body: JSON.stringify({
+                    page:"CRM-SAVE",
+                    crm_page: parseInt(pagingnow),
+                    search: searchcrm,
+                    crmsales_phone: member_field.trim(),
+                    crmsales_username: employee_field,
+                }),
+            });
+            const json = await res.json();
+            if (json.status == 200) {
+                if(sData=="New"){
+                    clearfield_user()
+                }
+                msgloader = json.message;
+                RefreshHalaman()
+                call_crmsales(member_field)
+            } else if(json.status == 403){
+                alert(json.message)
+            } else {
+                msgloader = json.message;
+            }
+            setTimeout(function () {
+                css_loader = "display: none;";
+            }, 1000);
+        }else{
+            alert(msg)
+        }
+    }
+    async function handleDelete_crmsales(idcrmsales,phone) {
+        css_loader = "display: inline-block;";
+        msgloader = "Sending...";
+        const res = await fetch("/api/crmsalesdelete", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: "Bearer " + token,
+            },
+            body: JSON.stringify({
+                page:"CRM-SAVE",
+                search: searchcrm,
+                crm_page: parseInt(pagingnow),
+                crmsales_id: parseInt(idcrmsales),
+                crmsales_phone: phone.trim(),
+            }),
+        });
+        const json = await res.json();
+        if (json.status == 200) {
+            msgloader = json.message;
+            RefreshHalaman()
+            call_crmsales(phone)
+        } else if(json.status == 403){
+            alert(json.message)
+        } else {
+            msgloader = json.message;
+        }
+        setTimeout(function () {
+            css_loader = "display: none;";
+        }, 1000);
+    }
     const ShowSOURCE = (e) => {
         title_modal = e
         myModal = new bootstrap.Modal(document.getElementById("modalisbtv"));
@@ -173,6 +305,73 @@
         }
         call_isbtv(switchsource_path,switchsource_tipe)
     };
+    async function call_employeedepart() {
+        listemployee = []
+        const res = await fetch("/api/employeedepart", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: "Bearer " + token,
+            },
+            body: JSON.stringify({
+                page:"CRM-VIEW",
+                employee_iddepart:"SLS"
+            }),
+        });
+        const json = await res.json();
+        if (json.status == 200) {
+            let record = json.record;
+            let record_message = json.message;
+            if (record != null) {
+                totalrecord = record.length;
+                for (var i = 0; i < record.length; i++) {
+                    listemployee = [
+                        ...listemployee,
+                        {
+                            employee_username: record[i]["employee_username"],
+                            employee_name: record[i]["employee_name"],
+                        },
+                    ];
+                }
+            }
+        } 
+    }
+    async function call_crmsales(phone) {
+        listcrmsales = []
+        const res = await fetch("/api/crmsales", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: "Bearer " + token,
+            },
+            body: JSON.stringify({
+                page:"CRM-VIEW",
+                crmsales_phone:phone
+            }),
+        });
+        const json = await res.json();
+        if (json.status == 200) {
+            let record = json.record;
+            let record_message = json.message;
+            if (record != null) {
+                totalrecord = record.length;
+                for (var i = 0; i < record.length; i++) {
+                    listcrmsales = [
+                        ...listcrmsales,
+                        {
+                            crmsales_id: record[i]["crmsales_id"],
+                            crmsales_phone: record[i]["crmsales_phone"],
+                            crmsales_namamember: record[i]["crmsales_namamember"],
+                            crmsales_username: record[i]["crmsales_username"],
+                            crmsales_nameemployee: record[i]["crmsales_nameemployee"],
+                            crmsales_create: record[i]["crmsales_create"],
+                            crmsales_update: record[i]["crmsales_update"],
+                        },
+                    ];
+                }
+            }
+        } 
+    }
     async function call_isbtv(e,type){
         listisbtv = []
         const res = await fetch(e, {
@@ -300,6 +499,9 @@
             case "SAVE_USER":
                 handleSave();
                 break;
+            case "SAVE_CRMSALES":
+                handleSave_crmsales();
+                break;
             case "CALL_ISBTV":
                 ShowSOURCE("ISBTV");break;
             case "CALL_DUNIAFILM":
@@ -364,14 +566,24 @@
             <Button
                 on:click={callFunction}
                 button_function="CALL_ISBTV"
-                button_title="ISBTV"
+                button_title="Source ISBTV"
                 button_css="btn-primary"/>
             <Button
                 on:click={callFunction}
                 button_function="CALL_DUNIAFILM"
-                button_title="DUNIA FILM"
+                button_title="Source DUNIA FILM"
                 button_css="btn-primary"/>
-            
+            &nbsp;&nbsp;&nbsp;
+            <Button
+                on:click={callFunction}
+                button_function="CALL_DUNIAFILM"
+                button_title="PROCESS"
+                button_css="btn-primary"/>
+            <Button
+                on:click={callFunction}
+                button_function="CALL_DUNIAFILM"
+                button_title="INVALID"
+                button_css="btn-danger"/>
             <Panel
                 card_search={true}
                 card_title="{title_page}"
@@ -403,12 +615,14 @@
                         <table class="table table-striped table-hover table-sm">
                             <thead>
                                 <tr>
-                                    <th NOWRAP width="1%" style="text-align: center;vertical-align: top;" >&nbsp;</th>
+                                    <th NOWRAP width="1%" style="text-align: center;vertical-align: top;" colspan="2">&nbsp;</th>
                                     <th NOWRAP width="1%" style="text-align: center;vertical-align: top;font-weight:bold;font-size:{table_header_font};">NO</th>
+                                    <th NOWRAP width="1%" style="text-align: center;vertical-align: top;font-weight:bold;font-size:{table_header_font};">&nbsp;</th>
                                     <th NOWRAP width="1%" style="text-align: center;vertical-align: top;font-weight:bold;font-size:{table_header_font};">STATUS</th>
                                     <th NOWRAP width="10%" style="text-align: left;vertical-align: top;font-weight:bold;font-size: {table_header_font};">PHONE</th>
                                     <th NOWRAP width="*" style="text-align: left;vertical-align: top;font-weight:bold;font-size: {table_header_font};">NAME</th>
                                     <th NOWRAP width="10%" style="text-align: center;vertical-align: top;font-weight:bold;font-size: {table_header_font};">SOURCE</th>
+                                    <th NOWRAP width="10%" style="text-align: left;vertical-align: top;font-weight:bold;font-size: {table_header_font};">TEAM SALES</th>
                                     <th NOWRAP width="20%" style="text-align: center;vertical-align: top;font-weight:bold;font-size: {table_header_font};">CREATE</th>
                                     <th NOWRAP width="20%" style="text-align: center;vertical-align: top;font-weight:bold;font-size: {table_header_font};">UPDATE</th>
                                 </tr>
@@ -420,11 +634,27 @@
                                         <td NOWRAP style="text-align: center;vertical-align: top;cursor:pointer;">
                                             <i 
                                                 on:click={() => {
-                                                    NewData("Edit",rec.crm_id,rec.crm_name, rec.crm_phone,rec.crm_status);
+                                                    NewData("Edit",rec.crm_id,rec.crm_name, rec.crm_phone,rec.crm_status,rec.crm_totalpic);
                                                 }} 
                                                 class="bi bi-pencil"></i>
                                         </td>
+                                        <td NOWRAP style="text-align: center;vertical-align: top;cursor:pointer;">
+                                            <i 
+                                                on:click={() => {
+                                                    DistribusiSales("Edit",rec.crm_id,rec.crm_name, rec.crm_phone,rec.crm_status);
+                                                }} 
+                                                class="bi bi-person"></i>
+                                        </td>
                                         <td NOWRAP style="text-align: center;vertical-align: top;font-size: {table_body_font};">{rec.news_no}</td>
+                                        <td NOWRAP style="text-align: center;vertical-align: top;">
+                                            {#if rec.crm_totalpic > 0}
+                                                <button
+                                                    on:click={() => {
+                                                        handleSaveStatus(rec.crm_id,"PROCESS");
+                                                    }}  
+                                                    type="button" class="btn btn-warning btn-sm">Process</button>
+                                            {/if}
+                                        </td>
                                         <td NOWRAP style="text-align: center;vertical-align: top;font-size: {table_body_font};{rec.crm_statuscss}">{rec.crm_status}</td>
                                         <td NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">
                                             <a href="https://wa.me/{rec.crm_phone}" target="_blank">{rec.crm_phone}</a>
@@ -432,6 +662,13 @@
                                         </td>
                                         <td NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.crm_name}</td>
                                         <td NOWRAP style="text-align: center;vertical-align: top;font-size: {table_body_font};">{rec.crm_source}</td>
+                                        <td NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">
+                                            {#if rec.crm_pic != null}
+                                                {#each rec.crm_pic as rec2 }
+                                                    {rec2.crmsales_nameemployee}<br>
+                                                {/each}
+                                            {/if}
+                                        </td>
                                         <td NOWRAP style="text-align: center;vertical-align: top;font-size: {table_body_font};">{rec.crm_create}</td>
                                         <td NOWRAP style="text-align: center;vertical-align: top;font-size: {table_body_font};">{rec.crm_update}</td>
                                     </tr>
@@ -487,17 +724,18 @@
             <label for="exampleForm" class="form-label">Status</label>
 			<select class="form-control required" bind:value={field_status}>
                 <option value="NEW">NEW</option>
-                <option value="VALID">VALID</option>
                 <option value="INVALID">INVALID</option>
             </select>
 		</div>
 	</slot:template>
 	<slot:template slot="footer">
+        {#if total_sales < 1}
         <Button
             on:click={callFunction}
             button_function="SAVE_USER"
             button_title="Save"
             button_css="btn-warning"/>
+        {/if}
 	</slot:template>
 </Modal>
 <Modal
@@ -548,4 +786,101 @@
             disabled='{buttondownload_isbtv_flag}' 
             type="button" class="btn btn-warning">DOWNLOAD</button>
 	</slot:template>
+</Modal>
+
+<Modal
+	modal_id="modalcrmmapping"
+	modal_size="modal-dialog-centered modal-lg"
+	modal_title="Informasi - Member"
+    modal_body_css=""
+    modal_footer_css="padding:5px;"
+	modal_footer={true}>
+	<slot:template slot="body">
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="mb-3">
+                    <label for="exampleForm" class="form-label">Name</label>
+                    <Input
+                        bind:value={field_nama}
+                        class="required"
+                        disabled
+                        type="text"
+                        placeholder="Name"/>
+                </div>
+                <div class="mb-3">
+                    <label for="exampleForm" class="form-label">Phone</label>
+                    <Input
+                        bind:value={field_phone}
+                        on:keyup={handleKeyboard_format}
+                        disabled
+                        minlength="6"
+                        maxlength="20"
+                        class="required"
+                        type="text"
+                        placeholder="Phone"/>
+                </div>
+                <div class="mb-3">
+                    <label for="exampleForm" class="form-label">Status</label>
+                    <select class="form-control required" bind:value={field_status} disabled>
+                        <option value="NEW">NEW</option>
+                        <option value="VALID">VALID</option>
+                        <option value="INVALID">INVALID</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="card-header" style="padding: 0px;">
+                    <div class="input-group mb-3">
+                        <select 
+                            class="form-control required" 
+                            bind:value={employee_field} >
+                            {#each listemployee as rec}
+                                <option value="{rec.employee_username}">{rec.employee_name}</option>
+                            {/each}
+                        </select>
+                        <Button
+                            on:click={callFunction}
+                            button_function="SAVE_CRMSALES"
+                            button_title="Save"
+                            button_css="btn-warning"/>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-body">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th width="1%" style="text-align: center;vertical-align: top;font-size: 12px;">#</th>
+                                    <th width="*" style="text-align: left;vertical-align: top;font-size: 12px;">Sales</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {#each listcrmsales as rec}
+                                <tr>
+                                    <td>
+                                        <i 
+                                            style="cursor:pointer;"
+                                            on:click={() => {
+                                                handleDelete_crmsales(rec.crmsales_id,rec.crmsales_phone);
+                                            }} 
+                                            class="bi bi-trash"></i>
+                                    </td>
+                                    <td style="font-size: 12px;">{rec.crmsales_nameemployee}</td>
+                                </tr>
+                                {/each}
+                                
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+	</slot:template>
+    <slot:template slot="footer">
+        <button
+            on:click={() => {
+                handleSaveStatus(field_idrecord,"PROCESS");
+            }}  
+            type="button" class="btn btn-warning ">Process</button>
+    </slot:template>
 </Modal>

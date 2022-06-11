@@ -63,16 +63,10 @@
                 console.log(totalpaging)
                 totalrecord = totalrecordall;
                 let no = 0
-                let css_point = "";
                 if(page > 1){
                     no = parseInt(page) 
                 }
                 for (var i = 0; i < record.length; i++) {
-                    if(parseInt(record[i]["crmisbtv_point"]) > 0){
-                        css_point = "color:blue;font-weight:bold;"
-                    }else{  
-                        css_point = "color:red;font-weight:bold;"
-                    }
                     no = parseInt(no) + 1;
                     listHome = [
                         ...listHome,
@@ -81,6 +75,8 @@
                             crm_id: record[i]["crm_id"],
                             crm_phone: record[i]["crm_phone"],
                             crm_name: record[i]["crm_name"],
+                            crm_pic: record[i]["crm_pic"],
+                            crm_totalpic: record[i]["crm_totalpic"],
                             crm_source: record[i]["crm_source"],
                             crm_status: record[i]["crm_status"],
                             crm_statuscss: record[i]["crm_statuscss"],

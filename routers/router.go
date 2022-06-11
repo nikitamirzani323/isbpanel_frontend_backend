@@ -118,9 +118,13 @@ func Init() *fiber.App {
 	app.Post("/api/albumsave", controllers.Albumsave)
 
 	app.Post("/api/crm", controllers.Crmhome)
+	app.Post("/api/crmsales", controllers.Crmsaleshome)
 	app.Post("/api/crmisbtv", controllers.Crmisbtvhome)
 	app.Post("/api/crmduniafilm", controllers.Crmduniafilm)
 	app.Post("/api/crmsave", controllers.CrmSave)
+	app.Post("/api/crmsavestatus", controllers.CrmSaveStatus)
+	app.Post("/api/crmsalessave", controllers.CrmSalesSave)
+	app.Post("/api/crmsalesdelete", controllers.CrmSalesDelete)
 	app.Post("/api/crmsavesource", controllers.CrmSavesource)
 
 	app.Post("/api/providerslot", controllers.Providerslothome)
@@ -136,6 +140,7 @@ func Init() *fiber.App {
 	app.Post("/api/departement", controllers.Departementhome)
 	app.Post("/api/departementsave", controllers.DepartementSave)
 	app.Post("/api/employee", controllers.Employeehome)
+	app.Post("/api/employeedepart", controllers.Employeebydepart)
 	app.Post("/api/employeesave", controllers.EmployeeSave)
 	return app
 }
