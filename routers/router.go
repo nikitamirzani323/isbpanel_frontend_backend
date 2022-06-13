@@ -119,6 +119,7 @@ func Init() *fiber.App {
 
 	app.Post("/api/crm", controllers.Crmhome)
 	app.Post("/api/crmsales", controllers.Crmsaleshome)
+	app.Post("/api/crmdeposit", controllers.Crmdeposithome)
 	app.Post("/api/crmisbtv", controllers.Crmisbtvhome)
 	app.Post("/api/crmduniafilm", controllers.Crmduniafilm)
 	app.Post("/api/crmsave", controllers.CrmSave)

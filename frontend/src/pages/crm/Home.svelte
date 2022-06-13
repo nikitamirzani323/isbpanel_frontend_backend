@@ -20,6 +20,7 @@
   
     let listcrmprocess = []
     let listcrmsales = []
+    let listcrmdeposit = []
     let listemployee = []
     let listisbtv = []
     let listPage_isbtv = []
@@ -38,6 +39,7 @@
    
     let title_crmstatus = "";
     let total_crmprocess = 0;
+    let total_crmdeposit = 0;
     let total_sales = 0;
     let field_idrecord = 0;
     let field_nama = "";
@@ -82,7 +84,9 @@
         myModal.show();
         
     };
-    const infodeposit = (phone,nama,sales) => {
+    const infodeposit = (idcrmsales,phone,nama,sales) => {
+        // alert(idcrmsales)
+        call_crmdeposit(idcrmsales)
         info_phone = phone
         info_nama = nama
         info_sales = sales
@@ -363,6 +367,40 @@
                             crmsales_nameemployee: record[i]["crmsales_nameemployee"],
                             crmsales_create: record[i]["crmsales_create"],
                             crmsales_update: record[i]["crmsales_update"],
+                        },
+                    ];
+                }
+            }
+        } 
+    }
+    async function call_crmdeposit(idcrmsales) {
+        listcrmdeposit = []
+        total_crmdeposit = 0
+        const res = await fetch("/api/crmdeposit", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: "Bearer " + token,
+            },
+            body: JSON.stringify({
+                page:"CRM-VIEW",
+                crmsales_idcrmsales:parseInt(idcrmsales)
+            }),
+        });
+        const json = await res.json();
+        if (json.status == 200) {
+            let record = json.record;
+            if (record != null) {
+                totalrecord = record.length;
+                for (var i = 0; i < record.length; i++) {
+                    total_crmdeposit = total_crmdeposit + parseInt(record[i]["crmdeposit_deposit"])
+                    listcrmdeposit = [
+                        ...listcrmdeposit,
+                        {
+                            crmdeposit_iduseragen: record[i]["crmdeposit_iduseragen"],
+                            crmdeposit_nmwebagen: record[i]["crmdeposit_nmwebagen"],
+                            crmdeposit_deposit: parseInt(record[i]["crmdeposit_deposit"]),
+                            crmdeposit_create: record[i]["crmdeposit_create"],
                         },
                     ];
                 }
@@ -1040,7 +1078,7 @@
         </table>
 	</slot:template>
 	<slot:template slot="footer">
-        TOTAL : {total_crmprocess}
+        <b>TOTAL : {total_crmprocess}</b>
 	</slot:template>
 </Modal>
 <Modal
@@ -1079,25 +1117,25 @@
                     <td NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.crm_name}</td>
                     <td NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">
                         {#each rec.crm_pic as rec2}
-                        {rec2.crmsales_nameemployee}  - 
-                        {#if rec2.crmsales_status == "DEPOSIT"}
-                            <span style="padding:5px;padding-left: 10px;padding-right: 10px;background:#ffc107;border-radius: 50px;">{rec2.crmsales_status}</span>
-                        {/if}
-                        {#if rec2.crmsales_status == "REJECT" || rec2.crmsales_status=="NOANSWER"}
-                            <span style="padding:5px;padding-left: 10px;padding-right: 10px;background:#dc3545;border-radius: 50px;color:white;">{rec2.crmsales_status}</span>
-                        {/if}
-                        - 
-                        {#if rec2.crmsales_status == "DEPOSIT"}
-                            <i 
-                                on:click={() => {
-                                    infodeposit(rec.crm_phone,rec.crm_name,rec2.crmsales_nameemployee);
-                                }} 
-                                class="bi bi-info-circle"  style="cursor:pointer;"></i>
-                        {/if}
-                        {#if rec2.crmsales_note != ""}
-                            <i class="bi bi-chat-left-dots" title="{rec2.crmsales_note}" style="cursor:pointer;"></i>
-                        {/if}
-                        <br>
+                            {rec2.crmsales_nameemployee}  - 
+                            {#if rec2.crmsales_status == "DEPOSIT"}
+                                <span style="padding:5px;padding-left: 10px;padding-right: 10px;background:#ffc107;border-radius: 50px;">{rec2.crmsales_status}</span>
+                            {/if}
+                            {#if rec2.crmsales_status == "REJECT" || rec2.crmsales_status=="NOANSWER"}
+                                <span style="padding:5px;padding-left: 10px;padding-right: 10px;background:#dc3545;border-radius: 50px;color:white;">{rec2.crmsales_status}</span>
+                            {/if}
+                            - 
+                            {#if rec2.crmsales_status == "DEPOSIT"}
+                                <i 
+                                    on:click={() => {
+                                        infodeposit(rec2.crmsales_idcrmsales,rec.crm_phone,rec.crm_name,rec2.crmsales_nameemployee);
+                                    }} 
+                                    class="bi bi-info-circle"  style="cursor:pointer;"></i>
+                            {/if}
+                            {#if rec2.crmsales_note != ""}
+                                <i class="bi bi-chat-left-dots" title="{rec2.crmsales_note}" style="cursor:pointer;"></i>
+                            {/if}
+                            <br>
                         {/each} 
                     </td>
                     <td NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.crm_create}</td>
@@ -1109,17 +1147,17 @@
         </table>
 	</slot:template>
 	<slot:template slot="footer">
-        TOTAL : {total_crmprocess}
+        <b>TOTAL : {total_crmprocess}</b>
 	</slot:template>
 </Modal>
 
 <Modal
 	modal_id="modalinfodeposit"
-	modal_size="modal-dialog-centered"
+	modal_size="modal-dialog-centered modal-lg"
 	modal_title="DEPOSIT"
-    modal_body_css=""
+    modal_body_css="height:500px;overflow-y: scroll;"
     modal_footer_css="padding:5px;"
-	modal_footer={false}>
+	modal_footer={true}>
 	<slot:template slot="body">
         <table class="table table-sm">
             <tbody>
@@ -1143,22 +1181,28 @@
         <table class="table table-sm">
             <thead>
                 <tr>
-                    <th width="5%" style="text-align: left;vertical-align: top;font-weight:bold;font-size:{table_header_font};">CREATE</th>
-                    <th width="5%" style="text-align: left;vertical-align: top;font-weight:bold;font-size:{table_header_font};">WEBSITE</th>
+                    <th width="10%" style="text-align: left;vertical-align: top;font-weight:bold;font-size:{table_header_font};">CREATE</th>
+                    <th width="10%" style="text-align: left;vertical-align: top;font-weight:bold;font-size:{table_header_font};">WEBSITE</th>
                     <th width="10%" style="text-align: left;vertical-align: top;font-weight:bold;font-size:{table_header_font};">IDUSER</th>
                     <th width="*" style="text-align: right;vertical-align: top;font-weight:bold;font-size:{table_header_font};">DEPOSIT</th>
                 </tr>
             </thead>
             <tbody>
-                <tr>
-                    <td NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">2022-06-13 10:00:00</td>
-                    <td NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">INDOSUPERBET</td>
-                    <td NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">tatamarica</td>
-                    <td NOWRAP style="text-align: right;vertical-align: top;font-size: {table_body_font};">50.000</td>
-                </tr>
+                {#each listcrmdeposit as rec}
+                    <tr>
+                        <td NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.crmdeposit_create}</td>
+                        <td NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.crmdeposit_nmwebagen}</td>
+                        <td NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.crmdeposit_iduseragen}</td>
+                        <td NOWRAP style="text-align: right;vertical-align: top;font-size: {table_body_font};color:blue;font-weight:bold;">
+                            {new Intl.NumberFormat().format(rec.crmdeposit_deposit)}
+                        </td>
+                    </tr>
+                {/each}
+                
             </tbody>
         </table>
 	</slot:template>
 	<slot:template slot="footer">
+        TOTAL DEPOSIT : <span style="color:blue;font-weight:bold;">{new Intl.NumberFormat().format(total_crmdeposit)}</span>
 	</slot:template>
 </Modal>
