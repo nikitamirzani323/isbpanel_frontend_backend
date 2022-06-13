@@ -72,7 +72,7 @@
                     listHome = [
                         ...listHome,
                         {
-                            news_no: no,
+                            crm_no: no,
                             crm_id: record[i]["crm_id"],
                             crm_phone: record[i]["crm_phone"],
                             crm_name: record[i]["crm_name"],

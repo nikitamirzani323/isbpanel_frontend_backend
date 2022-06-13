@@ -36,6 +36,8 @@
     let employee_field = "";
     let member_field = "";
    
+    let title_crmstatus = "";
+    let total_crmprocess = 0;
     let total_sales = 0;
     let field_idrecord = 0;
     let field_nama = "";
@@ -44,29 +46,15 @@
     let field_status = "";
     let searchcrm = "";
     let filtercrm = "";
-    
+    let searchcrm_process = "";
+    let filtercrm_process = "";
 
     let css_loader = "display: none;";
     let msgloader = "";
 
-    $: {
-        if (searchcrm) {
-            filtercrm = listHome.filter(
-                (item) =>
-                    item.crm_name
-                        .toLowerCase()
-                        .includes(searchcrm.toLowerCase()) || 
-                    item.crm_phone
-                        .toLowerCase()
-                        .includes(searchcrm.toLowerCase()) || 
-                    item.crm_status
-                        .toLowerCase()
-                        .includes(searchcrm.toLowerCase())
-            );
-        } else {
-            filtercrm = [...listHome];
-        }
-    }
+    let info_phone = ""
+    let info_nama = ""
+    let info_sales = ""
     const RefreshHalaman = () => {
         dispatch("handleRefreshData", "call");
     };
@@ -91,6 +79,14 @@
             total_sales = totalsales
         }
         myModal = new bootstrap.Modal(document.getElementById("modalcruduser"));
+        myModal.show();
+        
+    };
+    const infodeposit = (phone,nama,sales) => {
+        info_phone = phone
+        info_nama = nama
+        info_sales = sales
+        myModal = new bootstrap.Modal(document.getElementById("modalinfodeposit"));
         myModal.show();
         
     };
@@ -492,8 +488,28 @@
             alert(msg)
         }
     }
-    async function call_crmprocess(){
+    async function call_crmbystatus(e){
+        title_crmstatus = ""
         listcrmprocess = []
+        switch(e){
+            case "PROCESS":
+                title_crmstatus = "CRM - PROCESS"
+                break;
+            case "VALID":
+                title_crmstatus = "CRM - VALID"
+                break;
+            case "INVALID":
+                title_crmstatus = "CRM - INVALID"
+                break;
+        }
+        if(e == "VALID"){
+            myModal = new bootstrap.Modal(document.getElementById("modallistcrmvalid"));
+            myModal.show();
+        }else{
+            myModal = new bootstrap.Modal(document.getElementById("modallistcrmstatus"));
+            myModal.show();
+        }
+        
         const res = await fetch("/api/crm", {
             method: "POST",
             headers: {
@@ -501,7 +517,7 @@
                 Authorization: "Bearer " + token,
             },
             body: JSON.stringify({
-                crm_status: "PROCESS",
+                crm_status: e,
                 crm_search: "",
                 crm_page : 0
             }),
@@ -509,69 +525,43 @@
         const json = await res.json();
         if (json.status == 200) {
             let record = json.record;
-            perpage_isbtv = json.perpage;
-            totalrecord_isbtv = json.totalrecord;
             let no = 0;
-            if(paging_ibstv > 1){
-                no = parseInt(paging_ibstv) 
-            }
+            
             if (record != null) {
-                totalpaging_isbtv = Math.ceil(parseInt(totalrecord_isbtv) / parseInt(perpage_isbtv))
-                if(type=="ISBTV"){
-                    for (var i = 0; i < record.length; i++) {
-                        let temp_1 = record[i]["crmisbtv_username"];
-                        let temp2_1 = temp_1.replace(" ", "");
-                        let temp3_1 = temp2_1.replace("-", "");
-                        let temp4_1 = temp3_1.replace("(", "");
-                        let temp5_1 = temp4_1.replace(")", "");
-                        let temp6_1 = temp5_1.replace(" ", "");
-                        no = parseInt(no) + 1;
-                        listisbtv = [
-                            ...listisbtv,
-                            {
-                                crmisbtv_no: no,
-                                crmisbtv_username: temp6_1,
-                                crmisbtv_name: record[i]["crmisbtv_name"],
-                            },
-                        ];
-                    }
-                }else{
-                    for (var i = 0; i < record.length; i++) {
-                        let temp = record[i]["crmduniafilm_username"];
-                        let temp2 = temp.replace(" ", "");
-                        let temp3 = temp2.replace("-", "");
-                        let temp4 = temp3.replace("(", "");
-                        let temp5 = temp4.replace(")", "");
-                        let temp6 = temp5.replace(" ", "");
-                        no = parseInt(no) + 1;
-                        listisbtv = [
-                            ...listisbtv,
-                            {
-                                crmisbtv_no: no,
-                                crmisbtv_username: temp6,
-                                crmisbtv_name: record[i]["crmduniafilm_name"],
-                            },
-                        ];
-                    }
-                }
-                listPage_isbtv = [];
-                for(var i=1;i<totalpaging_isbtv;i++){
-                    listPage_isbtv = [
-                        ...listPage_isbtv,
+                total_crmprocess = record.length
+                for (var i = 0; i < record.length; i++) {
+                    no = parseInt(no) + 1;
+                    listcrmprocess = [
+                        ...listcrmprocess,
                         {
-                            page_id: i,
-                            page_value: ((i*perpage_isbtv)-perpage_isbtv),
-                            page_display: i + " Of " + perpage_isbtv*i,
+                            crm_no: no,
+                            crm_id: record[i]["crm_id"],
+                            crm_phone: record[i]["crm_phone"],
+                            crm_name: record[i]["crm_name"],
+                            crm_pic: record[i]["crm_pic"],
+                            crm_totalpic: record[i]["crm_totalpic"],
+                            crm_source: record[i]["crm_source"],
+                            crm_status: record[i]["crm_status"],
+                            crm_statuscss: record[i]["crm_statuscss"],
+                            crm_create: record[i]["crm_create"],
+                            crm_update: record[i]["crm_update"],
                         },
                     ];
                 }
             }
         }
     }
+    
     function callFunction(event){
         switch(event.detail){
             case "CALL_CRMPROCESS":
-                call_crmprocess();
+                call_crmbystatus("PROCESS");
+                break;
+            case "CALL_CRMVALID":
+                call_crmbystatus("VALID");
+                break;
+            case "CALL_CRMINVALID":
+                call_crmbystatus("INVALID");
                 break;
             case "NEW":
                 NewData("New","","","");
@@ -625,6 +615,38 @@
         paging_ibstv = event.target.value
         call_isbtv(switchsource_path,switchsource_tipe)
     };
+    $: {
+        if (searchcrm) {
+            filtercrm = listHome.filter(
+                (item) =>
+                    item.crm_name
+                        .toLowerCase()
+                        .includes(searchcrm.toLowerCase()) || 
+                    item.crm_phone
+                        .toLowerCase()
+                        .includes(searchcrm.toLowerCase()) || 
+                    item.crm_status
+                        .toLowerCase()
+                        .includes(searchcrm.toLowerCase())
+            );
+        } else {
+            filtercrm = [...listHome];
+        }
+
+        if (searchcrm_process) {
+            filtercrm_process = listcrmprocess.filter(
+                (item) =>
+                    item.crm_name
+                        .toLowerCase()
+                        .includes(searchcrm_process.toLowerCase()) || 
+                    item.crm_phone
+                        .toLowerCase()
+                        .includes(searchcrm_process.toLowerCase()) 
+            );
+        } else {
+            filtercrm_process = [...listcrmprocess];
+        }
+    }
 </script>
 
 <div id="loader" style="margin-left:50%;{css_loader}">
@@ -661,12 +683,12 @@
                 button_css="btn-warning"/>
             <Button
                 on:click={callFunction}
-                button_function="CALL_DUNIAFILM"
+                button_function="CALL_CRMVALID"
                 button_title="VALID"
                 button_css="btn-success"/>
             <Button
                 on:click={callFunction}
-                button_function="CALL_DUNIAFILM"
+                button_function="CALL_CRMINVALID"
                 button_title="INVALID"
                 button_css="btn-danger"/>
             <Panel
@@ -730,7 +752,7 @@
                                                 }} 
                                                 class="bi bi-person"></i>
                                         </td>
-                                        <td NOWRAP style="text-align: center;vertical-align: top;font-size: {table_body_font};">{rec.news_no}</td>
+                                        <td NOWRAP style="text-align: center;vertical-align: top;font-size: {table_body_font};">{rec.crm_no}</td>
                                         <td NOWRAP style="text-align: center;vertical-align: top;">
                                             {#if rec.crm_totalpic > 0}
                                                 <button
@@ -968,4 +990,175 @@
             }}  
             type="button" class="btn btn-warning ">Process</button>
     </slot:template>
+</Modal>
+
+<Modal
+	modal_id="modallistcrmstatus"
+	modal_size="modal-dialog-centered modal-xl"
+	modal_title="{title_crmstatus}"
+    modal_body_css="height:500px;overflow-y: scroll;"
+    modal_footer_css="padding:5px;"
+    modal_search={true}
+	modal_footer={true}>
+    <slot:template slot="search">
+        <div class="col-lg-12" style="padding: 5px;">
+            <input
+                bind:value={searchcrm_process}
+                type="text"
+                class="form-control"
+                placeholder="Search Phone and Name"
+                aria-label="Search"/>
+        </div>
+	</slot:template>
+	<slot:template slot="body">
+        <table class="table table-sm">
+            <thead>
+                <tr>
+                    <th width="5%" style="text-align: left;vertical-align: top;font-weight:bold;font-size:{table_header_font};">PHONE</th>
+                    <th width="*" style="text-align: left;vertical-align: top;font-weight:bold;font-size:{table_header_font};">NAME</th>
+                    <th width="10%" style="text-align: left;vertical-align: top;font-weight:bold;font-size:{table_header_font};">TEAM SALES</th>
+                    <th width="10%" style="text-align: left;vertical-align: top;font-weight:bold;font-size:{table_header_font};">CREATE</th>
+                    <th width="10%" style="text-align: left;vertical-align: top;font-weight:bold;font-size:{table_header_font};">UPDATE</th>
+                </tr>
+            </thead>
+            <tbody>
+                {#each filtercrm_process as rec }
+                <tr>
+                    <td NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.crm_phone}</td>
+                    <td NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.crm_name}</td>
+                    <td NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">
+                        {#each rec.crm_pic as rec2}
+                            {rec2.crmsales_nameemployee}<br>
+                        {/each} 
+                    </td>
+                    <td NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.crm_create}</td>
+                    <td NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.crm_update}</td>
+                </tr>
+                {/each}
+                
+            </tbody>
+        </table>
+	</slot:template>
+	<slot:template slot="footer">
+        TOTAL : {total_crmprocess}
+	</slot:template>
+</Modal>
+<Modal
+	modal_id="modallistcrmvalid"
+	modal_size="modal-dialog-centered modal-xl"
+	modal_title="{title_crmstatus}"
+    modal_body_css="height:500px;overflow-y: scroll;"
+    modal_footer_css="padding:5px;"
+    modal_search={true}
+	modal_footer={true}>
+    <slot:template slot="search">
+        <div class="col-lg-12" style="padding: 5px;">
+            <input
+                bind:value={searchcrm_process}
+                type="text"
+                class="form-control"
+                placeholder="Search Phone and Name"
+                aria-label="Search"/>
+        </div>
+	</slot:template>
+	<slot:template slot="body">
+        <table class="table table-sm">
+            <thead>
+                <tr>
+                    <th width="5%" style="text-align: left;vertical-align: top;font-weight:bold;font-size:{table_header_font};">PHONE</th>
+                    <th width="*" style="text-align: left;vertical-align: top;font-weight:bold;font-size:{table_header_font};">NAME</th>
+                    <th width="20%" style="text-align: left;vertical-align: top;font-weight:bold;font-size:{table_header_font};">TEAM SALES</th>
+                    <th width="10%" style="text-align: left;vertical-align: top;font-weight:bold;font-size:{table_header_font};">CREATE</th>
+                    <th width="10%" style="text-align: left;vertical-align: top;font-weight:bold;font-size:{table_header_font};">UPDATE</th>
+                </tr>
+            </thead>
+            <tbody>
+                {#each filtercrm_process as rec }
+                <tr>
+                    <td NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.crm_phone}</td>
+                    <td NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.crm_name}</td>
+                    <td NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">
+                        {#each rec.crm_pic as rec2}
+                        {rec2.crmsales_nameemployee}  - 
+                        {#if rec2.crmsales_status == "DEPOSIT"}
+                            <span style="padding:5px;padding-left: 10px;padding-right: 10px;background:#ffc107;border-radius: 50px;">{rec2.crmsales_status}</span>
+                        {/if}
+                        {#if rec2.crmsales_status == "REJECT" || rec2.crmsales_status=="NOANSWER"}
+                            <span style="padding:5px;padding-left: 10px;padding-right: 10px;background:#dc3545;border-radius: 50px;color:white;">{rec2.crmsales_status}</span>
+                        {/if}
+                        - 
+                        {#if rec2.crmsales_status == "DEPOSIT"}
+                            <i 
+                                on:click={() => {
+                                    infodeposit(rec.crm_phone,rec.crm_name,rec2.crmsales_nameemployee);
+                                }} 
+                                class="bi bi-info-circle"  style="cursor:pointer;"></i>
+                        {/if}
+                        {#if rec2.crmsales_note != ""}
+                            <i class="bi bi-chat-left-dots" title="{rec2.crmsales_note}" style="cursor:pointer;"></i>
+                        {/if}
+                        <br>
+                        {/each} 
+                    </td>
+                    <td NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.crm_create}</td>
+                    <td NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.crm_update}</td>
+                </tr>
+                {/each}
+                
+            </tbody>
+        </table>
+	</slot:template>
+	<slot:template slot="footer">
+        TOTAL : {total_crmprocess}
+	</slot:template>
+</Modal>
+
+<Modal
+	modal_id="modalinfodeposit"
+	modal_size="modal-dialog-centered"
+	modal_title="DEPOSIT"
+    modal_body_css=""
+    modal_footer_css="padding:5px;"
+	modal_footer={false}>
+	<slot:template slot="body">
+        <table class="table table-sm">
+            <tbody>
+                <tr>
+                    <td style="text-align: left;vertical-align: top;font-size: {table_body_font};">PHONE</td>
+                    <td style="text-align: left;vertical-align: top;font-size: {table_body_font};">:</td>
+                    <td style="text-align: left;vertical-align: top;font-size: {table_body_font};">{info_phone}</td>
+                </tr>
+                <tr>
+                    <td style="text-align: left;vertical-align: top;font-size: {table_body_font};">NAME</td>
+                    <td style="text-align: left;vertical-align: top;font-size: {table_body_font};">:</td>
+                    <td style="text-align: left;vertical-align: top;font-size: {table_body_font};">{info_nama}</td>
+                </tr>
+                <tr>
+                    <td style="text-align: left;vertical-align: top;font-size: {table_body_font};">TEAM SALES</td>
+                    <td style="text-align: left;vertical-align: top;font-size: {table_body_font};">:</td>
+                    <td style="text-align: left;vertical-align: top;font-size: {table_body_font};">{info_sales}</td>
+                </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm">
+            <thead>
+                <tr>
+                    <th width="5%" style="text-align: left;vertical-align: top;font-weight:bold;font-size:{table_header_font};">CREATE</th>
+                    <th width="5%" style="text-align: left;vertical-align: top;font-weight:bold;font-size:{table_header_font};">WEBSITE</th>
+                    <th width="10%" style="text-align: left;vertical-align: top;font-weight:bold;font-size:{table_header_font};">IDUSER</th>
+                    <th width="*" style="text-align: right;vertical-align: top;font-weight:bold;font-size:{table_header_font};">DEPOSIT</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">2022-06-13 10:00:00</td>
+                    <td NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">INDOSUPERBET</td>
+                    <td NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">tatamarica</td>
+                    <td NOWRAP style="text-align: right;vertical-align: top;font-size: {table_body_font};">50.000</td>
+                </tr>
+            </tbody>
+        </table>
+	</slot:template>
+	<slot:template slot="footer">
+	</slot:template>
 </Modal>
