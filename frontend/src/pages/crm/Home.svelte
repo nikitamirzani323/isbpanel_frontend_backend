@@ -18,6 +18,7 @@
     let myModal = "";
     
   
+    let listcrmprocess = []
     let listcrmsales = []
     let listemployee = []
     let listisbtv = []
@@ -491,8 +492,87 @@
             alert(msg)
         }
     }
+    async function call_crmprocess(){
+        listcrmprocess = []
+        const res = await fetch("/api/crm", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: "Bearer " + token,
+            },
+            body: JSON.stringify({
+                crm_status: "PROCESS",
+                crm_search: "",
+                crm_page : 0
+            }),
+        });
+        const json = await res.json();
+        if (json.status == 200) {
+            let record = json.record;
+            perpage_isbtv = json.perpage;
+            totalrecord_isbtv = json.totalrecord;
+            let no = 0;
+            if(paging_ibstv > 1){
+                no = parseInt(paging_ibstv) 
+            }
+            if (record != null) {
+                totalpaging_isbtv = Math.ceil(parseInt(totalrecord_isbtv) / parseInt(perpage_isbtv))
+                if(type=="ISBTV"){
+                    for (var i = 0; i < record.length; i++) {
+                        let temp_1 = record[i]["crmisbtv_username"];
+                        let temp2_1 = temp_1.replace(" ", "");
+                        let temp3_1 = temp2_1.replace("-", "");
+                        let temp4_1 = temp3_1.replace("(", "");
+                        let temp5_1 = temp4_1.replace(")", "");
+                        let temp6_1 = temp5_1.replace(" ", "");
+                        no = parseInt(no) + 1;
+                        listisbtv = [
+                            ...listisbtv,
+                            {
+                                crmisbtv_no: no,
+                                crmisbtv_username: temp6_1,
+                                crmisbtv_name: record[i]["crmisbtv_name"],
+                            },
+                        ];
+                    }
+                }else{
+                    for (var i = 0; i < record.length; i++) {
+                        let temp = record[i]["crmduniafilm_username"];
+                        let temp2 = temp.replace(" ", "");
+                        let temp3 = temp2.replace("-", "");
+                        let temp4 = temp3.replace("(", "");
+                        let temp5 = temp4.replace(")", "");
+                        let temp6 = temp5.replace(" ", "");
+                        no = parseInt(no) + 1;
+                        listisbtv = [
+                            ...listisbtv,
+                            {
+                                crmisbtv_no: no,
+                                crmisbtv_username: temp6,
+                                crmisbtv_name: record[i]["crmduniafilm_name"],
+                            },
+                        ];
+                    }
+                }
+                listPage_isbtv = [];
+                for(var i=1;i<totalpaging_isbtv;i++){
+                    listPage_isbtv = [
+                        ...listPage_isbtv,
+                        {
+                            page_id: i,
+                            page_value: ((i*perpage_isbtv)-perpage_isbtv),
+                            page_display: i + " Of " + perpage_isbtv*i,
+                        },
+                    ];
+                }
+            }
+        }
+    }
     function callFunction(event){
         switch(event.detail){
+            case "CALL_CRMPROCESS":
+                call_crmprocess();
+                break;
             case "NEW":
                 NewData("New","","","");
                 break;
@@ -576,9 +656,14 @@
             &nbsp;&nbsp;&nbsp;
             <Button
                 on:click={callFunction}
-                button_function="CALL_DUNIAFILM"
+                button_function="CALL_CRMPROCESS"
                 button_title="PROCESS"
-                button_css="btn-primary"/>
+                button_css="btn-warning"/>
+            <Button
+                on:click={callFunction}
+                button_function="CALL_DUNIAFILM"
+                button_title="VALID"
+                button_css="btn-success"/>
             <Button
                 on:click={callFunction}
                 button_function="CALL_DUNIAFILM"

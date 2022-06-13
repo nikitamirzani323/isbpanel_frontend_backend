@@ -13,6 +13,7 @@ import (
 
 func Crmhome(c *fiber.Ctx) error {
 	type payload_crmhome struct {
+		Crm_status string `json:"crm_status"`
 		Crm_search string `json:"crm_search"`
 		Crm_page   int    `json:"crm_page"`
 	}
@@ -39,6 +40,7 @@ func Crmhome(c *fiber.Ctx) error {
 		SetHeader("Content-Type", "application/json").
 		SetBody(map[string]interface{}{
 			"client_hostname": hostname,
+			"crm_status":      client.Crm_status,
 			"crm_search":      client.Crm_search,
 			"crm_page":        client.Crm_page,
 		}).

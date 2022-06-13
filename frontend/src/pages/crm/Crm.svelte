@@ -48,6 +48,7 @@
                 Authorization: "Bearer " + token,
             },
             body: JSON.stringify({
+                crm_status: "NEW",
                 crm_search: e,
                 crm_page : parseInt(page)
             }),
