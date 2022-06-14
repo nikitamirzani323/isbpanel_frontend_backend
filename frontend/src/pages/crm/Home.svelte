@@ -18,6 +18,7 @@
     let myModal = "";
     
   
+    
     let listcrmprocess = []
     let listcrmsales = []
     let listcrmdeposit = []
@@ -25,6 +26,7 @@
     let listisbtv = []
     let listPage_isbtv = []
     let totalrecord_isbtv = 0;
+    let totalrecord_sales = 0;
     let perpage_isbtv = 0;
     let paging_ibstv = 0;
     let totalpaging_isbtv = 0;
@@ -324,7 +326,7 @@
             let record = json.record;
             let record_message = json.message;
             if (record != null) {
-                totalrecord = record.length;
+                totalrecord_sales = record.length;
                 for (var i = 0; i < record.length; i++) {
                     listemployee = [
                         ...listemployee,
@@ -482,6 +484,11 @@
             }
         }
     }
+    async function call_teamsales(){
+        call_employeedepart()
+        myModal = new bootstrap.Modal(document.getElementById("modallistsales"));
+        myModal.show();
+    }
     async function handleDownloadISBTV() {
         console.log(listisbtv.length)
         let flag = true
@@ -614,6 +621,8 @@
                 ShowSOURCE("ISBTV");break;
             case "CALL_DUNIAFILM":
                 ShowSOURCE("DUNIAFILM");break;
+            case "CALL_TEAMSALES":
+                call_teamsales();break;
             case "REFRESH":
                 RefreshHalaman();break;
         }
@@ -705,6 +714,11 @@
                 button_css="btn-primary"/>
             <Button
                 on:click={callFunction}
+                button_function="CALL_TEAMSALES"
+                button_title="Source DATABASE"
+                button_css="btn-primary"/>
+            <Button
+                on:click={callFunction}
                 button_function="CALL_ISBTV"
                 button_title="Source ISBTV"
                 button_css="btn-primary"/>
@@ -712,6 +726,12 @@
                 on:click={callFunction}
                 button_function="CALL_DUNIAFILM"
                 button_title="Source DUNIA FILM"
+                button_css="btn-primary"/>
+            &nbsp;&nbsp;&nbsp;
+            <Button
+                on:click={callFunction}
+                button_function="CALL_TEAMSALES"
+                button_title="TEAM SALES"
                 button_css="btn-primary"/>
             &nbsp;&nbsp;&nbsp;
             <Button
@@ -1204,5 +1224,35 @@
 	</slot:template>
 	<slot:template slot="footer">
         TOTAL DEPOSIT : <span style="color:blue;font-weight:bold;">{new Intl.NumberFormat().format(total_crmdeposit)}</span>
+	</slot:template>
+</Modal>
+
+<Modal
+	modal_id="modallistsales"
+	modal_size="modal-dialog-centered "
+	modal_title="TEAM SALES"
+    modal_body_css="height:500px;overflow-y: scroll;"
+    modal_footer_css="padding:5px;"
+    modal_search={false}
+	modal_footer={true}>
+	<slot:template slot="body">
+        <table class="table table-sm">
+            <thead>
+                <tr>
+                    <th width="*" style="text-align:left;vertical-align: top;font-weight:bold;font-size:{table_header_font};">NAME</th>
+                </tr>
+            </thead>
+            <tbody>
+                {#each listemployee as rec}
+                    <tr>
+                        <td NOWRAP style="text-align:left;vertical-align: top;font-size: {table_body_font};">{rec.employee_name}</td>
+                    </tr>
+                {/each}
+                
+            </tbody>
+        </table>
+	</slot:template>
+	<slot:template slot="footer">
+        TOTAL  : <span style="color:blue;font-weight:bold;">{new Intl.NumberFormat().format(totalrecord_sales)}</span>
 	</slot:template>
 </Modal>
