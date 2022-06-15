@@ -16,7 +16,7 @@
     let title_page = "CRM"
     let sData = "";
     let myModal = "";
-    
+    let files;
   
     
     let listcrmprocess = []
@@ -24,6 +24,7 @@
     let listcrmdeposit = []
     let listemployee = []
     let listisbtv = []
+    let listdatabase = []
     let listPage_isbtv = []
     let totalrecord_isbtv = 0;
     let totalrecord_sales = 0;
@@ -295,6 +296,38 @@
             css_loader = "display: none;";
         }, 1000);
     }
+    async function handleUploadDatabase() {
+        css_loader = "display: inline-block;";
+        msgloader = "Sending...";
+        const formData = new FormData();
+        formData.append("sdata", sData);
+        formData.append("page", "MOVIE-SAVE");
+        formData.append("file", files[0]);
+        const res = await fetch("/api/crmuploaddatabase", {
+            method: "POST",
+            headers: {
+                Authorization: "Bearer " + token,
+            },
+            body: formData,
+        });
+        const json = await res.json();
+        let record = json.record;
+       
+        if (record != null) {
+            for (var i = 0; i < record.length; i++) {
+                listdatabase = [
+                        ...listdatabase,
+                        {
+                            database_phone: record[i]["Phone"],
+                            database_nama: record[i]["Nama"],
+                        },
+                    ];
+            }
+        }
+        setTimeout(function () {
+            css_loader = "display: none;";
+        }, 1000);
+    }
     const ShowSOURCE = (e) => {
         title_modal = e
         myModal = new bootstrap.Modal(document.getElementById("modalisbtv"));
@@ -307,6 +340,11 @@
             switchsource_tipe ="DUNIAFILM"
         }
         call_isbtv(switchsource_path,switchsource_tipe)
+    };
+    const ShowDATABASE = (e) => {
+        title_modal = e
+        myModal = new bootstrap.Modal(document.getElementById("modaldatabase"));
+        myModal.show();
     };
     async function call_employeedepart() {
         listemployee = []
@@ -533,6 +571,50 @@
             alert(msg)
         }
     }
+    async function handleDownloadDATABASE() {
+        let flag = true
+        let msg = ""
+        if(listdatabase.length < 1){
+            flag = false
+            msg += "The DATABASE is required\n"
+        }
+        
+        if(flag){
+            buttondownload_isbtv_flag = true
+            css_loader = "display: inline-block;";
+            msgloader = "Sending...";
+            const res = await fetch("/api/crmsavedatabase", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: "Bearer " + token,
+                },
+                body: JSON.stringify({
+                    sdata: "New",
+                    page:"CRM-SAVE",
+                    crm_page: parseInt(paging_ibstv),
+                    crm_source: "DATABASE",
+                    crm_data: listdatabase,
+                }),
+            });
+            const json = await res.json();
+            if (json.status == 200) {
+                msgloader = json.message;
+                RefreshHalaman()
+                listdatabase = [];
+            } else if(json.status == 403){
+                alert(json.message)
+            } else {
+                msgloader = json.message;
+            }
+            buttondownload_isbtv_flag = false
+            setTimeout(function () {
+                css_loader = "display: none;";
+            }, 1000);
+        }else{
+            alert(msg)
+        }
+    }
     async function call_crmbystatus(e){
         title_crmstatus = ""
         listcrmprocess = []
@@ -617,10 +699,18 @@
             case "SAVE_CRMSALES":
                 handleSave_crmsales();
                 break;
+            case "SAVE_DATABASE":
+                handleDownloadDATABASE();
+                break;
+            case "UPLOAD_DATABASE":
+                handleUploadDatabase();
+                break;
             case "CALL_ISBTV":
                 ShowSOURCE("ISBTV");break;
             case "CALL_DUNIAFILM":
                 ShowSOURCE("DUNIAFILM");break;
+            case "CALL_DATABASE":
+                ShowDATABASE();break;
             case "CALL_TEAMSALES":
                 call_teamsales();break;
             case "REFRESH":
@@ -714,7 +804,7 @@
                 button_css="btn-primary"/>
             <Button
                 on:click={callFunction}
-                button_function="CALL_TEAMSALES"
+                button_function="CALL_DATABASE"
                 button_title="Source DATABASE"
                 button_css="btn-primary"/>
             <Button
@@ -1229,7 +1319,7 @@
 
 <Modal
 	modal_id="modallistsales"
-	modal_size="modal-dialog-centered "
+	modal_size="modal-dialog-centered modal-lg"
 	modal_title="TEAM SALES"
     modal_body_css="height:500px;overflow-y: scroll;"
     modal_footer_css="padding:5px;"
@@ -1239,13 +1329,21 @@
         <table class="table table-sm">
             <thead>
                 <tr>
+                    <th width="1%" style="text-align:left;vertical-align: top;font-weight:bold;font-size:{table_header_font};">&nbsp;</th>
                     <th width="*" style="text-align:left;vertical-align: top;font-weight:bold;font-size:{table_header_font};">NAME</th>
+                    <th width="7%" style="text-align:right;vertical-align: top;font-weight:bold;font-size:{table_header_font};">VALID</th>
+                    <th width="7%" style="text-align:right;vertical-align: top;font-weight:bold;font-size:{table_header_font};">INVALID</th>
                 </tr>
             </thead>
             <tbody>
                 {#each listemployee as rec}
                     <tr>
+                        <td NOWRAP style="text-align:left;vertical-align: top;font-size: {table_body_font};">
+                            <i class="bi bi-person-plus"></i>
+                        </td>
                         <td NOWRAP style="text-align:left;vertical-align: top;font-size: {table_body_font};">{rec.employee_name}</td>
+                        <td NOWRAP style="text-align:right;vertical-align: top;font-size: {table_body_font};">0</td>
+                        <td NOWRAP style="text-align:right;vertical-align: top;font-size: {table_body_font};">0</td>
                     </tr>
                 {/each}
                 
@@ -1254,5 +1352,50 @@
 	</slot:template>
 	<slot:template slot="footer">
         TOTAL  : <span style="color:blue;font-weight:bold;">{new Intl.NumberFormat().format(totalrecord_sales)}</span>
+	</slot:template>
+</Modal>
+
+<Modal
+	modal_id="modaldatabase"
+	modal_size="modal-dialog-centered"
+	modal_title="Source Database"
+    modal_body_css="height:500px;overflow-y: scroll;"
+    modal_footer_css="padding:5px;"
+    modal_search={true}
+	modal_footer={true}>
+    <slot:template slot="search">
+        <div class="input-group" style="padding: 10px;">
+            <input id="fileUpload" type="file" bind:files />
+            <Button
+                on:click={callFunction}
+                button_function="UPLOAD_DATABASE"
+                button_title="Upload"
+                button_css="btn-warning"/>
+        </div>
+	</slot:template>
+	<slot:template slot="body">
+        <table class="table table-sm">
+            <thead>
+                <tr>
+                    <th width="20%" style="text-align:left;vertical-align: top;font-weight:bold;font-size:{table_header_font};">PHONE</th>
+                    <th width="*" style="text-align:left;vertical-align: top;font-weight:bold;font-size:{table_header_font};">NAME</th>
+                </tr>
+            </thead>
+            <tbody>
+                {#each listdatabase as rec}
+                <tr>
+                    <td>{rec.database_phone}</td>
+                    <td>{rec.database_nama}</td>
+                </tr>
+                {/each}
+            </tbody>
+        </table>
+	</slot:template>
+	<slot:template slot="footer">
+        <Button
+            on:click={callFunction}
+            button_function="SAVE_DATABASE"
+            button_title="Save"
+            button_css="btn-warning"/>
 	</slot:template>
 </Modal>
