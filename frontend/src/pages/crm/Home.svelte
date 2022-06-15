@@ -60,6 +60,9 @@
     let info_phone = ""
     let info_nama = ""
     let info_sales = ""
+    let info_webagen = ""
+    let info_iduseragen = ""
+    let info_deposit = 0
     const RefreshHalaman = () => {
         dispatch("handleRefreshData", "call");
     };
@@ -87,12 +90,15 @@
         myModal.show();
         
     };
-    const infodeposit = (idcrmsales,phone,nama,sales) => {
+    const infodeposit = (idcrmsales,phone,nama,sales,nmwebagen,idwebagen,deposit) => {
         // alert(idcrmsales)
-        call_crmdeposit(idcrmsales)
+        // call_crmdeposit(idcrmsales)
         info_phone = phone
         info_nama = nama
         info_sales = sales
+        info_webagen = nmwebagen
+        info_iduseragen = idwebagen
+        info_deposit = deposit
         myModal = new bootstrap.Modal(document.getElementById("modalinfodeposit"));
         myModal.show();
         
@@ -413,40 +419,7 @@
             }
         } 
     }
-    async function call_crmdeposit(idcrmsales) {
-        listcrmdeposit = []
-        total_crmdeposit = 0
-        const res = await fetch("/api/crmdeposit", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: "Bearer " + token,
-            },
-            body: JSON.stringify({
-                page:"CRM-VIEW",
-                crmsales_idcrmsales:parseInt(idcrmsales)
-            }),
-        });
-        const json = await res.json();
-        if (json.status == 200) {
-            let record = json.record;
-            if (record != null) {
-                totalrecord = record.length;
-                for (var i = 0; i < record.length; i++) {
-                    total_crmdeposit = total_crmdeposit + parseInt(record[i]["crmdeposit_deposit"])
-                    listcrmdeposit = [
-                        ...listcrmdeposit,
-                        {
-                            crmdeposit_iduseragen: record[i]["crmdeposit_iduseragen"],
-                            crmdeposit_nmwebagen: record[i]["crmdeposit_nmwebagen"],
-                            crmdeposit_deposit: parseInt(record[i]["crmdeposit_deposit"]),
-                            crmdeposit_create: record[i]["crmdeposit_create"],
-                        },
-                    ];
-                }
-            }
-        } 
-    }
+    
     async function call_isbtv(e,type){
         listisbtv = []
         const res = await fetch(e, {
@@ -1238,7 +1211,7 @@
                             {#if rec2.crmsales_status == "DEPOSIT"}
                                 <i 
                                     on:click={() => {
-                                        infodeposit(rec2.crmsales_idcrmsales,rec.crm_phone,rec.crm_name,rec2.crmsales_nameemployee);
+                                        infodeposit(rec2.crmsales_idcrmsales,rec.crm_phone,rec.crm_name,rec2.crmsales_nameemployee,rec2.crmsales_nmwebagen,rec2.crmsales_idwebagen,rec2.crmsales_deposit);
                                     }} 
                                     class="bi bi-info-circle"  style="cursor:pointer;"></i>
                             {/if}
@@ -1263,11 +1236,11 @@
 
 <Modal
 	modal_id="modalinfodeposit"
-	modal_size="modal-dialog-centered modal-lg"
+	modal_size="modal-dialog-centered "
 	modal_title="DEPOSIT"
-    modal_body_css="height:500px;overflow-y: scroll;"
+    modal_body_css="height:400px;overflow-y: scroll;"
     modal_footer_css="padding:5px;"
-	modal_footer={true}>
+	modal_footer={false}>
 	<slot:template slot="body">
         <table class="table table-sm">
             <tbody>
@@ -1286,34 +1259,25 @@
                     <td style="text-align: left;vertical-align: top;font-size: {table_body_font};">:</td>
                     <td style="text-align: left;vertical-align: top;font-size: {table_body_font};">{info_sales}</td>
                 </tr>
-            </tbody>
-        </table>
-        <table class="table table-sm">
-            <thead>
                 <tr>
-                    <th width="10%" style="text-align: left;vertical-align: top;font-weight:bold;font-size:{table_header_font};">CREATE</th>
-                    <th width="10%" style="text-align: left;vertical-align: top;font-weight:bold;font-size:{table_header_font};">WEBSITE</th>
-                    <th width="10%" style="text-align: left;vertical-align: top;font-weight:bold;font-size:{table_header_font};">IDUSER</th>
-                    <th width="*" style="text-align: right;vertical-align: top;font-weight:bold;font-size:{table_header_font};">DEPOSIT</th>
+                    <td style="text-align: left;vertical-align: top;font-size: {table_body_font};">WEBSITE</td>
+                    <td style="text-align: left;vertical-align: top;font-size: {table_body_font};">:</td>
+                    <td style="text-align: left;vertical-align: top;font-size: {table_body_font};">{info_webagen}</td>
                 </tr>
-            </thead>
-            <tbody>
-                {#each listcrmdeposit as rec}
-                    <tr>
-                        <td NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.crmdeposit_create}</td>
-                        <td NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.crmdeposit_nmwebagen}</td>
-                        <td NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.crmdeposit_iduseragen}</td>
-                        <td NOWRAP style="text-align: right;vertical-align: top;font-size: {table_body_font};color:blue;font-weight:bold;">
-                            {new Intl.NumberFormat().format(rec.crmdeposit_deposit)}
-                        </td>
-                    </tr>
-                {/each}
-                
+                <tr>
+                    <td style="text-align: left;vertical-align: top;font-size: {table_body_font};">IDUSER</td>
+                    <td style="text-align: left;vertical-align: top;font-size: {table_body_font};">:</td>
+                    <td style="text-align: left;vertical-align: top;font-size: {table_body_font};">{info_iduseragen}</td>
+                </tr>
+                <tr>
+                    <td style="text-align: left;vertical-align: top;font-size: {table_body_font};">DEPOSIT</td>
+                    <td style="text-align: left;vertical-align: top;font-size: {table_body_font};">:</td>
+                    <td style="text-align: left;vertical-align: top;font-size: {table_body_font};color:blue;font-weight:bold;">
+                        {new Intl.NumberFormat().format(info_deposit)}
+                    </td>
+                </tr>
             </tbody>
         </table>
-	</slot:template>
-	<slot:template slot="footer">
-        TOTAL DEPOSIT : <span style="color:blue;font-weight:bold;">{new Intl.NumberFormat().format(total_crmdeposit)}</span>
 	</slot:template>
 </Modal>
 
