@@ -31,6 +31,7 @@
 
     let listgame = [];
     let provider_name = "";
+    let provider_slug = "";
 
     let sDataPrediksi = "";
     let prediksislot_id_field = 0
@@ -92,11 +93,12 @@
         myModal_newentry.show();
         
     };
-    const NewGameSlot = (id,name) => {
+    const NewGameSlot = (id,name,slug) => {
         clearField()
         call_listgameslot(id)
         providerslot_id_field = id
         provider_name = name
+        provider_slug = slug
         myModal_newentry = new bootstrap.Modal(document.getElementById("modallistgame"));
         myModal_newentry.show();
     };
@@ -124,62 +126,36 @@
     async function handleSave() {
         let flag = true
         let msg = ""
-        if(sData == "New"){
-            if(name_field == ""){
-                flag = false
-                msg += "The Name is required\n"
-            }
-            if(slug_field == ""){
-                flag = false
-                msg += "The Slug is required\n"
-            }
-            if(image_field == ""){
-                flag = false
-                msg += "The Image is required\n"
-            }
-            if(title_field == ""){
-                flag = false
-                msg += "The Title SEO is required\n"
-            }
-            if(descp_field == ""){
-                flag = false
-                msg += "The Descp SEO is required\n"
-            }
-            if(status_field == ""){
-                flag = false
-                msg += "The Status is required\n"
-            }
-        }else{
+        if(sData == "Edit"){
             if(idrecord == ""){
                 flag = false
                 msg += "The ID is required\n"
             }
-            if(name_field == ""){
-                flag = false
-                msg += "The Name is required\n"
-            }
-            if(slug_field == ""){
-                flag = false
-                msg += "The Slug is required\n"
-            }
-            if(image_field == ""){
-                flag = false
-                msg += "The Image is required\n"
-            }
-            if(title_field == ""){
-                flag = false
-                msg += "The Title SEO is required\n"
-            }
-            if(descp_field == ""){
-                flag = false
-                msg += "The Descp SEO is required\n"
-            }
-            if(status_field == ""){
-                flag = false
-                msg += "The Status is required\n"
-            }
         }
-        
+        if(name_field == ""){
+            flag = false
+            msg += "The Name is required\n"
+        }
+        if(slug_field == ""){
+            flag = false
+            msg += "The Slug is required\n"
+        }
+        if(image_field == ""){
+            flag = false
+            msg += "The Image is required\n"
+        }
+        if(title_field == ""){
+            flag = false
+            msg += "The Title SEO is required\n"
+        }
+        if(descp_field == ""){
+            flag = false
+            msg += "The Descp SEO is required\n"
+        }
+        if(status_field == ""){
+            flag = false
+            msg += "The Status is required\n"
+        }
         if(flag){
             css_loader = "display: inline-block;";
             msgloader = "Sending...";
@@ -287,6 +263,7 @@
                     prediksislot_id: parseInt(prediksislot_id_field),
                     providerslot_id: parseInt(providerslot_id_field),
                     prediksislot_prediksi: parseInt(prediksislot_prediksi_field),
+                    providerslot_slug: provider_slug,
                     prediksislot_name: prediksislot_name_field,
                     prediksislot_image: prediksislot_image_field,
                     prediksislot_status: prediksislot_status_field,
@@ -336,6 +313,7 @@
                     page: "SLOT-SAVE",
                     prediksislot_id: parseInt(idprediksislot),
                     providerslot_id: parseInt(providerslot_id_field),
+                    providerslot_slug: provider_slug,
                 }),
             });
             const json = await res.json();
@@ -354,7 +332,7 @@
             alert(msg);
         }
     }
-    async function handleGeneratorSlot(idprovider) {
+    async function handleGeneratorSlot(idprovider,slug) {
         let flag = true;
         let msg = "";
         if (idprovider == "" || parseInt(idprovider) == 0) {
@@ -373,6 +351,7 @@
                 body: JSON.stringify({
                     page: "SLOT-SAVE",
                     providerslot_id: parseInt(idprovider),
+                    providerslot_slug: slug,
                 }),
             });
             const json = await res.json();
@@ -603,14 +582,14 @@
                                     <td NOWRAP style="text-align: center;vertical-align: top;cursor:pointer;">
                                         <i 
                                             on:click={() => {
-                                                NewGameSlot(rec.providerslot_id,rec.providerslot_name);
+                                                NewGameSlot(rec.providerslot_id,rec.providerslot_name,rec.providerslot_slug);
                                             }} 
                                             class="bi bi-file-earmark-plus"></i>
                                     </td>
                                     <td NOWRAP style="text-align: center;vertical-align: top;cursor:pointer;">
                                         <i 
                                             on:click={() => {
-                                                handleGeneratorSlot(rec.providerslot_id);
+                                                handleGeneratorSlot(rec.providerslot_id,rec.providerslot_slug);
                                             }} 
                                             class="bi bi-gear"></i>
                                     </td>

@@ -76,6 +76,7 @@ func GameslotSave(c *fiber.Ctx) error {
 		Sdata                 string `json:"sdata" `
 		Prediksislot_id       int    `json:"prediksislot_id"`
 		Providerslot_id       int    `json:"providerslot_id" `
+		Providerslot_slug     string `json:"providerslot_slug" `
 		Prediksislot_name     string `json:"prediksislot_name" `
 		Prediksislot_prediksi int    `json:"prediksislot_prediksi"`
 		Prediksislot_image    string `json:"prediksislot_image" `
@@ -108,6 +109,7 @@ func GameslotSave(c *fiber.Ctx) error {
 			"sdata":                 client.Sdata,
 			"prediksislot_id":       client.Prediksislot_id,
 			"providerslot_id":       client.Providerslot_id,
+			"providerslot_slug":     client.Providerslot_slug,
 			"prediksislot_name":     client.Prediksislot_name,
 			"prediksislot_prediksi": client.Prediksislot_prediksi,
 			"prediksislot_image":    client.Prediksislot_image,
@@ -145,9 +147,10 @@ func GameslotSave(c *fiber.Ctx) error {
 }
 func GameslotDelete(c *fiber.Ctx) error {
 	type payload_save struct {
-		Page            string `json:"page"`
-		Prediksislot_id int    `json:"prediksislot_id" `
-		Providerslot_id int    `json:"providerslot_id" `
+		Page              string `json:"page"`
+		Prediksislot_id   int    `json:"prediksislot_id" `
+		Providerslot_id   int    `json:"providerslot_id" `
+		Providerslot_slug string `json:"providerslot_slug" `
 	}
 	hostname := c.Hostname()
 	bearToken := c.Get("Authorization")
@@ -171,10 +174,11 @@ func GameslotDelete(c *fiber.Ctx) error {
 		SetError(responseerror{}).
 		SetHeader("Content-Type", "application/json").
 		SetBody(map[string]interface{}{
-			"client_hostname": hostname,
-			"page":            client.Page,
-			"prediksislot_id": client.Prediksislot_id,
-			"providerslot_id": client.Providerslot_id,
+			"client_hostname":   hostname,
+			"page":              client.Page,
+			"prediksislot_id":   client.Prediksislot_id,
+			"providerslot_id":   client.Providerslot_id,
+			"providerslot_slug": client.Providerslot_slug,
 		}).
 		Post(PATH + "api/prediksislotdelete")
 	if err != nil {
@@ -208,8 +212,9 @@ func GameslotDelete(c *fiber.Ctx) error {
 }
 func GameslotGenerator(c *fiber.Ctx) error {
 	type payload_save struct {
-		Page            string `json:"page"`
-		Providerslot_id int    `json:"providerslot_id" `
+		Page              string `json:"page"`
+		Providerslot_id   int    `json:"providerslot_id" `
+		Providerslot_slug string `json:"providerslot_slug" `
 	}
 	hostname := c.Hostname()
 	bearToken := c.Get("Authorization")
@@ -233,9 +238,10 @@ func GameslotGenerator(c *fiber.Ctx) error {
 		SetError(responseerror{}).
 		SetHeader("Content-Type", "application/json").
 		SetBody(map[string]interface{}{
-			"client_hostname": hostname,
-			"page":            client.Page,
-			"providerslot_id": client.Providerslot_id,
+			"client_hostname":   hostname,
+			"page":              client.Page,
+			"providerslot_id":   client.Providerslot_id,
+			"providerslot_slug": client.Providerslot_slug,
 		}).
 		Post(PATH + "api/prediksislotgenerator")
 	if err != nil {
