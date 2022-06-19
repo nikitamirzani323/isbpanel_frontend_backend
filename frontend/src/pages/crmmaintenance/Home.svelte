@@ -74,7 +74,22 @@
         };
         dispatch("handlePaging", movie);
     };
-    
+    const NewData = (e,id,nama,phone,status,totalsales) => {
+        sData = e
+        if(sData == "New"){
+            clearfield_user()
+        }else{
+            field_phone_flag = true;
+            field_idrecord = parseInt(id);
+            field_nama = nama;
+            field_phone = phone;
+            field_status = status;
+            total_sales = totalsales
+        }
+        myModal = new bootstrap.Modal(document.getElementById("modalcruduser"));
+        myModal.show();
+        
+    };
     const infodeposit = (idcrmsales,phone,nama,sales,nmwebagen,idwebagen,deposit) => {
         
         info_phone = phone
@@ -807,15 +822,16 @@
 <Modal
 	modal_id="modalcruduser"
 	modal_size="modal-dialog-centered"
-	modal_title="USER/{sData}"
+	modal_title="INFORMASI MEMBER"
     modal_body_css=""
     modal_footer_css="padding:5px;"
-	modal_footer={true}>
+	modal_footer={false}>
 	<slot:template slot="body">
         <div class="mb-3">
             <label for="exampleForm" class="form-label">Name</label>
 			<Input
                 bind:value={field_nama}
+                disabled 
                 class="required"
                 type="text"
                 placeholder="Name"/>
@@ -832,22 +848,8 @@
                 type="text"
                 placeholder="Phone"/>
 		</div>
-        <div class="mb-3">
-            <label for="exampleForm" class="form-label">Status</label>
-			<select class="form-control required" bind:value={field_status}>
-                <option value="NEW">NEW</option>
-                <option value="INVALID">INVALID</option>
-            </select>
-		</div>
 	</slot:template>
 	<slot:template slot="footer">
-        {#if total_sales < 1}
-        <Button
-            on:click={callFunction}
-            button_function="SAVE_USER"
-            button_title="Save"
-            button_css="btn-warning"/>
-        {/if}
 	</slot:template>
 </Modal>
 <Modal
