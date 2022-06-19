@@ -393,7 +393,8 @@
             },
             body: JSON.stringify({
                 page:"CRM-VIEW",
-                crmsales_phone:phone
+                crmsales_phone:phone,
+                crmsales_status:""
             }),
         });
         const json = await res.json();

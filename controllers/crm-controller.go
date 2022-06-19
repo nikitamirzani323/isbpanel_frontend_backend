@@ -75,7 +75,8 @@ func Crmhome(c *fiber.Ctx) error {
 }
 func Crmsaleshome(c *fiber.Ctx) error {
 	type payload_crmhome struct {
-		Crmsales_phone string `json:"crmsales_phone"`
+		Crmsales_phone  string `json:"crmsales_phone"`
+		Crmsales_status string `json:"crmsales_status"`
 	}
 	hostname := c.Hostname()
 	bearToken := c.Get("Authorization")
@@ -101,6 +102,7 @@ func Crmsaleshome(c *fiber.Ctx) error {
 		SetBody(map[string]interface{}{
 			"client_hostname": hostname,
 			"crmsales_phone":  client.Crmsales_phone,
+			"crmsales_status": client.Crmsales_status,
 		}).
 		Post(PATH + "api/crmsales")
 	if err != nil {

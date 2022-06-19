@@ -367,7 +367,8 @@
             },
             body: JSON.stringify({
                 page:"CRM-VIEW",
-                crmsales_phone:phone
+                crmsales_phone:phone,
+                crmsales_status:"MAINTENANCE"
             }),
         });
         const json = await res.json();
@@ -504,8 +505,8 @@
         title_crmstatus = ""
         listcrmprocess = []
         switch(e){
-            case "PROCESS":
-                title_crmstatus = "CRM - PROCESS"
+            case "FOLLOWUP":
+                title_crmstatus = "CRM - FOLLOWUP"
                 break;
             case "VALID":
                 title_crmstatus = "CRM - VALID"
@@ -761,9 +762,9 @@
                                             {#if rec.crm_totalpic > 0}
                                                 <button
                                                     on:click={() => {
-                                                        handleSaveStatus(rec.crm_id,"PROCESS");
+                                                        handleSaveStatus(rec.crm_id,"FOLLOWUP");
                                                     }}  
-                                                    type="button" class="btn btn-warning btn-sm">Process</button>
+                                                    type="button" class="btn btn-warning btn-sm">Follow Up</button>
                                             {/if}
                                         </td>
                                         <td NOWRAP style="text-align: center;vertical-align: top;font-size: {table_body_font};{rec.crm_statuscss}">{rec.crm_status}</td>
@@ -1016,9 +1017,9 @@
     <slot:template slot="footer">
         <button
             on:click={() => {
-                handleSaveStatus(field_idrecord,"PROCESS");
+                handleSaveStatus(field_idrecord,"FOLLOWUP");
             }}  
-            type="button" class="btn btn-warning ">Process</button>
+            type="button" class="btn btn-warning ">Follow Up</button>
     </slot:template>
 </Modal>
 
@@ -1058,7 +1059,9 @@
                     <td NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.crm_name}</td>
                     <td NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">
                         {#each rec.crm_pic as rec2}
+                            {#if rec2.crmsales_status_utama == ""}
                             {rec2.crmsales_nameemployee}<br>
+                            {/if}
                         {/each} 
                     </td>
                     <td NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.crm_create}</td>
