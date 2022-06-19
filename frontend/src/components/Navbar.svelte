@@ -37,9 +37,9 @@
                             CRM
                         </a>
                         <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                            <li>
-                                <a class="dropdown-item" use:link href="/crm" style="font-size: 13px;">CRM</a>
-                            </li>
+                            <li><a class="dropdown-item" use:link href="/crm" style="font-size: 13px;">CRM</a></li>
+                            <li><a class="dropdown-item" use:link href="/crmmaintenance" style="font-size: 13px;">CRM MAINTENANCE</a></li>
+                            <li><a class="dropdown-item" use:link href="/crmvalid" style="font-size: 13px;">CRM VALID</a></li>
                             <li>
                                 <a class="dropdown-item" use:link href="/crmisbtv" style="font-size: 13px;">ISBTV</a>
                             </li>
