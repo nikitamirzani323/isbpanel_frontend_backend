@@ -13,7 +13,7 @@
 	export let listPage = []
 	export let totalrecord = 0
     let dispatch = createEventDispatcher();
-    let title_page = "CRM"
+    let title_page = "CRM VALID"
     let sData = "";
     let myModal = "";
     let files;
@@ -23,15 +23,15 @@
     let listcrmsales = []
     let listcrmdeposit = []
     let listemployee = []
-    let listisbtv = []
+    let listmaintenance = []
     let listdatabase = []
-    let listPage_isbtv = []
-    let totalrecord_isbtv = 0;
+    let listPage_maintenance = []
+    let totalrecord_maintenance = 0;
     let totalrecord_sales = 0;
-    let perpage_isbtv = 0;
-    let paging_ibstv = 0;
-    let totalpaging_isbtv = 0;
-    let pageisbtv_field = 0;
+    let perpage_maintenance = 0;
+    let paging_maintenance = 0;
+    let totalpaging_maintenance = 0;
+    let pageimaintenance_field = 0;
     let pagingnow = 0;
     let buttondownload_isbtv_flag = false;
     let title_modal = "";
@@ -91,8 +91,7 @@
         
     };
     const infodeposit = (idcrmsales,phone,nama,sales,nmwebagen,idwebagen,deposit) => {
-        // alert(idcrmsales)
-        // call_crmdeposit(idcrmsales)
+        
         info_phone = phone
         info_nama = nama
         info_sales = sales
@@ -334,23 +333,13 @@
             css_loader = "display: none;";
         }, 1000);
     }
+    
     const ShowSOURCE = (e) => {
         title_modal = e
         myModal = new bootstrap.Modal(document.getElementById("modalisbtv"));
         myModal.show();
-        if(e == "ISBTV"){
-            switchsource_path ="/api/crmisbtv"
-            switchsource_tipe ="ISBTV"
-        }else{
-            switchsource_path ="/api/crmduniafilm"
-            switchsource_tipe ="DUNIAFILM"
-        }
-        call_isbtv(switchsource_path,switchsource_tipe)
-    };
-    const ShowDATABASE = (e) => {
-        title_modal = e
-        myModal = new bootstrap.Modal(document.getElementById("modaldatabase"));
-        myModal.show();
+        
+        call_datavalid()
     };
     async function call_employeedepart() {
         listemployee = []
@@ -368,47 +357,15 @@
         const json = await res.json();
         if (json.status == 200) {
             let record = json.record;
+            let record_message = json.message;
             if (record != null) {
                 totalrecord_sales = record.length;
-                let deposit_css = "";
-                let noanswer_css = "";
-                let reject_css = "";
-                let invalid_css = "";
-                
                 for (var i = 0; i < record.length; i++) {
-                    if(record[i]["employee_deposit"] > 0){
-                        deposit_css = "color:blue;font-weight:bold;"
-                    }else{
-                        deposit_css = "color:red;font-weight:bold;"
-                    }
-                    if(record[i]["employee_noanswer"] > 0){
-                        noanswer_css = "color:blue;font-weight:bold;"
-                    }else{
-                        noanswer_css = "color:red;font-weight:bold;"
-                    }
-                    if(record[i]["employee_reject"] > 0){
-                        reject_css = "color:blue;font-weight:bold;"
-                    }else{
-                        reject_css = "color:red;font-weight:bold;"
-                    }
-                    if(record[i]["employee_invalid"] > 0){
-                        invalid_css = "color:blue;font-weight:bold;"
-                    }else{
-                        invalid_css = "color:red;font-weight:bold;"
-                    }
                     listemployee = [
                         ...listemployee,
                         {
                             employee_username: record[i]["employee_username"],
                             employee_name: record[i]["employee_name"],
-                            employee_deposit: record[i]["employee_deposit"],
-                            employee_depositcss: deposit_css,
-                            employee_invalid: record[i]["employee_invalid"],
-                            employee_invalidcss: invalid_css,
-                            employee_noanswer: record[i]["employee_noanswer"],
-                            employee_noanswercss: noanswer_css,
-                            employee_reject: record[i]["employee_reject"],
-                            employee_rejectcss: reject_css,
                         },
                     ];
                 }
@@ -426,7 +383,7 @@
             body: JSON.stringify({
                 page:"CRM-VIEW",
                 crmsales_phone:phone,
-                crmsales_status:""
+                crmsales_status:"MAINTENANCE"
             }),
         });
         const json = await res.json();
@@ -453,75 +410,58 @@
         } 
     }
     
-    async function call_isbtv(e,type){
-        listisbtv = []
-        const res = await fetch(e, {
+    async function call_datavalid(){
+        listmaintenance = []
+        const res = await fetch("/api/crm", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
                 Authorization: "Bearer " + token,
             },
             body: JSON.stringify({
-                crmisbtv_search: "",
-                crmisbtv_page : parseInt(paging_ibstv)
+                crm_status: "VALIDMAINTENANCE",
+                crm_search: "",
+                crm_page : parseInt(paging_maintenance)
             }),
         });
         const json = await res.json();
         if (json.status == 200) {
             let record = json.record;
-            perpage_isbtv = json.perpage;
-            totalrecord_isbtv = json.totalrecord;
+            perpage_maintenance = json.perpage;
+            totalrecord_maintenance = json.totalrecord;
             let no = 0;
-            if(paging_ibstv > 1){
-                no = parseInt(paging_ibstv) 
+            if(paging_maintenance > 1){
+                no = parseInt(paging_maintenance) 
             }
             if (record != null) {
-                totalpaging_isbtv = Math.ceil(parseInt(totalrecord_isbtv) / parseInt(perpage_isbtv))
-                if(type=="ISBTV"){
-                    for (var i = 0; i < record.length; i++) {
-                        let temp_1 = record[i]["crmisbtv_username"];
-                        let temp2_1 = temp_1.replace(" ", "");
-                        let temp3_1 = temp2_1.replace("-", "");
-                        let temp4_1 = temp3_1.replace("(", "");
-                        let temp5_1 = temp4_1.replace(")", "");
-                        let temp6_1 = temp5_1.replace(" ", "");
-                        no = parseInt(no) + 1;
-                        listisbtv = [
-                            ...listisbtv,
-                            {
-                                crmisbtv_no: no,
-                                crmisbtv_username: temp6_1,
-                                crmisbtv_name: record[i]["crmisbtv_name"],
-                            },
-                        ];
-                    }
-                }else{
-                    for (var i = 0; i < record.length; i++) {
-                        let temp = record[i]["crmduniafilm_username"];
-                        let temp2 = temp.replace(" ", "");
-                        let temp3 = temp2.replace("-", "");
-                        let temp4 = temp3.replace("(", "");
-                        let temp5 = temp4.replace(")", "");
-                        let temp6 = temp5.replace(" ", "");
-                        no = parseInt(no) + 1;
-                        listisbtv = [
-                            ...listisbtv,
-                            {
-                                crmisbtv_no: no,
-                                crmisbtv_username: temp6,
-                                crmisbtv_name: record[i]["crmduniafilm_name"],
-                            },
-                        ];
-                    }
+                totalpaging_maintenance = Math.ceil(parseInt(totalrecord_maintenance) / parseInt(perpage_maintenance))
+                for (var i = 0; i < record.length; i++) {
+                    no = parseInt(no) + 1;
+                    listmaintenance = [
+                        ...listmaintenance,
+                        {
+                            crm_no: no,
+                            crm_id: record[i]["crm_id"],
+                            crm_phone: record[i]["crm_phone"],
+                            crm_name: record[i]["crm_name"],
+                            crm_pic: record[i]["crm_pic"],
+                            crm_totalpic: record[i]["crm_totalpic"],
+                            crm_source: record[i]["crm_source"],
+                            crm_status: record[i]["crm_status"],
+                            crm_statuscss: record[i]["crm_statuscss"],
+                            crm_create: record[i]["crm_create"],
+                            crm_update: record[i]["crm_update"],
+                        },
+                    ];
                 }
-                listPage_isbtv = [];
-                for(var i=1;i<totalpaging_isbtv;i++){
-                    listPage_isbtv = [
-                        ...listPage_isbtv,
+                listPage_maintenance = [];
+                for(var i=1;i<totalpaging_maintenance;i++){
+                    listPage_maintenance = [
+                        ...listPage_maintenance,
                         {
                             page_id: i,
-                            page_value: ((i*perpage_isbtv)-perpage_isbtv),
-                            page_display: i + " Of " + perpage_isbtv*i,
+                            page_value: ((i*perpage_maintenance)-perpage_maintenance),
+                            page_display: i + " Of " + perpage_maintenance*i,
                         },
                     ];
                 }
@@ -533,20 +473,19 @@
         myModal = new bootstrap.Modal(document.getElementById("modallistsales"));
         myModal.show();
     }
-    async function handleDownloadISBTV() {
-        console.log(listisbtv.length)
+    async function handleDownloadMaintenance() {
         let flag = true
         let msg = ""
-        if(listisbtv.length < 1){
+        if(listmaintenance.length < 1){
             flag = false
-            msg += "The ISBTV is required\n"
+            msg += "The MAINTENANCE is required\n"
         }
         
         if(flag){
             buttondownload_isbtv_flag = true
             css_loader = "display: inline-block;";
             msgloader = "Sending...";
-            const res = await fetch("/api/crmsavesource", {
+            const res = await fetch("/api/crmsavemaintenance", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -555,9 +494,8 @@
                 body: JSON.stringify({
                     sdata: "New",
                     page:"CRM-SAVE",
-                    crm_page: parseInt(paging_ibstv),
-                    crm_source: "ISBTV",
-                    crm_data: listisbtv,
+                    crm_page: parseInt(paging_maintenance),
+                    crm_data: listmaintenance,
                 }),
             });
             const json = await res.json();
@@ -577,56 +515,13 @@
             alert(msg)
         }
     }
-    async function handleDownloadDATABASE() {
-        let flag = true
-        let msg = ""
-        if(listdatabase.length < 1){
-            flag = false
-            msg += "The DATABASE is required\n"
-        }
-        
-        if(flag){
-            buttondownload_isbtv_flag = true
-            css_loader = "display: inline-block;";
-            msgloader = "Sending...";
-            const res = await fetch("/api/crmsavedatabase", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: "Bearer " + token,
-                },
-                body: JSON.stringify({
-                    sdata: "New",
-                    page:"CRM-SAVE",
-                    crm_page: parseInt(paging_ibstv),
-                    crm_source: "DATABASE",
-                    crm_data: listdatabase,
-                }),
-            });
-            const json = await res.json();
-            if (json.status == 200) {
-                msgloader = json.message;
-                RefreshHalaman()
-                listdatabase = [];
-            } else if(json.status == 403){
-                alert(json.message)
-            } else {
-                msgloader = json.message;
-            }
-            buttondownload_isbtv_flag = false
-            setTimeout(function () {
-                css_loader = "display: none;";
-            }, 1000);
-        }else{
-            alert(msg)
-        }
-    }
+   
     async function call_crmbystatus(e){
         title_crmstatus = ""
         listcrmprocess = []
         switch(e){
-            case "PROCESS":
-                title_crmstatus = "CRM - PROCESS"
+            case "FOLLOWUP":
+                title_crmstatus = "CRM - FOLLOWUP"
                 break;
             case "VALID":
                 title_crmstatus = "CRM - VALID"
@@ -687,8 +582,8 @@
     
     function callFunction(event){
         switch(event.detail){
-            case "CALL_CRMPROCESS":
-                call_crmbystatus("PROCESS");
+            case "CALL_CRMFOLLOWUP":
+                call_crmbystatus("FOLLOWUP");
                 break;
             case "CALL_CRMVALID":
                 call_crmbystatus("VALID");
@@ -696,8 +591,8 @@
             case "CALL_CRMINVALID":
                 call_crmbystatus("INVALID");
                 break;
-            case "NEW":
-                NewData("New","","","");
+            case "CALL_VALID":
+                ShowSOURCE();
                 break;
             case "SAVE_USER":
                 handleSave();
@@ -705,18 +600,9 @@
             case "SAVE_CRMSALES":
                 handleSave_crmsales();
                 break;
-            case "SAVE_DATABASE":
-                handleDownloadDATABASE();
-                break;
             case "UPLOAD_DATABASE":
                 handleUploadDatabase();
                 break;
-            case "CALL_ISBTV":
-                ShowSOURCE("ISBTV");break;
-            case "CALL_DUNIAFILM":
-                ShowSOURCE("DUNIAFILM");break;
-            case "CALL_DATABASE":
-                ShowDATABASE();break;
             case "CALL_TEAMSALES":
                 call_teamsales();break;
             case "REFRESH":
@@ -754,9 +640,9 @@
 		}
         
     };
-    const handleSelectGetISBTV = (event) => {
-        paging_ibstv = event.target.value
-        call_isbtv(switchsource_path,switchsource_tipe)
+    const handleSelectGetMaintenance = (event) => {
+        paging_maintenance = event.target.value
+        call_datavalid()
     };
     $: {
         if (searchcrm) {
@@ -800,28 +686,8 @@
         <div class="col-sm-12">
             <Button
                 on:click={callFunction}
-                button_function="NEW"
-                button_title="New"
-                button_css="btn-primary"/>
-            <Button
-                on:click={callFunction}
                 button_function="REFRESH"
                 button_title="Refresh"
-                button_css="btn-primary"/>
-            <Button
-                on:click={callFunction}
-                button_function="CALL_DATABASE"
-                button_title="Source DATABASE"
-                button_css="btn-primary"/>
-            <Button
-                on:click={callFunction}
-                button_function="CALL_ISBTV"
-                button_title="Source ISBTV"
-                button_css="btn-primary"/>
-            <Button
-                on:click={callFunction}
-                button_function="CALL_DUNIAFILM"
-                button_title="Source DUNIA FILM"
                 button_css="btn-primary"/>
             &nbsp;&nbsp;&nbsp;
             <Button
@@ -829,22 +695,6 @@
                 button_function="CALL_TEAMSALES"
                 button_title="TEAM SALES"
                 button_css="btn-primary"/>
-            &nbsp;&nbsp;&nbsp;
-            <Button
-                on:click={callFunction}
-                button_function="CALL_CRMPROCESS"
-                button_title="PROCESS"
-                button_css="btn-warning"/>
-            <Button
-                on:click={callFunction}
-                button_function="CALL_CRMVALID"
-                button_title="VALID"
-                button_css="btn-success"/>
-            <Button
-                on:click={callFunction}
-                button_function="CALL_CRMINVALID"
-                button_title="INVALID"
-                button_css="btn-danger"/>
             <Panel
                 card_search={true}
                 card_title="{title_page}"
@@ -876,7 +726,7 @@
                         <table class="table table-striped table-hover table-sm">
                             <thead>
                                 <tr>
-                                    <th NOWRAP width="1%" style="text-align: center;vertical-align: top;" colspan="2">&nbsp;</th>
+                                    <th NOWRAP width="1%" style="text-align: center;vertical-align: top;">&nbsp;</th>
                                     <th NOWRAP width="1%" style="text-align: center;vertical-align: top;font-weight:bold;font-size:{table_header_font};">NO</th>
                                     <th NOWRAP width="1%" style="text-align: center;vertical-align: top;font-weight:bold;font-size:{table_header_font};">&nbsp;</th>
                                     <th NOWRAP width="1%" style="text-align: center;vertical-align: top;font-weight:bold;font-size:{table_header_font};">STATUS</th>
@@ -899,23 +749,8 @@
                                                 }} 
                                                 class="bi bi-pencil"></i>
                                         </td>
-                                        <td NOWRAP style="text-align: center;vertical-align: top;cursor:pointer;">
-                                            <i 
-                                                on:click={() => {
-                                                    DistribusiSales("Edit",rec.crm_id,rec.crm_name, rec.crm_phone,rec.crm_status);
-                                                }} 
-                                                class="bi bi-person"></i>
-                                        </td>
                                         <td NOWRAP style="text-align: center;vertical-align: top;font-size: {table_body_font};">{rec.crm_no}</td>
                                         <td NOWRAP style="text-align: center;vertical-align: top;">
-                                            {#if rec.crm_totalpic > 0}
-                                                <button
-                                                    on:click={() => {
-                                                        handleSaveStatus(rec.crm_id,"PROCESS");
-                                                    }}  
-                                                    type="button" class="btn btn-warning btn-sm">Process</button>
-                                            {/if}
-                                        </td>
                                         <td NOWRAP style="text-align: center;vertical-align: top;font-size: {table_body_font};{rec.crm_statuscss}">{rec.crm_status}</td>
                                         <td NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">
                                             <a href="https://wa.me/{rec.crm_phone}" target="_blank">{rec.crm_phone}</a>
@@ -956,15 +791,16 @@
 <Modal
 	modal_id="modalcruduser"
 	modal_size="modal-dialog-centered"
-	modal_title="USER/{sData}"
+	modal_title="INFORMASI MEMBER"
     modal_body_css=""
     modal_footer_css="padding:5px;"
-	modal_footer={true}>
+	modal_footer={false}>
 	<slot:template slot="body">
         <div class="mb-3">
             <label for="exampleForm" class="form-label">Name</label>
 			<Input
                 bind:value={field_nama}
+                disabled 
                 class="required"
                 type="text"
                 placeholder="Name"/>
@@ -981,28 +817,14 @@
                 type="text"
                 placeholder="Phone"/>
 		</div>
-        <div class="mb-3">
-            <label for="exampleForm" class="form-label">Status</label>
-			<select class="form-control required" bind:value={field_status}>
-                <option value="NEW">NEW</option>
-                <option value="INVALID">INVALID</option>
-            </select>
-		</div>
 	</slot:template>
 	<slot:template slot="footer">
-        {#if total_sales < 1}
-        <Button
-            on:click={callFunction}
-            button_function="SAVE_USER"
-            button_title="Save"
-            button_css="btn-warning"/>
-        {/if}
 	</slot:template>
 </Modal>
 <Modal
 	modal_id="modalisbtv"
-	modal_size="modal-dialog-centered"
-	modal_title="{title_modal}"
+	modal_size="modal-dialog-centered modal-lg"
+	modal_title="SOURCE VALID"
     modal_body_css="height:500px;overflow-y: scroll;"
     modal_footer_css="padding:5px;"
     modal_search={true}
@@ -1010,9 +832,9 @@
     <slot:template slot="search">
         <div style="padding: 10px;">
             <select
-                on:change={handleSelectGetISBTV} 
-                class="form-control" bind:value="{pageisbtv_field}">
-                {#each listPage_isbtv as rec}
+                on:change={handleSelectGetMaintenance} 
+                class="form-control" bind:value="{pageimaintenance_field}">
+                {#each listPage_maintenance as rec}
                 <option value="{rec.page_value}">{rec.page_display}</option>
                 {/each}
             </select>
@@ -1023,16 +845,42 @@
             <thead>
                 <tr>
                     <th width="1%" style="text-align: center;vertical-align: top;font-weight:bold;font-size:{table_header_font};">NO</th>
+                    <th width="10%" style="text-align: left;vertical-align: top;font-weight:bold;font-size:{table_header_font};">PHONE</th>
                     <th width="*" style="text-align: left;vertical-align: top;font-weight:bold;font-size:{table_header_font};">NAME</th>
-                    <th width="5%" style="text-align: left;vertical-align: top;font-weight:bold;font-size:{table_header_font};">PHONE</th>
+                    <th width="20%" style="text-align: left;vertical-align: top;font-weight:bold;font-size:{table_header_font};">TEAM SALES</th>
+                    <th width="10%" style="text-align: left;vertical-align: top;font-weight:bold;font-size:{table_header_font};">UPDATE</th>
                 </tr>
             </thead>
             <tbody>
-                {#each listisbtv as rec }
+                {#each listmaintenance as rec }
                 <tr>
-                    <td NOWRAP style="text-align: center;vertical-align: top;font-size: {table_body_font};">{rec.crmisbtv_no}</td>
-                    <td NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.crmisbtv_name}</td>
-                    <td NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.crmisbtv_username}</td>
+                    <td NOWRAP style="text-align: center;vertical-align: top;font-size: {table_body_font};">{rec.crm_no}</td>
+                    <td NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.crm_name}</td>
+                    <td NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.crm_phone}</td>
+                    <td NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">
+                        {#each rec.crm_pic as rec2}
+                            {rec2.crmsales_nameemployee}  - 
+                            {#if rec2.crmsales_status == "DEPOSIT"}
+                                <span style="padding:5px;padding-left: 10px;padding-right: 10px;background:#ffc107;border-radius: 50px;">{rec2.crmsales_status}</span>
+                            {/if}
+                            {#if rec2.crmsales_status == "REJECT" || rec2.crmsales_status=="NOANSWER"}
+                                <span style="padding:5px;padding-left: 10px;padding-right: 10px;background:#dc3545;border-radius: 50px;color:white;">{rec2.crmsales_status}</span>
+                            {/if}
+                            - 
+                            {#if rec2.crmsales_status == "DEPOSIT"}
+                                <i 
+                                    on:click={() => {
+                                        infodeposit(rec2.crmsales_idcrmsales,rec.crm_phone,rec.crm_name,rec2.crmsales_nameemployee,rec2.crmsales_nmwebagen,rec2.crmsales_idwebagen,rec2.crmsales_deposit);
+                                    }} 
+                                    class="bi bi-info-circle"  style="cursor:pointer;"></i>
+                            {/if}
+                            {#if rec2.crmsales_note != ""}
+                                <i class="bi bi-chat-left-dots" title="{rec2.crmsales_note}" style="cursor:pointer;"></i>
+                            {/if}
+                            <br>
+                        {/each} 
+                    </td>
+                    <td NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.crm_update}</td>
                 </tr>
                 {/each}
                 
@@ -1042,7 +890,7 @@
 	<slot:template slot="footer">
         <button
             on:click={() => {
-                handleDownloadISBTV();
+                handleDownloadMaintenance();
             }}  
             disabled='{buttondownload_isbtv_flag}' 
             type="button" class="btn btn-warning">DOWNLOAD</button>
@@ -1140,9 +988,9 @@
     <slot:template slot="footer">
         <button
             on:click={() => {
-                handleSaveStatus(field_idrecord,"PROCESS");
+                handleSaveStatus(field_idrecord,"FOLLOWUP");
             }}  
-            type="button" class="btn btn-warning ">Process</button>
+            type="button" class="btn btn-warning ">Follow Up</button>
     </slot:template>
 </Modal>
 
@@ -1182,7 +1030,9 @@
                     <td NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.crm_name}</td>
                     <td NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">
                         {#each rec.crm_pic as rec2}
+                            {#if rec2.crmsales_status_utama == ""}
                             {rec2.crmsales_nameemployee}<br>
+                            {/if}
                         {/each} 
                     </td>
                     <td NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.crm_create}</td>
@@ -1232,33 +1082,27 @@
                     <td NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.crm_phone}</td>
                     <td NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.crm_name}</td>
                     <td NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">
-                        <table>
-                            {#each rec.crm_pic as rec2}
-                            <tr>
-                                <td>{rec2.crmsales_nameemployee}</td>
-                                <td>
-                                    {#if rec2.crmsales_status == "DEPOSIT"}
-                                        <span style="padding:3px;padding-left: 10px;padding-right: 10px;background:#ffc107;border-radius: 50px;">{rec2.crmsales_status}</span>
-                                    {/if}
-                                    {#if rec2.crmsales_status == "REJECT" || rec2.crmsales_status=="NOANSWER"}
-                                        <span style="padding:3px;padding-left: 10px;padding-right: 10px;background:#dc3545;border-radius: 50px;color:white;">{rec2.crmsales_status}</span>
-                                    {/if}
-                                </td>
-                                <td>
-                                    {#if rec2.crmsales_status == "DEPOSIT"}
-                                        <i 
-                                            on:click={() => {
-                                                infodeposit(rec2.crmsales_idcrmsales,rec.crm_phone,rec.crm_name,rec2.crmsales_nameemployee,rec2.crmsales_nmwebagen,rec2.crmsales_idwebagen,rec2.crmsales_deposit);
-                                            }} 
-                                            class="bi bi-info-circle"  style="cursor:pointer;"></i>
-                                    {/if}
-                                    {#if rec2.crmsales_note != ""}
-                                        <i class="bi bi-chat-left-dots" title="{rec2.crmsales_note}" style="cursor:pointer;"></i>
-                                    {/if}
-                                </td>
-                            </tr>
-                            {/each}
-                        </table>
+                        {#each rec.crm_pic as rec2}
+                            {rec2.crmsales_nameemployee}  - 
+                            {#if rec2.crmsales_status == "DEPOSIT"}
+                                <span style="padding:5px;padding-left: 10px;padding-right: 10px;background:#ffc107;border-radius: 50px;">{rec2.crmsales_status}</span>
+                            {/if}
+                            {#if rec2.crmsales_status == "REJECT" || rec2.crmsales_status=="NOANSWER"}
+                                <span style="padding:5px;padding-left: 10px;padding-right: 10px;background:#dc3545;border-radius: 50px;color:white;">{rec2.crmsales_status}</span>
+                            {/if}
+                            - 
+                            {#if rec2.crmsales_status == "DEPOSIT"}
+                                <i 
+                                    on:click={() => {
+                                        infodeposit(rec2.crmsales_idcrmsales,rec.crm_phone,rec.crm_name,rec2.crmsales_nameemployee,rec2.crmsales_nmwebagen,rec2.crmsales_idwebagen,rec2.crmsales_deposit);
+                                    }} 
+                                    class="bi bi-info-circle"  style="cursor:pointer;"></i>
+                            {/if}
+                            {#if rec2.crmsales_note != ""}
+                                <i class="bi bi-chat-left-dots" title="{rec2.crmsales_note}" style="cursor:pointer;"></i>
+                            {/if}
+                            <br>
+                        {/each} 
                     </td>
                     <td NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.crm_create}</td>
                     <td NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.crm_update}</td>
@@ -1277,7 +1121,7 @@
 	modal_id="modalinfodeposit"
 	modal_size="modal-dialog-centered "
 	modal_title="DEPOSIT"
-    modal_body_css="height:300px;overflow-y: scroll;"
+    modal_body_css="height:400px;overflow-y: scroll;"
     modal_footer_css="padding:5px;"
 	modal_footer={false}>
 	<slot:template slot="body">
@@ -1332,23 +1176,21 @@
         <table class="table table-sm">
             <thead>
                 <tr>
+                    <th width="1%" style="text-align:left;vertical-align: top;font-weight:bold;font-size:{table_header_font};">&nbsp;</th>
                     <th width="*" style="text-align:left;vertical-align: top;font-weight:bold;font-size:{table_header_font};">NAME</th>
-                    <th width="15%" style="text-align:right;vertical-align: top;font-weight:bold;font-size:{table_header_font};">DEPOSIT</th>
-                    <th width="15%" style="text-align:right;vertical-align: top;font-weight:bold;font-size:{table_header_font};">REJECT</th>
-                    <th width="15%" style="text-align:right;vertical-align: top;font-weight:bold;font-size:{table_header_font};">NOANSWER</th>
-                    <th width="15%" style="text-align:right;vertical-align: top;font-weight:bold;font-size:{table_header_font};">INVALID</th>
+                    <th width="7%" style="text-align:right;vertical-align: top;font-weight:bold;font-size:{table_header_font};">VALID</th>
+                    <th width="7%" style="text-align:right;vertical-align: top;font-weight:bold;font-size:{table_header_font};">INVALID</th>
                 </tr>
             </thead>
             <tbody>
                 {#each listemployee as rec}
                     <tr>
-                        <td NOWRAP style="text-align:left;vertical-align: top;font-size: {table_body_font};text-decoration: underline;cursor:pointer;">
-                            {rec.employee_name}
+                        <td NOWRAP style="text-align:left;vertical-align: top;font-size: {table_body_font};">
+                            <i class="bi bi-person-plus"></i>
                         </td>
-                        <td NOWRAP style="text-align:right;vertical-align: top;font-size: {table_body_font};{rec.employee_depositcss}">{rec.employee_deposit}</td>
-                        <td NOWRAP style="text-align:right;vertical-align: top;font-size: {table_body_font};{rec.employee_rejectcss}">{rec.employee_reject}</td>
-                        <td NOWRAP style="text-align:right;vertical-align: top;font-size: {table_body_font};{rec.employee_noanswercss}">{rec.employee_noanswer}</td>
-                        <td NOWRAP style="text-align:right;vertical-align: top;font-size: {table_body_font};{rec.employee_invalidcss}">{rec.employee_invalid}</td>
+                        <td NOWRAP style="text-align:left;vertical-align: top;font-size: {table_body_font};">{rec.employee_name}</td>
+                        <td NOWRAP style="text-align:right;vertical-align: top;font-size: {table_body_font};">0</td>
+                        <td NOWRAP style="text-align:right;vertical-align: top;font-size: {table_body_font};">0</td>
                     </tr>
                 {/each}
                 

@@ -20,6 +20,7 @@
 	import Banner from "./pages/banner/Banner.svelte";
 	import Album from "./pages/album/Album.svelte";
 	import Crm from "./pages/crm/Crm.svelte";
+	import Crmvalid from "./pages/crmvalid/Crmvalid.svelte";
 	import Crmmaintenance from "./pages/crmmaintenance/Crmmaintenance.svelte";
 	import Crmisbtv from "./pages/crmisbtv/Crmisbtv.svelte";
 	import Crmduniafilm from "./pages/crmduniafilm/Crmduniafilm.svelte";
@@ -100,6 +101,13 @@
 			}),
 			"/crmmaintenance": wrap({
 				component: Crmmaintenance,
+				props: {
+					table_header_font: table_header_font,
+					table_body_font: table_body_font,
+				},
+			}),
+			"/crmvalid": wrap({
+				component: Crmvalid,
 				props: {
 					table_header_font: table_header_font,
 					table_body_font: table_body_font,
