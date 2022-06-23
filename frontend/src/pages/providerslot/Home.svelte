@@ -389,10 +389,16 @@
         if (json.status == 200) {
             let record = json.record;
             if (record != null) {
+                let prediksi_statuscss = "";
                 let prediksi_css = "";
                 let prediksi_css_color = "";
                 let prediksi_class = "";
                 for (var i = 0; i < record.length; i++) {
+                    if(record[i]["prediksislot_status"] == "Y"){
+                        prediksi_statuscss = "background:#FFEB3B;font-weight:bold;color:black;"
+                    }else{
+                        prediksi_statuscss = "background:#E91E63;font-weight:bold;color:white;"
+                    }
                     if(parseInt(record[i]["prediksislot_prediksi"]) > 9 && parseInt(record[i]["prediksislot_prediksi"]) < 50){
                         prediksi_css = "color: #dc3545;"
                         prediksi_css_color = "color: white;"
@@ -420,6 +426,7 @@
                             prediksislot_prediksiclass: prediksi_class,
                             prediksislot_image: record[i]["prediksislot_image"],
                             prediksislot_status: record[i]["prediksislot_status"],
+                            prediksislot_statuscss: prediksi_statuscss,
                             prediksislot_create: record[i]["prediksislot_create"],
                             prediksislot_update: record[i]["prediksislot_update"],
                         },
@@ -509,13 +516,13 @@
     }
     function lowercase(element) {
         function onInput(event) {
-        element.value = element.value.toLowerCase();
+            element.value = element.value.toLowerCase();
         }
         element.addEventListener("input", onInput);
         return {
-        destroy() {
-            element.removeEventListener("input", onInput);
-        },
+            destroy() {
+                element.removeEventListener("input", onInput);
+            },
         };
     }
 </script>
@@ -766,7 +773,7 @@
                   }}
                   class="bi bi-pencil"/>
               </td>
-            <td NOWRAP style="text-align: center;vertical-align: top;font-size: {table_body_font};">{status(rec.prediksislot_status)}</td>
+            <td NOWRAP style="text-align: center;vertical-align: top;font-size: {table_body_font};{rec.prediksislot_statuscss}">{status(rec.prediksislot_status)}</td>
             <td NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.prediksislot_name}</td>
             <td NOWRAP style="text-align: center;vertical-align: top;font-size: {table_body_font};">
                 <img src="{rec.prediksislot_image}" width="40" alt="">

@@ -22,6 +22,7 @@
     let listcrmprocess = []
     let listcrmsales = []
     let listcrmdeposit = []
+    let listsalesperform = []
     let listemployee = []
     let listisbtv = []
     let listdatabase = []
@@ -63,6 +64,13 @@
     let info_webagen = ""
     let info_iduseragen = ""
     let info_deposit = 0
+
+    let sales_nama = ""
+    let sales_deposit = 0
+    let sales_depositsum = 0
+    let sales_noanswer = 0
+    let sales_rejected = 0
+    let sales_invalid = 0
     const RefreshHalaman = () => {
         dispatch("handleRefreshData", "call");
     };
@@ -100,6 +108,13 @@
         info_iduseragen = idwebagen
         info_deposit = deposit
         myModal = new bootstrap.Modal(document.getElementById("modalinfodeposit"));
+        myModal.show();
+        
+    };
+    const showProfileSales = (username,name) => {
+        sales_nama = name
+        call_salesperform(username)
+        myModal = new bootstrap.Modal(document.getElementById("modalinfosales"));
         myModal.show();
         
     };
@@ -352,6 +367,38 @@
         myModal = new bootstrap.Modal(document.getElementById("modaldatabase"));
         myModal.show();
     };
+    async function call_salesperform(username) {
+        listsalesperform = []
+        const res = await fetch("/api/crmsalesperform", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: "Bearer " + token,
+            },
+            body: JSON.stringify({
+                page:"CRM-VIEW",
+                employee_iddepart:"SLS",
+                employee_username:username
+            }),
+        });
+        const json = await res.json();
+        if (json.status == 200) {
+            let record = json.record;
+            if (record != null) {
+                totalrecord_sales = record.length;
+                
+                for (var i = 0; i < record.length; i++) {
+                    sales_deposit = record[i]["sales_deposit"]
+                    sales_depositsum = record[i]["sales_depositsum"]
+                    sales_noanswer = record[i]["sales_noanswer"]
+                    sales_rejected = record[i]["sales_reject"]
+                    sales_invalid = record[i]["sales_invalid"]
+                    listsalesperform = record[i]["sales_listdeposit"]
+                }
+            }
+            console.log(listsalesperform)
+        } 
+    }
     async function call_employeedepart() {
         listemployee = []
         const res = await fetch("/api/employeedepart", {
@@ -534,7 +581,6 @@
         myModal.show();
     }
     async function handleDownloadISBTV() {
-        console.log(listisbtv.length)
         let flag = true
         let msg = ""
         if(listisbtv.length < 1){
@@ -1334,20 +1380,22 @@
                 <tr>
                     <th width="*" style="text-align:left;vertical-align: top;font-weight:bold;font-size:{table_header_font};">NAME</th>
                     <th width="15%" style="text-align:right;vertical-align: top;font-weight:bold;font-size:{table_header_font};">DEPOSIT</th>
-                    <th width="15%" style="text-align:right;vertical-align: top;font-weight:bold;font-size:{table_header_font};">REJECT</th>
                     <th width="15%" style="text-align:right;vertical-align: top;font-weight:bold;font-size:{table_header_font};">NOANSWER</th>
+                    <th width="15%" style="text-align:right;vertical-align: top;font-weight:bold;font-size:{table_header_font};">REJECT</th>
                     <th width="15%" style="text-align:right;vertical-align: top;font-weight:bold;font-size:{table_header_font};">INVALID</th>
                 </tr>
             </thead>
             <tbody>
                 {#each listemployee as rec}
                     <tr>
-                        <td NOWRAP style="text-align:left;vertical-align: top;font-size: {table_body_font};text-decoration: underline;cursor:pointer;">
+                        <td on:click={() => {
+                            showProfileSales(rec.employee_username,rec.employee_name);
+                        }} NOWRAP style="text-align:left;vertical-align: top;font-size: {table_body_font};text-decoration: underline;cursor:pointer;">
                             {rec.employee_name}
                         </td>
                         <td NOWRAP style="text-align:right;vertical-align: top;font-size: {table_body_font};{rec.employee_depositcss}">{rec.employee_deposit}</td>
-                        <td NOWRAP style="text-align:right;vertical-align: top;font-size: {table_body_font};{rec.employee_rejectcss}">{rec.employee_reject}</td>
                         <td NOWRAP style="text-align:right;vertical-align: top;font-size: {table_body_font};{rec.employee_noanswercss}">{rec.employee_noanswer}</td>
+                        <td NOWRAP style="text-align:right;vertical-align: top;font-size: {table_body_font};{rec.employee_rejectcss}">{rec.employee_reject}</td>
                         <td NOWRAP style="text-align:right;vertical-align: top;font-size: {table_body_font};{rec.employee_invalidcss}">{rec.employee_invalid}</td>
                     </tr>
                 {/each}
@@ -1357,6 +1405,104 @@
 	</slot:template>
 	<slot:template slot="footer">
         TOTAL  : <span style="color:blue;font-weight:bold;">{new Intl.NumberFormat().format(totalrecord_sales)}</span>
+	</slot:template>
+</Modal>
+
+
+<Modal
+	modal_id="modalinfosales"
+	modal_size="modal-dialog-centered modal-lg"
+	modal_title="SALES : {sales_nama}"
+    modal_body_css="height:500px;overflow-y: scroll;"
+    modal_footer_css="padding:2px;"
+	modal_footer={false}>
+	<slot:template slot="body">
+        <table class="table table-sm">
+            <tbody>
+                <tr>
+                    <td style="text-align: left;vertical-align: top;font-size: {table_body_font};">TOTAL DEPOSIT</td>
+                    <td style="text-align: left;vertical-align: top;font-size: {table_body_font};">:</td>
+                    <td style="text-align: left;vertical-align: top;font-size: {table_body_font};color:blue;font-weight:bold;">{new Intl.NumberFormat().format(sales_deposit)}</td>
+                </tr>
+                <tr>
+                    <td style="text-align: left;vertical-align: top;font-size: {table_body_font};">TOTAL NOANSWER</td>
+                    <td style="text-align: left;vertical-align: top;font-size: {table_body_font};">:</td>
+                    <td style="text-align: left;vertical-align: top;font-size: {table_body_font};color:blue;font-weight:bold;">{new Intl.NumberFormat().format(sales_noanswer)}</td>
+                </tr>
+                <tr>
+                    <td style="text-align: left;vertical-align: top;font-size: {table_body_font};">TOTAL REJECTED</td>
+                    <td style="text-align: left;vertical-align: top;font-size: {table_body_font};">:</td>
+                    <td style="text-align: left;vertical-align: top;font-size: {table_body_font};color:blue;font-weight:bold;">{new Intl.NumberFormat().format(sales_rejected)}</td>
+                </tr>
+                <tr>
+                    <td style="text-align: left;vertical-align: top;font-size: {table_body_font};">TOTAL INVALID</td>
+                    <td style="text-align: left;vertical-align: top;font-size: {table_body_font};">:</td>
+                    <td style="text-align: left;vertical-align: top;font-size: {table_body_font};color:blue;font-weight:bold;">{new Intl.NumberFormat().format(sales_invalid)}</td>
+                </tr>
+                <tr>
+                    <td style="text-align: left;vertical-align: top;font-size: {table_body_font};">DEPOSIT</td>
+                    <td style="text-align: left;vertical-align: top;font-size: {table_body_font};">:</td>
+                    <td style="text-align: left;vertical-align: top;font-size: {table_body_font};color:blue;font-weight:bold;">
+                        {new Intl.NumberFormat().format(sales_depositsum)}
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <ul class="nav nav-tabs">
+            <li class="nav-item">
+              <a class="nav-link active" data-bs-toggle="tab" href="#sales_deposit">DEPOSIT</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" data-bs-toggle="tab" href="#sales_noanswer">NOANSWER</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" data-bs-toggle="tab" href="#sales_reject">REJECT</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" data-bs-toggle="tab" href="#sales_invalid">INVALID</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" data-bs-toggle="tab" href="#sales_invalid">BY DATE</a>
+            </li>
+          </ul>
+          <div id="myTabContent" class="tab-content">
+            <div class="tab-pane fade show active" id="sales_deposit">
+                <table class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th style="text-align:left;vertical-align: top;font-weight:bold;font-size:{table_header_font};">PHONE</th>
+                            <th style="text-align:left;vertical-align: top;font-weight:bold;font-size:{table_header_font};">NAME</th>
+                            <th style="text-align:left;vertical-align: top;font-weight:bold;font-size:{table_header_font};">WEBSITE AGEN</th>
+                            <th style="text-align:left;vertical-align: top;font-weight:bold;font-size:{table_header_font};">ID AGEN</th>
+                            <th style="text-align:right;vertical-align: top;font-weight:bold;font-size:{table_header_font};">DEPOSIT</th>
+                            <th style="text-align:center;vertical-align: top;font-weight:bold;font-size:{table_header_font};">UPDATE</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {#each listsalesperform as rec}
+                            <tr>
+                                <td style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.crmdeposit_phone}</td>
+                                <td style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.crmdeposit_nama}</td>
+                                <td style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.crmdeposit_nmwebagen}</td>
+                                <td style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.crmdeposit_iduseragen}</td>
+                                <td style="text-align: right;vertical-align: top;font-size: {table_body_font};color:blue;font-weight:bold;">{new Intl.NumberFormat().format(rec.crmdeposit_deposit)}</td>
+                                <td style="text-align: center;vertical-align: top;font-size: {table_body_font};">{rec.crmdeposit_update}</td>
+                            </tr>
+                        {/each}
+                        
+                    </tbody>
+                </table>
+            </div>
+            <div class="tab-pane fade" id="sales_noanswer">
+              <p>Food truck fixie locavore, accusamus mcsweeney's marfa nulla single-origin coffee squid. Exercitation +1 labore velit, blog sartorial PBR leggings next level wes anderson artisan four loko farm-to-table craft beer twee. Qui photo booth letterpress, commodo enim craft beer mlkshk aliquip jean shorts ullamco ad vinyl cillum PBR. Homo nostrud organic, assumenda labore aesthetic magna delectus mollit.</p>
+            </div>
+            <div class="tab-pane fade" id="sales_reject">
+              <p>Etsy mixtape wayfarers, ethical wes anderson tofu before they sold out mcsweeney's organic lomo retro fanny pack lo-fi farm-to-table readymade. Messenger bag gentrify pitchfork tattooed craft beer, iphone skateboard locavore carles etsy salvia banksy hoodie helvetica. DIY synth PBR banksy irony. Leggings gentrify squid 8-bit cred pitchfork.</p>
+            </div>
+            <div class="tab-pane fade" id="sales_invalid">
+              <p>Trust fund seitan letterpress, keytar raw denim keffiyeh etsy art party before they sold out master cleanse gluten-free squid scenester freegan cosby sweater. Fanny pack portland seitan DIY, art party locavore wolf cliche high life echo park Austin. Cred vinyl keffiyeh DIY salvia PBR, banh mi before they sold out farm-to-table VHS viral locavore cosby sweater.</p>
+            </div>
+          </div>
 	</slot:template>
 </Modal>
 
