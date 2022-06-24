@@ -23,6 +23,8 @@
     let listcrmsales = []
     let listcrmdeposit = []
     let listsalesperform = []
+    let listsalesperform_noanswer = []
+    let listsalesperform_invalid = []
     let listemployee = []
     let listisbtv = []
     let listdatabase = []
@@ -369,6 +371,7 @@
     };
     async function call_salesperform(username) {
         listsalesperform = []
+        listsalesperform_noanswer = []
         const res = await fetch("/api/crmsalesperform", {
             method: "POST",
             headers: {
@@ -394,9 +397,10 @@
                     sales_rejected = record[i]["sales_reject"]
                     sales_invalid = record[i]["sales_invalid"]
                     listsalesperform = record[i]["sales_listdeposit"]
+                    listsalesperform_noanswer = record[i]["sales_listnoanswer"]
+                    listsalesperform_invalid = record[i]["sales_listinvalid"]
                 }
             }
-            console.log(listsalesperform)
         } 
     }
     async function call_employeedepart() {
@@ -1420,29 +1424,29 @@
         <table class="table table-sm">
             <tbody>
                 <tr>
-                    <td style="text-align: left;vertical-align: top;font-size: {table_body_font};">TOTAL DEPOSIT</td>
-                    <td style="text-align: left;vertical-align: top;font-size: {table_body_font};">:</td>
-                    <td style="text-align: left;vertical-align: top;font-size: {table_body_font};color:blue;font-weight:bold;">{new Intl.NumberFormat().format(sales_deposit)}</td>
+                    <td width="20%" style="text-align: left;vertical-align: top;font-size: {table_body_font};">TOTAL DEPOSIT</td>
+                    <td width="1%" style="text-align: left;vertical-align: top;font-size: {table_body_font};">:</td>
+                    <td width="*" style="text-align: right;vertical-align: top;font-size: {table_body_font};color:blue;font-weight:bold;">{new Intl.NumberFormat().format(sales_deposit)}</td>
                 </tr>
                 <tr>
                     <td style="text-align: left;vertical-align: top;font-size: {table_body_font};">TOTAL NOANSWER</td>
                     <td style="text-align: left;vertical-align: top;font-size: {table_body_font};">:</td>
-                    <td style="text-align: left;vertical-align: top;font-size: {table_body_font};color:blue;font-weight:bold;">{new Intl.NumberFormat().format(sales_noanswer)}</td>
+                    <td style="text-align: right;vertical-align: top;font-size: {table_body_font};color:blue;font-weight:bold;">{new Intl.NumberFormat().format(sales_noanswer)}</td>
                 </tr>
                 <tr>
                     <td style="text-align: left;vertical-align: top;font-size: {table_body_font};">TOTAL REJECTED</td>
                     <td style="text-align: left;vertical-align: top;font-size: {table_body_font};">:</td>
-                    <td style="text-align: left;vertical-align: top;font-size: {table_body_font};color:blue;font-weight:bold;">{new Intl.NumberFormat().format(sales_rejected)}</td>
+                    <td style="text-align: right;vertical-align: top;font-size: {table_body_font};color:blue;font-weight:bold;">{new Intl.NumberFormat().format(sales_rejected)}</td>
                 </tr>
                 <tr>
                     <td style="text-align: left;vertical-align: top;font-size: {table_body_font};">TOTAL INVALID</td>
                     <td style="text-align: left;vertical-align: top;font-size: {table_body_font};">:</td>
-                    <td style="text-align: left;vertical-align: top;font-size: {table_body_font};color:blue;font-weight:bold;">{new Intl.NumberFormat().format(sales_invalid)}</td>
+                    <td style="text-align: right;vertical-align: top;font-size: {table_body_font};color:blue;font-weight:bold;">{new Intl.NumberFormat().format(sales_invalid)}</td>
                 </tr>
                 <tr>
-                    <td style="text-align: left;vertical-align: top;font-size: {table_body_font};">DEPOSIT</td>
+                    <td style="text-align: left;vertical-align: top;font-size: {table_body_font};">SUBTOTAL DEPOSIT</td>
                     <td style="text-align: left;vertical-align: top;font-size: {table_body_font};">:</td>
-                    <td style="text-align: left;vertical-align: top;font-size: {table_body_font};color:blue;font-weight:bold;">
+                    <td style="text-align: right;vertical-align: top;font-size: {table_body_font};color:blue;font-weight:bold;">
                         {new Intl.NumberFormat().format(sales_depositsum)}
                     </td>
                 </tr>
@@ -1453,10 +1457,7 @@
               <a class="nav-link active" data-bs-toggle="tab" href="#sales_deposit">DEPOSIT</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" data-bs-toggle="tab" href="#sales_noanswer">NOANSWER</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" data-bs-toggle="tab" href="#sales_reject">REJECT</a>
+              <a class="nav-link" data-bs-toggle="tab" href="#sales_noanswer">NOANSWER / REJECT</a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" data-bs-toggle="tab" href="#sales_invalid">INVALID</a>
@@ -1470,23 +1471,25 @@
                 <table class="table table-sm">
                     <thead>
                         <tr>
-                            <th style="text-align:left;vertical-align: top;font-weight:bold;font-size:{table_header_font};">PHONE</th>
-                            <th style="text-align:left;vertical-align: top;font-weight:bold;font-size:{table_header_font};">NAME</th>
-                            <th style="text-align:left;vertical-align: top;font-weight:bold;font-size:{table_header_font};">WEBSITE AGEN</th>
-                            <th style="text-align:left;vertical-align: top;font-weight:bold;font-size:{table_header_font};">ID AGEN</th>
-                            <th style="text-align:right;vertical-align: top;font-weight:bold;font-size:{table_header_font};">DEPOSIT</th>
-                            <th style="text-align:center;vertical-align: top;font-weight:bold;font-size:{table_header_font};">UPDATE</th>
+                            <th nowrap width="10%" style="text-align:left;vertical-align: top;font-weight:bold;font-size:{table_header_font};">PHONE</th>
+                            <th nowrap width="*" style="text-align:left;vertical-align: top;font-weight:bold;font-size:{table_header_font};">NAME</th>
+                            <th nowrap width="10%" style="text-align:left;vertical-align: top;font-weight:bold;font-size:{table_header_font};">SOURCE</th>
+                            <th nowrap width="10%" style="text-align:left;vertical-align: top;font-weight:bold;font-size:{table_header_font};">WEBSITE AGEN</th>
+                            <th nowrap width="10%" style="text-align:left;vertical-align: top;font-weight:bold;font-size:{table_header_font};">ID AGEN</th>
+                            <th nowrap width="10%" style="text-align:right;vertical-align: top;font-weight:bold;font-size:{table_header_font};">DEPOSIT</th>
+                            <th nowrap width="20%" style="text-align:center;vertical-align: top;font-weight:bold;font-size:{table_header_font};">UPDATE</th>
                         </tr>
                     </thead>
                     <tbody>
                         {#each listsalesperform as rec}
                             <tr>
-                                <td style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.crmdeposit_phone}</td>
-                                <td style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.crmdeposit_nama}</td>
-                                <td style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.crmdeposit_nmwebagen}</td>
-                                <td style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.crmdeposit_iduseragen}</td>
-                                <td style="text-align: right;vertical-align: top;font-size: {table_body_font};color:blue;font-weight:bold;">{new Intl.NumberFormat().format(rec.crmdeposit_deposit)}</td>
-                                <td style="text-align: center;vertical-align: top;font-size: {table_body_font};">{rec.crmdeposit_update}</td>
+                                <td nowrap style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.crmdeposit_phone}</td>
+                                <td nowrap style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.crmdeposit_nama}</td>
+                                <td nowrap style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.crmdeposit_source}</td>
+                                <td nowrap style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.crmdeposit_nmwebagen}</td>
+                                <td nowrap style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.crmdeposit_iduseragen}</td>
+                                <td nowrap style="text-align: right;vertical-align: top;font-size: {table_body_font};color:blue;font-weight:bold;">{new Intl.NumberFormat().format(rec.crmdeposit_deposit)}</td>
+                                <td nowrap style="text-align: center;vertical-align: top;font-size: {table_body_font};">{rec.crmdeposit_update}</td>
                             </tr>
                         {/each}
                         
@@ -1494,13 +1497,52 @@
                 </table>
             </div>
             <div class="tab-pane fade" id="sales_noanswer">
-              <p>Food truck fixie locavore, accusamus mcsweeney's marfa nulla single-origin coffee squid. Exercitation +1 labore velit, blog sartorial PBR leggings next level wes anderson artisan four loko farm-to-table craft beer twee. Qui photo booth letterpress, commodo enim craft beer mlkshk aliquip jean shorts ullamco ad vinyl cillum PBR. Homo nostrud organic, assumenda labore aesthetic magna delectus mollit.</p>
-            </div>
-            <div class="tab-pane fade" id="sales_reject">
-              <p>Etsy mixtape wayfarers, ethical wes anderson tofu before they sold out mcsweeney's organic lomo retro fanny pack lo-fi farm-to-table readymade. Messenger bag gentrify pitchfork tattooed craft beer, iphone skateboard locavore carles etsy salvia banksy hoodie helvetica. DIY synth PBR banksy irony. Leggings gentrify squid 8-bit cred pitchfork.</p>
+                <table class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th width="10%" style="text-align:left;vertical-align: top;font-weight:bold;font-size:{table_header_font};">PHONE</th>
+                            <th width="*" style="text-align:left;vertical-align: top;font-weight:bold;font-size:{table_header_font};">NAME</th>
+                            <th width="10%" style="text-align:left;vertical-align: top;font-weight:bold;font-size:{table_header_font};">SOURCE</th>
+                            <th width="10%" style="text-align:left;vertical-align: top;font-weight:bold;font-size:{table_header_font};">TIPE</th>
+                            <th width="20%" style="text-align:center;vertical-align: top;font-weight:bold;font-size:{table_header_font};">UPDATE</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {#each listsalesperform_noanswer as rec}
+                            <tr>
+                                <td nowrap style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.crmnoanswer_phone}</td>
+                                <td nowrap style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.crmnoanswer_nama}</td>
+                                <td nowrap style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.crmnoanswer_source}</td>
+                                <td nowrap style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.crmnoanswer_tipe}</td>
+                                <td nowrap style="text-align: center;vertical-align: top;font-size: {table_body_font};">{rec.crmnoanswer_update}</td>
+                            </tr>
+                        {/each}
+                        
+                    </tbody>
+                </table>
             </div>
             <div class="tab-pane fade" id="sales_invalid">
-              <p>Trust fund seitan letterpress, keytar raw denim keffiyeh etsy art party before they sold out master cleanse gluten-free squid scenester freegan cosby sweater. Fanny pack portland seitan DIY, art party locavore wolf cliche high life echo park Austin. Cred vinyl keffiyeh DIY salvia PBR, banh mi before they sold out farm-to-table VHS viral locavore cosby sweater.</p>
+                <table class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th width="10%" style="text-align:left;vertical-align: top;font-weight:bold;font-size:{table_header_font};">PHONE</th>
+                            <th width="*" style="text-align:left;vertical-align: top;font-weight:bold;font-size:{table_header_font};">NAME</th>
+                            <th width="10%" style="text-align:left;vertical-align: top;font-weight:bold;font-size:{table_header_font};">SOURCE</th>
+                            <th width="20%" style="text-align:center;vertical-align: top;font-weight:bold;font-size:{table_header_font};">UPDATE</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {#each listsalesperform_invalid as rec}
+                            <tr>
+                                <td nowrap style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.crminvalid_phone}</td>
+                                <td nowrap style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.crminvalid_nama}</td>
+                                <td nowrap style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.crminvalid_source}</td>
+                                <td nowrap style="text-align: center;vertical-align: top;font-size: {table_body_font};">{rec.crminvalid_update}</td>
+                            </tr>
+                        {/each}
+                        
+                    </tbody>
+                </table>
             </div>
           </div>
 	</slot:template>
