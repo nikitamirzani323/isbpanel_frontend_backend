@@ -138,9 +138,11 @@ func Crmsaleshome(c *fiber.Ctx) error {
 }
 func Crmsalesperform(c *fiber.Ctx) error {
 	type payload_crmhome struct {
-		Page              string `json:"page"`
-		Employee_iddepart string `json:"employee_iddepart"`
-		Employee_username string `json:"employee_username"`
+		Page               string `json:"page"`
+		Employee_iddepart  string `json:"employee_iddepart"`
+		Employee_username  string `json:"employee_username"`
+		Employee_startdate string `json:"employee_startdate"`
+		Employee_enddate   string `json:"employee_enddate"`
 	}
 	hostname := c.Hostname()
 	bearToken := c.Get("Authorization")
@@ -164,9 +166,11 @@ func Crmsalesperform(c *fiber.Ctx) error {
 		SetError(responseerror{}).
 		SetHeader("Content-Type", "application/json").
 		SetBody(map[string]interface{}{
-			"page":              client.Page,
-			"employee_iddepart": client.Employee_iddepart,
-			"employee_username": client.Employee_username,
+			"page":               client.Page,
+			"employee_iddepart":  client.Employee_iddepart,
+			"employee_username":  client.Employee_username,
+			"employee_startdate": client.Employee_startdate,
+			"employee_enddate":   client.Employee_enddate,
 		}).
 		Post(PATH + "api/employeebysalesperformance")
 	if err != nil {
