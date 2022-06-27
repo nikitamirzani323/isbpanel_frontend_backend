@@ -26,6 +26,9 @@
     let listsalesperform = []
     let listsalesperform_noanswer = []
     let listsalesperform_invalid = []
+    let listsalesperform_date = []
+    let listsalesperform_noanswer_date = []
+    let listsalesperform_invalid_date = []
     let listemployee = []
     let listisbtv = []
     let listdatabase = []
@@ -68,12 +71,18 @@
     let info_iduseragen = ""
     let info_deposit = 0
 
+    let sales_username = ""
     let sales_nama = ""
     let sales_deposit = 0
     let sales_depositsum = 0
     let sales_noanswer = 0
     let sales_rejected = 0
     let sales_invalid = 0
+    let sales_deposit_date = 0
+    let sales_depositsum_date = 0
+    let sales_noanswer_date = 0
+    let sales_rejected_date = 0
+    let sales_invalid_date = 0
 
     let tanggal_start_sales = ""
     let tanggal_end_sales = ""
@@ -119,6 +128,7 @@
     };
     const showProfileSales = (username,name) => {
         sales_nama = name
+        sales_username = username
         call_salesperform(username)
         myModal = new bootstrap.Modal(document.getElementById("modalinfosales"));
         myModal.show();
@@ -684,6 +694,78 @@
             alert(msg)
         }
     }
+    async function handleSalesDataPerform() {
+        let flag = true
+        let msg = ""
+        let date1 = dayjs(tanggal_start_sales);
+        let date2 = dayjs(tanggal_end_sales);
+        sales_deposit_date = 0
+        sales_depositsum_date = 0
+        sales_noanswer_date = 0
+        sales_rejected_date = 0
+        sales_invalid_date = 0
+        listsalesperform_date = []
+        listsalesperform_noanswer_date = []
+        listsalesperform_invalid_date = []
+        if(date1 == ""){
+            flag = false
+            msg += "The TGL START is required\n"
+            msg += "TANGGAL :"+date1
+            msg += "TANGGAL :"+date2
+        }
+        if(tanggal_end_sales == ""){
+            flag = false
+            msg += "The TGL END is required\n"
+        }
+        if(flag){
+            buttondownload_isbtv_flag = true
+            css_loader = "display: inline-block;";
+            msgloader = "Sending...";
+            const res = await fetch("/api/crmsalesperform", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: "Bearer " + token,
+                },
+                body: JSON.stringify({
+                    page:"CRM-VIEW",
+                    employee_iddepart:"SLS",
+                    employee_username:sales_username,
+                    employee_startdate:tanggal_start_sales,
+                    employee_enddate:tanggal_end_sales
+                }),
+            });
+            const json = await res.json();
+            if (json.status == 200) {
+                let record = json.record;
+                if (record != null) {
+                    totalrecord_sales = record.length;
+                    
+                    for (var i = 0; i < record.length; i++) {
+                        sales_deposit_date = record[i]["sales_deposit"]
+                        sales_depositsum_date = record[i]["sales_depositsum"]
+                        sales_noanswer_date = record[i]["sales_noanswer"]
+                        sales_rejected_date = record[i]["sales_reject"]
+                        sales_invalid_date = record[i]["sales_invalid"]
+                        if(record[i]["sales_listdeposit"] != null){
+                            listsalesperform_date = record[i]["sales_listdeposit"]
+                        }
+                        if(record[i]["sales_listnoanswer"] != null){
+                            listsalesperform_noanswer_date = record[i]["sales_listnoanswer"]
+                        }
+                        if(record[i]["sales_listinvalid"] != null){
+                            listsalesperform_invalid_date = record[i]["sales_listinvalid"]
+                        }
+                    }
+                }
+            }
+            setTimeout(function () {
+                css_loader = "display: none;";
+            }, 1000);
+        }else{
+            alert(msg)
+        }
+    }
     async function call_crmbystatus(e){
         title_crmstatus = ""
         listcrmprocess = []
@@ -784,6 +866,8 @@
                 call_teamsales();break;
             case "REFRESH":
                 RefreshHalaman();break;
+            case "SALESDATEPERFORM":
+                handleSalesDataPerform();break;
         }
     }
  
@@ -1573,7 +1657,7 @@
                         class="required"
                         type="date"
                         name="date"
-                        id="exampleDate"
+                        id="tanggal_start_sales"
                         data-date-format="dd-mm-yyyy"
                         placeholder="date placeholder"/>
                     <span class="input-group-text">s/d</span>
@@ -1582,18 +1666,138 @@
                         class="required"
                         type="date"
                         name="date"
-                        id="exampleDate"
+                        id="tanggal_end_sales"
                         data-date-format="dd-mm-yyyy"
                         placeholder="date placeholder"/>
                     <Button
                         on:click={callFunction}
-                        button_function="UPLOAD_DATABASE"
+                        button_function="SALESDATEPERFORM"
                         button_title="Generate"
                         button_css="btn-warning"/>
                 </div>
+                <table class="table table-sm">
+                    <tbody>
+                        <tr>
+                            <td width="20%" style="text-align: left;vertical-align: top;font-size: {table_body_font};">TOTAL DEPOSIT</td>
+                            <td width="1%" style="text-align: left;vertical-align: top;font-size: {table_body_font};">:</td>
+                            <td width="*" style="text-align: right;vertical-align: top;font-size: {table_body_font};color:blue;font-weight:bold;">{new Intl.NumberFormat().format(sales_deposit_date)}</td>
+                        </tr>
+                        <tr>
+                            <td style="text-align: left;vertical-align: top;font-size: {table_body_font};">TOTAL NOANSWER</td>
+                            <td style="text-align: left;vertical-align: top;font-size: {table_body_font};">:</td>
+                            <td style="text-align: right;vertical-align: top;font-size: {table_body_font};color:blue;font-weight:bold;">{new Intl.NumberFormat().format(sales_noanswer_date)}</td>
+                        </tr>
+                        <tr>
+                            <td style="text-align: left;vertical-align: top;font-size: {table_body_font};">TOTAL REJECTED</td>
+                            <td style="text-align: left;vertical-align: top;font-size: {table_body_font};">:</td>
+                            <td style="text-align: right;vertical-align: top;font-size: {table_body_font};color:blue;font-weight:bold;">{new Intl.NumberFormat().format(sales_rejected_date)}</td>
+                        </tr>
+                        <tr>
+                            <td style="text-align: left;vertical-align: top;font-size: {table_body_font};">TOTAL INVALID</td>
+                            <td style="text-align: left;vertical-align: top;font-size: {table_body_font};">:</td>
+                            <td style="text-align: right;vertical-align: top;font-size: {table_body_font};color:blue;font-weight:bold;">{new Intl.NumberFormat().format(sales_invalid_date)}</td>
+                        </tr>
+                        <tr>
+                            <td style="text-align: left;vertical-align: top;font-size: {table_body_font};">SUBTOTAL DEPOSIT</td>
+                            <td style="text-align: left;vertical-align: top;font-size: {table_body_font};">:</td>
+                            <td style="text-align: right;vertical-align: top;font-size: {table_body_font};color:blue;font-weight:bold;">
+                                {new Intl.NumberFormat().format(sales_depositsum_date)}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <ul class="nav nav-tabs">
+                    <li class="nav-item">
+                      <a class="nav-link active" data-bs-toggle="tab" href="#sales_deposit_date">DEPOSIT</a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" data-bs-toggle="tab" href="#sales_noanswer_date">NOANSWER / REJECT</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-bs-toggle="tab" href="#sales_invalid_date">INVALID</a>
+                    </li>
+                </ul>
+                <div id="myTabContent" class="tab-content">
+                    <div class="tab-pane fade show active" id="sales_deposit_date">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th nowrap width="10%" style="text-align:left;vertical-align: top;font-weight:bold;font-size:{table_header_font};">PHONE</th>
+                                    <th nowrap width="*" style="text-align:left;vertical-align: top;font-weight:bold;font-size:{table_header_font};">NAME</th>
+                                    <th nowrap width="10%" style="text-align:left;vertical-align: top;font-weight:bold;font-size:{table_header_font};">SOURCE</th>
+                                    <th nowrap width="10%" style="text-align:left;vertical-align: top;font-weight:bold;font-size:{table_header_font};">WEBSITE AGEN</th>
+                                    <th nowrap width="10%" style="text-align:left;vertical-align: top;font-weight:bold;font-size:{table_header_font};">ID AGEN</th>
+                                    <th nowrap width="10%" style="text-align:right;vertical-align: top;font-weight:bold;font-size:{table_header_font};">DEPOSIT</th>
+                                    <th nowrap width="20%" style="text-align:center;vertical-align: top;font-weight:bold;font-size:{table_header_font};">UPDATE</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {#each listsalesperform_date as rec}
+                                    <tr>
+                                        <td nowrap style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.crmdeposit_phone}</td>
+                                        <td nowrap style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.crmdeposit_nama}</td>
+                                        <td nowrap style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.crmdeposit_source}</td>
+                                        <td nowrap style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.crmdeposit_nmwebagen}</td>
+                                        <td nowrap style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.crmdeposit_iduseragen}</td>
+                                        <td nowrap style="text-align: right;vertical-align: top;font-size: {table_body_font};color:blue;font-weight:bold;">{new Intl.NumberFormat().format(rec.crmdeposit_deposit)}</td>
+                                        <td nowrap style="text-align: center;vertical-align: top;font-size: {table_body_font};">{rec.crmdeposit_update}</td>
+                                    </tr>
+                                {/each}
+                                
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="tab-pane fade" id="sales_noanswer_date">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th width="10%" style="text-align:left;vertical-align: top;font-weight:bold;font-size:{table_header_font};">PHONE</th>
+                                    <th width="*" style="text-align:left;vertical-align: top;font-weight:bold;font-size:{table_header_font};">NAME</th>
+                                    <th width="10%" style="text-align:left;vertical-align: top;font-weight:bold;font-size:{table_header_font};">SOURCE</th>
+                                    <th width="10%" style="text-align:left;vertical-align: top;font-weight:bold;font-size:{table_header_font};">TIPE</th>
+                                    <th width="20%" style="text-align:center;vertical-align: top;font-weight:bold;font-size:{table_header_font};">UPDATE</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {#each listsalesperform_noanswer_date as rec}
+                                    <tr>
+                                        <td nowrap style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.crmnoanswer_phone}</td>
+                                        <td nowrap style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.crmnoanswer_nama}</td>
+                                        <td nowrap style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.crmnoanswer_source}</td>
+                                        <td nowrap style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.crmnoanswer_tipe}</td>
+                                        <td nowrap style="text-align: center;vertical-align: top;font-size: {table_body_font};">{rec.crmnoanswer_update}</td>
+                                    </tr>
+                                {/each}
+                                
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="tab-pane fade" id="sales_invalid_date">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th width="10%" style="text-align:left;vertical-align: top;font-weight:bold;font-size:{table_header_font};">PHONE</th>
+                                    <th width="*" style="text-align:left;vertical-align: top;font-weight:bold;font-size:{table_header_font};">NAME</th>
+                                    <th width="10%" style="text-align:left;vertical-align: top;font-weight:bold;font-size:{table_header_font};">SOURCE</th>
+                                    <th width="20%" style="text-align:center;vertical-align: top;font-weight:bold;font-size:{table_header_font};">UPDATE</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {#each listsalesperform_invalid_date as rec}
+                                    <tr>
+                                        <td nowrap style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.crminvalid_phone}</td>
+                                        <td nowrap style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.crminvalid_nama}</td>
+                                        <td nowrap style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.crminvalid_source}</td>
+                                        <td nowrap style="text-align: center;vertical-align: top;font-size: {table_body_font};">{rec.crminvalid_update}</td>
+                                    </tr>
+                                {/each}
+                                
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
-        </div>
-        
+        </div>   
 	</slot:template>
 </Modal>
 
