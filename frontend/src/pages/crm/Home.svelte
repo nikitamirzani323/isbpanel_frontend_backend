@@ -161,10 +161,6 @@
                 flag = false
                 msg += "The Phone is required\n"
             }
-            if(field_status == ""){
-                flag = false
-                msg += "The Status is required\n"
-            }
         }else{
             if(field_idrecord == ""){
                 flag = false
@@ -177,10 +173,6 @@
             if(field_phone == ""){
                 flag = false
                 msg += "The Phone is required\n"
-            }
-            if(field_status == ""){
-                flag = false
-                msg += "The Status is required\n"
             }
         }
         
@@ -200,7 +192,7 @@
                     crm_page: pagingnow,
                     crm_phone: field_phone.trim(),
                     crm_name: field_nama,
-                    crm_status: field_status,
+                    crm_status: "NEW",
                 }),
             });
             const json = await res.json();
@@ -1128,13 +1120,6 @@
                 type="text"
                 placeholder="Phone"/>
 		</div>
-        <div class="mb-3">
-            <label for="exampleForm" class="form-label">Status</label>
-			<select class="form-control required" bind:value={field_status}>
-                <option value="NEW">NEW</option>
-                <option value="INVALID">INVALID</option>
-            </select>
-		</div>
 	</slot:template>
 	<slot:template slot="footer">
         {#if total_sales < 1}
@@ -1328,9 +1313,11 @@
                     <td NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.crm_phone}</td>
                     <td NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.crm_name}</td>
                     <td NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">
+                        {#if rec.crm_pic != null}
                         {#each rec.crm_pic as rec2}
                             {rec2.crmsales_nameemployee}<br>
                         {/each} 
+                        {/if}
                     </td>
                     <td NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.crm_create}</td>
                     <td NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.crm_update}</td>
