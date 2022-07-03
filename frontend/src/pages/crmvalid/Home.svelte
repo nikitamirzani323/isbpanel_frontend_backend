@@ -468,11 +468,7 @@
             }
         }
     }
-    async function call_teamsales(){
-        call_employeedepart()
-        myModal = new bootstrap.Modal(document.getElementById("modallistsales"));
-        myModal.show();
-    }
+    
     async function handleDownloadMaintenance() {
         let flag = true
         let msg = ""
@@ -688,12 +684,6 @@
                 on:click={callFunction}
                 button_function="REFRESH"
                 button_title="Refresh"
-                button_css="btn-primary"/>
-            &nbsp;&nbsp;&nbsp;
-            <Button
-                on:click={callFunction}
-                button_function="CALL_TEAMSALES"
-                button_title="TEAM SALES"
                 button_css="btn-primary"/>
             <Panel
                 card_search={true}
