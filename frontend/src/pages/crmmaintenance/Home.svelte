@@ -840,7 +840,7 @@
                             on:keypress={handleKeyboard_checkenter}
                             type="text"
                             class="form-control"
-                            placeholder="Search Username"
+                            placeholder="Search Phone"
                             aria-label="Search"/>
                     </div>
                 </slot:template>
