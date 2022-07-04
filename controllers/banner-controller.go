@@ -68,15 +68,16 @@ func Bannerhome(c *fiber.Ctx) error {
 }
 func BannerSave(c *fiber.Ctx) error {
 	type payload_save struct {
-		Page           string `json:"page"`
-		Sdata          string `json:"sdata" `
-		Banner_id      int    `json:"banner_id"`
-		Banner_name    string `json:"banner_name" `
-		Banner_url     string `json:"banner_url" `
-		Banner_posisi  string `json:"banner_posisi" `
-		Banner_device  string `json:"banner_device" `
-		Banner_display int    `json:"banner_display" `
-		Banner_status  string `json:"banner_status" `
+		Page              string `json:"page"`
+		Sdata             string `json:"sdata" `
+		Banner_id         int    `json:"banner_id"`
+		Banner_name       string `json:"banner_name" `
+		Banner_url        string `json:"banner_url" `
+		Banner_urlwebsite string `json:"banner_urlwebsite" `
+		Banner_posisi     string `json:"banner_posisi" `
+		Banner_device     string `json:"banner_device" `
+		Banner_display    int    `json:"banner_display" `
+		Banner_status     string `json:"banner_status" `
 	}
 
 	hostname := c.Hostname()
@@ -101,16 +102,17 @@ func BannerSave(c *fiber.Ctx) error {
 		SetError(responseerror{}).
 		SetHeader("Content-Type", "application/json").
 		SetBody(map[string]interface{}{
-			"client_hostname": hostname,
-			"page":            client.Page,
-			"sdata":           client.Sdata,
-			"banner_id":       client.Banner_id,
-			"banner_name":     client.Banner_name,
-			"banner_url":      client.Banner_url,
-			"banner_posisi":   client.Banner_posisi,
-			"banner_device":   client.Banner_device,
-			"banner_display":  client.Banner_display,
-			"banner_status":   client.Banner_status,
+			"client_hostname":   hostname,
+			"page":              client.Page,
+			"sdata":             client.Sdata,
+			"banner_id":         client.Banner_id,
+			"banner_name":       client.Banner_name,
+			"banner_url":        client.Banner_url,
+			"banner_urlwebsite": client.Banner_urlwebsite,
+			"banner_posisi":     client.Banner_posisi,
+			"banner_device":     client.Banner_device,
+			"banner_display":    client.Banner_display,
+			"banner_status":     client.Banner_status,
 		}).
 		Post(PATH + "api/bannersave")
 	if err != nil {

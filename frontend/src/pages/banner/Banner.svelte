@@ -65,6 +65,7 @@
                             banner_id: record[i]["banner_id"],
                             banner_name: record[i]["banner_name"],
                             banner_url: record[i]["banner_url"],
+                            banner_urlwebsite: record[i]["banner_urlwebsite"],
                             banner_posisi: record[i]["banner_posisi"],
                             banner_device: record[i]["banner_device"],
                             banner_display: record[i]["banner_display"],

@@ -22,6 +22,7 @@
 
     let nmbanner_field = "";
     let urlbanner_field = "";
+    let urlwebsite_field = "";
     let devicebanner_field = "";
     let posisibanner_field = "";
     let displaybanner_field = 0;
@@ -45,7 +46,7 @@
         }
     }
     
-    const NewData = (e,id,nm,url,device,posisi,display,status) => {
+    const NewData = (e,id,nm,url,urlwebsite,device,posisi,display,status) => {
         sData = e
         if(sData == "New"){
             clearField()
@@ -53,6 +54,7 @@
             idrecord = parseInt(id)
             nmbanner_field = nm;
             urlbanner_field = url;
+            urlwebsite_field = urlwebsite;
             devicebanner_field = device;
             posisibanner_field = posisi;
             displaybanner_field = display;
@@ -79,9 +81,13 @@
             flag = false
             msg += "The Banner is required\n"
         }
+        if(urlwebsite_field == ""){
+            flag = false
+            msg += "The URL WEBSITE is required\n"
+        }
         if(urlbanner_field == ""){
             flag = false
-            msg += "The URL is required\n"
+            msg += "The LINK IMAGE is required\n"
         }
         if(posisibanner_field == ""){
             flag = false
@@ -111,6 +117,7 @@
                     banner_id: parseInt(idrecord),
                     banner_name: nmbanner_field,
                     banner_url: urlbanner_field,
+                    banner_urlwebsite: urlwebsite_field,
                     banner_posisi: posisibanner_field,
                     banner_device: devicebanner_field,
                     banner_display: parseInt(displaybanner_field),
@@ -140,6 +147,7 @@
         idrecord = "";
         nmbanner_field = "";
         urlbanner_field = "";
+        urlwebsite_field = "";
         devicebanner_field = "";
         posisibanner_field = "";
         displaybanner_field = 0;
@@ -225,6 +233,7 @@
                                 <th NOWRAP width="5%" style="text-align: left;vertical-align: top;font-weight:bold;font-size:{table_header_font};">DEVICE</th>
                                 <th NOWRAP width="5%" style="text-align: left;vertical-align: top;font-weight:bold;font-size:{table_header_font};">POSISI</th>
                                 <th NOWRAP width="*" style="text-align: left;vertical-align: top;font-weight:bold;font-size: {table_header_font};">BANNER</th>
+                                <th NOWRAP width="20%" style="text-align: left;vertical-align: top;font-weight:bold;font-size:{table_header_font};">WEBSITE</th>
                                 <th NOWRAP width="10%" style="text-align: left;vertical-align: top;font-weight:bold;font-size:{table_header_font};">IMAGE</th>
                                 <th NOWRAP width="5%" style="text-align: right;vertical-align: top;font-weight:bold;font-size:{table_header_font};">DISPLAY</th>
                             </tr>
@@ -236,7 +245,7 @@
                                     <td NOWRAP style="text-align: center;vertical-align: top;cursor:pointer;">
                                         <i 
                                             on:click={() => {
-                                                NewData("Edit",rec.banner_id,rec.banner_name, rec.banner_url,rec.banner_device,rec.banner_posisi,rec.banner_display,rec.banner_status);
+                                                NewData("Edit",rec.banner_id,rec.banner_name, rec.banner_url,rec.banner_urlwebsite,rec.banner_device,rec.banner_posisi,rec.banner_display,rec.banner_status);
                                             }} 
                                             class="bi bi-pencil"></i>
                                     </td>
@@ -245,6 +254,7 @@
                                     <td  style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.banner_device}</td>
                                     <td  style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.banner_posisi}</td>
                                     <td  style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.banner_name}</td>
+                                    <td  style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.banner_urlwebsite}</td>
                                     <td  style="text-align: left;vertical-align: top;font-size: {table_body_font};">
                                         <img src="{rec.banner_url}" alt="" width="100">
                                     </td>
@@ -272,59 +282,75 @@
 
 <Modal
 	modal_id="modalentrycrud"
-	modal_size="modal-dialog-centered"
+	modal_size="modal-dialog-centered modal-lg"
 	modal_title="{title_page+"/"+sData}"
     modal_footer_css="padding:5px;"
 	modal_footer={true}>
 	<slot:template slot="body">
-        <div class="mb-3">
-            <label for="exampleForm" class="form-label">Banner</label>
-            <Input
-                bind:value={nmbanner_field}
-                class="required"
-                type="text"
-                placeholder="Banner"/>
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="mb-3">
+                    <label for="exampleForm" class="form-label">Banner</label>
+                    <Input
+                        bind:value={nmbanner_field}
+                        class="required"
+                        type="text"
+                        placeholder="Banner"/>
+                </div>
+                <div class="mb-3">
+                    <label for="exampleForm" class="form-label">URL Website</label>
+                    <Input
+                        bind:value={urlwebsite_field}
+                        class="required"
+                        type="text"
+                        placeholder="Url Website"/>
+                </div>
+                <div class="mb-3">
+                    <label for="exampleForm" class="form-label">Link Image</label>
+                    <Input
+                        bind:value={urlbanner_field}
+                        class="required"
+                        type="text"
+                        placeholder="Link Image"/>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="mb-3">
+                    <label for="exampleForm" class="form-label">Device</label>
+                    <select class="form-control required" bind:value="{devicebanner_field}">
+                        <option value="WEB">WEB</option>
+                        <option value="MOBILE">MOBILE</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="exampleForm" class="form-label">Posisi</label>
+                    <select class="form-control required" bind:value="{posisibanner_field}">
+                        <option value="TOP">TOP</option>
+                        <option value="LEFT">LEFT</option>
+                        <option value="RIGHT">RIGHT</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="exampleForm" class="form-label">Display</label>
+                    <Input
+                      bind:value={displaybanner_field}
+                      on:keyup={handleKeyboard_format}
+                      class="required"
+                      type="text"
+                      style="text-align:right;"
+                      placeholder="Display"/>
+                </div>
+                <div class="mb-3">
+                    <label for="exampleForm" class="form-label">Status</label>
+                    <select class="form-control required" bind:value="{statusbanner_field}">
+                        <option value="Y">SHOW</option>
+                        <option value="N">HIDE</option>
+                    </select>
+                </div>
+            </div>
         </div>
-        <div class="mb-3">
-            <label for="exampleForm" class="form-label">Link Image</label>
-            <Input
-                bind:value={urlbanner_field}
-                class="required"
-                type="text"
-                placeholder="Link Image"/>
-        </div>
-        <div class="mb-3">
-            <label for="exampleForm" class="form-label">Device</label>
-            <select class="form-control required" bind:value="{devicebanner_field}">
-                <option value="WEB">WEB</option>
-                <option value="MOBILE">MOBILE</option>
-            </select>
-        </div>
-        <div class="mb-3">
-            <label for="exampleForm" class="form-label">Posisi</label>
-            <select class="form-control required" bind:value="{posisibanner_field}">
-                <option value="TOP">TOP</option>
-                <option value="LEFT">LEFT</option>
-                <option value="RIGHT">RIGHT</option>
-            </select>
-        </div>
-        <div class="mb-3">
-            <label for="exampleForm" class="form-label">Display</label>
-            <Input
-              bind:value={displaybanner_field}
-              on:keyup={handleKeyboard_format}
-              class="required"
-              type="text"
-              style="text-align:right;"
-              placeholder="Display"/>
-        </div>
-        <div class="mb-3">
-            <label for="exampleForm" class="form-label">Status</label>
-            <select class="form-control required" bind:value="{statusbanner_field}">
-                <option value="Y">SHOW</option>
-                <option value="N">HIDE</option>
-            </select>
-        </div>
+        
+        
 	</slot:template>
 	<slot:template slot="footer">
         <Button
