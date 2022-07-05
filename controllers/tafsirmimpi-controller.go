@@ -5,6 +5,7 @@ import (
 	"strings"
 	"time"
 
+	"bitbucket.org/isbtotogroup/isbpanel_frontend_backend/helpers"
 	"github.com/go-resty/resty/v2"
 	"github.com/gofiber/fiber/v2"
 )
@@ -14,6 +15,7 @@ const Field_tafsirmimpihome_redis = "LISTTAFSIRMIMPI_BACKEND_ISBPANEL"
 func Tafsirmimpihome(c *fiber.Ctx) error {
 	type payload_tafsirmimpihome struct {
 		Tafsirmimpi_search string `json:"tafsirmimpi_search"`
+		Tafsirmimpi_page   int    `json:"tafsirmimpi_page"`
 	}
 	hostname := c.Hostname()
 	bearToken := c.Get("Authorization")
@@ -32,13 +34,14 @@ func Tafsirmimpihome(c *fiber.Ctx) error {
 	render_page := time.Now()
 	axios := resty.New()
 	resp, err := axios.R().
-		SetResult(responsedefault{}).
+		SetResult(helpers.Responsepaging{}).
 		SetAuthToken(token[1]).
 		SetError(responseerror{}).
 		SetHeader("Content-Type", "application/json").
 		SetBody(map[string]interface{}{
 			"client_hostname":    hostname,
 			"tafsirmimpi_search": client.Tafsirmimpi_search,
+			"tafsirmimpi_page":   client.Tafsirmimpi_page,
 		}).
 		Post(PATH + "api/tafsirmimpi")
 	if err != nil {
@@ -53,13 +56,15 @@ func Tafsirmimpihome(c *fiber.Ctx) error {
 	log.Println("  Received At:", resp.ReceivedAt())
 	log.Println("  Body       :\n", resp)
 	log.Println()
-	result := resp.Result().(*responsedefault)
+	result := resp.Result().(*helpers.Responsepaging)
 	if result.Status == 200 {
 		return c.JSON(fiber.Map{
-			"status":  result.Status,
-			"message": result.Message,
-			"record":  result.Record,
-			"time":    time.Since(render_page).String(),
+			"status":      result.Status,
+			"perpage":     result.Perpage,
+			"totalrecord": result.Totalrecord,
+			"message":     result.Message,
+			"record":      result.Record,
+			"time":        time.Since(render_page).String(),
 		})
 	} else {
 		result_error := resp.Error().(*responseerror)
@@ -74,6 +79,8 @@ func Tafsirmimpisave(c *fiber.Ctx) error {
 	type payload_tafsirmimpisave struct {
 		Page                  string `json:"page"`
 		Sdata                 string `json:"sdata" `
+		Tafsirmimpi_page      int    `json:"tafsirmimpi_page"`
+		Tafsirmimpi_search    string `json:"tafsirmimpi_search"`
 		Tafsirmimpi_id        int    `json:"tafsirmimpi_id"`
 		Tafsirmimpi_mimpi     string `json:"tafsirmimpi_mimpi" `
 		Tafsirmimpi_artimimpi string `json:"tafsirmimpi_artimimpi" `
@@ -107,6 +114,8 @@ func Tafsirmimpisave(c *fiber.Ctx) error {
 			"client_hostname":       hostname,
 			"page":                  client.Page,
 			"sdata":                 client.Sdata,
+			"tafsirmimpi_page":      client.Tafsirmimpi_page,
+			"tafsirmimpi_search":    client.Tafsirmimpi_search,
 			"tafsirmimpi_id":        client.Tafsirmimpi_id,
 			"tafsirmimpi_mimpi":     client.Tafsirmimpi_mimpi,
 			"tafsirmimpi_artimimpi": client.Tafsirmimpi_artimimpi,
