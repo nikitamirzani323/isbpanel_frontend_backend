@@ -46,6 +46,8 @@
   let info_jitukepalaekor = ""
   let info_dasar = ""
   let info_shio = ""
+  let info_2d = ""
+  let info_3d = ""
   
   const RefreshHalaman = () => {
     dispatch("handleRefreshData", "call");
@@ -114,7 +116,6 @@
     let temp_nomor = temp[2]
     let temp_dasar = parseInt(temp_nomor[1]) + parseInt(temp_nomor[2])
     let temp_dasar_final = ""
-    console.log(temp_dasar)
     if(temp_dasar > 9){
       let temp_dasar2 = parseInt(temp_dasar[1]) + parseInt(temp_dasar[2])
       temp_dasar = temp_dasar2
@@ -138,6 +139,64 @@
     info_jitukepalaekor = temp_nomor[1]+" dan "+temp_nomor[2]
     info_dasar = temp_dasar_final
     info_shio = temp_nomor[1]+""+temp_nomor[2]
+
+    let temp_array = [];
+    let temp2_array = [];
+    let temp3 = "";
+    let temp4 = "";
+    for (let i = 0; i < info_bbfs.length; i++) {
+      temp_array.push(info_bbfs[i]);
+    }
+    temp2_array = shuffle(temp_array);
+    for (let i = 0; i < info_bbfs.length; i++) {
+      temp3 += temp2_array[i];
+    }
+    let xc = 0
+    for (let i = 0; i < temp3.length; i++) {
+      for (let j = 0; j < temp3.length; j++) {
+        if(temp3[i] != temp3[j]){
+          xc = xc + 1;
+          if(xc <= 20){
+            if(xc == 20){
+              temp4 += temp3[i]+""+temp3[j];
+            }else{
+              temp4 += temp3[i]+""+temp3[j]+"*";
+            }
+          }
+        }
+      }
+    }
+    info_2d = temp4;
+    temp4 = "";
+    xc = 0;
+    
+    for (let i = 0; i < temp3.length; i++) {
+      for (let j = 0; j < temp3.length; j++) {
+        for (let z = 0; z < temp3.length; z++) {
+          let flag = true
+          if(temp3[i] == temp3[j]){
+            flag = false           
+          }
+          if(temp3[i] == temp3[z]){
+            flag = false         
+          }
+          if(temp3[j] == temp3[z]){
+            flag = false         
+          }
+          if(flag){
+            xc = xc + 1;
+            if(xc <= 20){
+              if(xc == 20){
+                temp4 += temp3[i]+""+temp3[j]+""+temp3[z];
+              }else{
+                temp4 += temp3[i]+""+temp3[j]+""+temp3[z]+"*";
+              }
+            }
+          }
+        }
+      }
+    }
+    info_3d = temp4;
     myModal_newentry = new bootstrap.Modal(
       document.getElementById("modalinfoprediksi")
     );
@@ -1037,7 +1096,8 @@
       COLOK JITU KEPALA DAN EKOR {pasaran_nama}: {info_jitukepalaekor}<br />
       DASAR : {info_dasar}<br />
       SHIO : {info_shio}<br />
-      20 LINE 2D JITU : {info_prediksi}<br />
+      20 LINE 3D JITU : {info_3d}<br />
+      20 LINE 2D JITU : {info_2d}<br />
     </p>
   </slot:template>
   <slot:template slot="footer">
