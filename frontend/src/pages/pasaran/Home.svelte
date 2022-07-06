@@ -40,7 +40,12 @@
   let totalrecord_keluaran = "";
   let css_loader = "display: none;";
   let msgloader = "";
-
+  let info_bbfs = ""
+  let info_prediksi = ""
+  let info_jituaskop = ""
+  let info_jitukepalaekor = ""
+  let info_dasar = ""
+  let info_shio = ""
   
   const RefreshHalaman = () => {
     dispatch("handleRefreshData", "call");
@@ -102,6 +107,41 @@
     );
     myModal_newentry.show();
     call_prediksi();
+  };
+  const ShowInfoPrediksi = (nama,prediksi) => {
+    pasaran_nama = nama;
+    let temp = prediksi.split(" - ")
+    let temp_nomor = temp[2]
+    let temp_dasar = parseInt(temp_nomor[1]) + parseInt(temp_nomor[2])
+    let temp_dasar_final = ""
+    console.log(temp_dasar)
+    if(temp_dasar > 9){
+      let temp_dasar2 = parseInt(temp_dasar[1]) + parseInt(temp_dasar[2])
+      temp_dasar = temp_dasar2
+    }
+    let data_1 = ""
+    let data_2 = ""
+    if(temp_dasar <= 4) {
+			data_1 = "KECIL"
+		} else {
+			data_1 = "BESAR"
+		}
+		if(temp_dasar%2 == 0) {
+			data_2 = "GENAP"
+		} else {
+			data_2 = "GANJIL"
+		}
+    temp_dasar_final = data_1+" - "+data_2
+    info_bbfs = temp[1]
+    info_prediksi = temp[2]
+    info_jituaskop = temp_nomor[0]+" dan "+temp_nomor[1]
+    info_jitukepalaekor = temp_nomor[1]+" dan "+temp_nomor[2]
+    info_dasar = temp_dasar_final
+    info_shio = temp_nomor[1]+""+temp_nomor[2]
+    myModal_newentry = new bootstrap.Modal(
+      document.getElementById("modalinfoprediksi")
+    );
+    myModal_newentry.show();
   };
   const ShowNewKeluaran = () => {
     myModal_newentry = new bootstrap.Modal(
@@ -588,7 +628,7 @@
           <table class="table table-striped table-hover ">
             <thead>
               <tr>
-                <th NOWRAP width="1%" style="text-align: center;vertical-align: top;" colspan="3">&nbsp;</th>
+                <th NOWRAP width="1%" style="text-align: center;vertical-align: top;" colspan="4">&nbsp;</th>
                 <th NOWRAP width="1%" style="text-align: center;vertical-align: top;font-weight:bold;font-size:{table_header_font};">NO</th>
                 <th NOWRAP width="1%" style="text-align: center;vertical-align: top;font-weight:bold;font-size:{table_header_font};">STATUS</th>
                 <th NOWRAP width="1%" style="text-align: left;vertical-align: top;font-weight:bold;font-size:{table_header_font};">CODE</th>
@@ -633,6 +673,13 @@
                           ShowPrediksi(rec.pasaran_id, rec.pasaran_name);
                         }}
                         class="bi bi-file-binary"/>
+                    </td>
+                    <td NOWRAP style="text-align: center;vertical-align: top;cursor:pointer;">
+                      <i
+                        on:click={() => {
+                          ShowInfoPrediksi(rec.pasaran_name,rec.pasaran_prediksi);
+                        }}
+                        class="bi bi-book"/>
                     </td>
                     <td NOWRAP style="text-align: center;vertical-align: top;font-size: {table_body_font};">{rec.pasaran_no}</td>
                     <td NOWRAP style="text-align: center;vertical-align: top;font-size: {table_body_font};{rec.pasaran_statuscss}">{rec.pasaran_status}</td>
@@ -971,5 +1018,29 @@
       button_function="SAVE_PREDIKSI"
       button_title="Save"
       button_css="btn-warning"/>
+  </slot:template>
+</Modal>
+
+<Modal
+  modal_id="modalinfoprediksi"
+  modal_size="modal-dialog-centered"
+  modal_title="Prediksi : {pasaran_nama}"
+  modal_body_css="padding:5px;margin:0px;height:400px;overflow-y: scroll;"
+  modal_footer_css="padding:5px;"
+  modal_footer={false}>
+  <slot:template slot="body">
+    <p>
+      BBFS: {info_bbfs}<br />
+      4D {pasaran_nama}: {info_prediksi}<br />
+      COLOK BEBAS {pasaran_nama}: {info_prediksi}<br />
+      COLOK JITU AS DAN KOP {pasaran_nama}: {info_jituaskop}<br />
+      COLOK JITU KEPALA DAN EKOR {pasaran_nama}: {info_jitukepalaekor}<br />
+      DASAR : {info_dasar}<br />
+      SHIO : {info_shio}<br />
+      20 LINE 2D JITU : {info_prediksi}<br />
+    </p>
+  </slot:template>
+  <slot:template slot="footer">
+    
   </slot:template>
 </Modal>
