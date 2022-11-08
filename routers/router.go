@@ -80,6 +80,7 @@ func Init() *fiber.App {
 
 	app.Post("/api/movie", controllers.Moviehome)
 	app.Post("/api/movienotcdn", controllers.Moviehomenotcdn)
+	app.Post("/api/moviebanner", controllers.Moviebanner)
 	app.Post("/api/movietrouble", controllers.Movietroublehome)
 	app.Post("/api/moviemini", controllers.Movieminihome)
 	app.Post("/api/moviesave", controllers.Moviesave)
