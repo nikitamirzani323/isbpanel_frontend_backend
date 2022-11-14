@@ -859,6 +859,43 @@
       alert(msg);
     }
   }
+  async function handleDeleteBanner(e) {
+    let flag = true;
+    let msg = "";
+    if (e == "") {
+      flag = false;
+      msg = "The Banner is required";
+    }
+    if (flag) {
+      css_loader = "display: inline-block;";
+      msgloader = "Sending...";
+      const res = await fetch("/api/moviebannerdelete", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + token,
+        },
+        body: JSON.stringify({
+          page: "MOVIE-DELETE",
+          moviebannerid: parseInt(e),
+        }),
+      });
+      const json = await res.json();
+      if (json.status == 200) {
+        call_moviebanner();
+        msgloader = json.message;
+      } else if (json.status == 403) {
+        alert(json.message);
+      } else {
+        msgloader = json.message;
+      }
+      setTimeout(function () {
+        css_loader = "display: none;";
+      }, 1000);
+    } else {
+      alert(msg);
+    }
+  }
   function callFunction(event) {
     switch (event.detail) {
       case "MOVIE_NOT_CDN":
@@ -2009,7 +2046,7 @@
           <tr>
             <td NOWRAP style="text-align: center;vertical-align: top;cursor:pointer;">
               <i on:click={() => {
-                  handleDeleteSlider(rec.slide_id);
+                  handleDeleteBanner(rec.moviebanner_id);
                 }}  class="bi bi-trash"/>
             </td>
             <td NOWRAP style="text-align: center;vertical-align: top;font-size: {table_body_font};">{rec.moviebanner_no}</td>
