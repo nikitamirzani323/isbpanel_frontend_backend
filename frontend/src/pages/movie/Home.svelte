@@ -50,6 +50,13 @@
   let moviemini_field_url = "";
   let moviemini_field_display = 0;
 
+  let moviebanner_field_idbanner = 0;
+  let moviebanner_field_name = "";
+  let moviebanner_field_urlimage = "";
+  let moviebanner_field_urldestination = "";
+  let moviebanner_field_status = "";
+  let moviebanner_field_display = 0;
+
   let album_field_name = "";
   let searchMovieMini = "";
   let filterMovieMini = "";
@@ -142,10 +149,13 @@
     myModal.show();
     call_moviemini();
   };
-  const ShowFormBanner = (id, name, urlimage, display) => {
-    genre_field_idrecord = parseInt(id);
-    genre_field_name = name;
-    genre_field_display = parseInt(display);
+  const ShowFormBanner = (id, name, urlimage,urldestination , display) => {
+    clearfield_banner()
+    moviebanner_field_idbanner = parseInt(id);
+    moviebanner_field_name = name;
+    moviebanner_field_urlimage = urlimage;
+    moviebanner_field_urldestination = urldestination;
+    moviebanner_field_display = parseInt(display);
 
     myModal = new bootstrap.Modal(document.getElementById("modalcrudbanner"));
     myModal.show();
@@ -327,9 +337,15 @@
           listmoviebanner = [
             ...listmoviebanner,
             {
-              movie_no: no,
-              movie_id: record[i]["movie_id"],
-              movie_title: record[i]["movie_title"],
+              moviebanner_no: no,
+              moviebanner_id: record[i]["moviebanner_id"],
+              moviebanner_title: record[i]["moviebanner_title"],
+              moviebanner_urlimage: record[i]["moviebanner_urlimage"],
+              moviebanner_urldestination: record[i]["moviebanner_urldestination"],
+              moviebanner_status: record[i]["moviebanner_status"],
+              moviebanner_display: record[i]["moviebanner_display"],
+              moviebanner_create: record[i]["moviebanner_create"],
+              moviebanner_update: record[i]["moviebanner_update"],
             },
           ];
         }
@@ -440,6 +456,65 @@
           ];
         }
       }
+    }
+  }
+  async function handleSaveBanner() {
+    let flag = true;
+    let msg = "";
+    css_loader = "display: inline-block;";
+    msgloader = "Sending...";
+    if (moviebanner_field_name == "") {
+      flag = false;
+      msg += "The Name Banner is required\n";
+    }
+    if (moviebanner_field_urlimage == "") {
+      flag = false;
+      msg += "The Banner URL Image is required\n";
+    }
+    if (moviebanner_field_urldestination == "") {
+      flag = false;
+      msg += "The Banner URL Destination is required\n";
+    }
+    if (moviebanner_field_display == 0) {
+      flag = false;
+      msg += "The Cover is required\n";
+    }
+    if (flag) {
+      css_loader = "display: inline-block;";
+      msgloader = "Sending...";
+      const res = await fetch("/api/moviebannersave", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + token,
+        },
+        body: JSON.stringify({
+          sdata: "New",
+          page: "MOVIE-SAVE",
+          moviebanner_id: parseInt(moviebanner_field_idbanner),
+          moviebanner_name: moviebanner_field_name,
+          moviebanner_urlimg: moviebanner_field_urlimage,
+          moviebanner_urldestination: moviebanner_field_urldestination,
+          moviebanner_status: moviebanner_field_status,
+          moviebanner_display: parseInt(moviebanner_field_display),
+        }),
+      });
+      const json = await res.json();
+      if (json.status == 200) {
+        msgloader = json.message;
+        myModal.hide();
+        call_moviebanner();
+        clearfield_banner();
+      } else if (json.status == 403) {
+        alert(json.message);
+      } else {
+        msgloader = json.message;
+      }
+      setTimeout(function () {
+        css_loader = "display: none;";
+      }, 1000);
+    } else {
+      alert(msg);
     }
   }
   async function handleSaveSlider() {
@@ -793,7 +868,10 @@
         ShowMovieBanner();
         break;
       case "FORMNEW_BANNER":
-        ShowFormBanner();
+        ShowFormBanner(0, "", "","" , 0);
+        break;
+      case "SAVE_BANNER":
+        handleSaveBanner();
         break;
       case "CALL_SLIDER":
         ShowSlider();
@@ -863,6 +941,14 @@
     moviemini_field_name = "";
     moviemini_field_url = "";
     moviemini_field_display = 0;
+  }
+  function clearfield_banner() {
+    moviebanner_field_idbanner = 0;
+    moviebanner_field_name = "";
+    moviebanner_field_urlimage = "";
+    moviebanner_field_urldestination = "";
+    moviebanner_field_status = "Y";
+    moviebanner_field_display = 0;
   }
   const handleKeyboard_checkenter = (e) => {
     let keyCode = e.which || e.keyCode;
@@ -1912,31 +1998,32 @@
       <thead>
         <tr>
           <th width="1%">&nbsp;</th>
-          <th
-            width="1%"
-            style="text-align: center;vertical-align: top;font-weight:bold;font-size:{table_header_font};">NO</th>
-          <th
-            width="*"
-            style="text-align: left;vertical-align: top;font-weight:bold;font-size:{table_header_font};">TITLE</th>
-          <th
-            width="5%"
-            style="text-align: right;vertical-align: top;font-weight:bold;font-size:{table_header_font};">DISPLAY</th>
+          <th width="1%" style="text-align: center;vertical-align: top;font-weight:bold;font-size:{table_header_font};">NO</th>
+          <th width="*" style="text-align: left;vertical-align: top;font-weight:bold;font-size:{table_header_font};">TITLE</th>
+          <th nowrap width="25%" style="text-align: left;vertical-align: top;font-weight:bold;font-size:{table_header_font};">URL IMAGE</th>
+          <th width="5%" style="text-align: right;vertical-align: top;font-weight:bold;font-size:{table_header_font};">DISPLAY</th>
         </tr>
       </thead>
       <tbody>
-        {#each listslide as rec}
+        {#each listmoviebanner as rec}
           <tr>
-            <td
-              NOWRAP
-              style="text-align: center;vertical-align: top;cursor:pointer;">
-              <i
-                on:click={() => {
+            <td NOWRAP style="text-align: center;vertical-align: top;cursor:pointer;">
+              <i on:click={() => {
                   handleDeleteSlider(rec.slide_id);
                 }}  class="bi bi-trash"/>
             </td>
-            <td NOWRAP style="text-align: center;vertical-align: top;font-size: {table_body_font};">{rec.slide_no}</td>
-            <td NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};{genre_css}">{rec.slide_movietitle}</td>
-            <td NOWRAP style="text-align: right;vertical-align: top;font-size: {table_body_font};">{rec.slide_position}</td>
+            <td NOWRAP style="text-align: center;vertical-align: top;font-size: {table_body_font};">{rec.moviebanner_no}</td>
+            <td NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">
+              <a href="{rec.moviebanner_urldestination}" target="_blank">
+                {rec.moviebanner_title}
+              </a>
+            </td>
+            <td NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">
+              <a href="{rec.moviebanner_urlimage}" target="_blank">
+                Link Image
+              </a>
+            </td>
+            <td NOWRAP style="text-align: right;vertical-align: top;font-size: {table_body_font};">{rec.moviebanner_display}</td>
           </tr>
         {/each}
       </tbody>
@@ -1960,51 +2047,25 @@
   modal_footer={true}>
   <slot:template slot="body">
     <div class="mb-3">
-      <label for="exampleForm" class="form-label">Movie</label>
-      <div class="input-group mb-3">
-        <Input
-          bind:value={moviemini_field_name}
-          class="required"
-          type="text"
-          disabled
-          placeholder="Movie Title"
-        <button
-          on:click={() => {
-            ShowMovie();
-          }}
-          type="button"
-          class="btn btn-info">Movie</button>
-      </div>
+      <label for="exampleForm" class="form-label">Name</label>
+      <Input bind:value={moviebanner_field_name} class="required" type="text" placeholder="Name" />
     </div>
     <div class="mb-3">
-      <label for="exampleForm" class="form-label">Cover</label>
-      <Input
-        bind:value={moviemini_field_url}
-        class="required"
-        type="text"
-        placeholder="Cover"
-      />
+      <label for="exampleForm" class="form-label">URL Image</label>
+      <Input bind:value={moviebanner_field_urlimage} class="required" type="text" placeholder="URL Image" />
       <a href="https://id.imgbb.com/" target="_blank">imgbb</a>,
       <a href="https://imgur.com/" target="_blank">imgur</a>
     </div>
     <div class="mb-3">
+      <label for="exampleForm" class="form-label">URL Destination</label>
+      <Input bind:value={moviebanner_field_urldestination} class="required" type="text" placeholder="URL Destination" />
+    </div>
+    <div class="mb-3">
       <label for="exampleForm" class="form-label">Display</label>
-      <Input
-        bind:value={moviemini_field_display}
-        class="required"
-        maxlength="3"
-        type="text"
-        style="text-align:right;"
-        placeholder="Genre Display"
-      />
+      <Input bind:value={moviebanner_field_display} class="required" maxlength="3" type="text" style="text-align:right;" placeholder="Genre Display"/>
     </div>
   </slot:template>
   <slot:template slot="footer">
-    <Button
-      on:click={callFunction}
-      button_function="SAVE_SLIDER"
-      button_title="Save"
-      button_css="btn-warning"
-    />
+    <Button on:click={callFunction} button_function="SAVE_BANNER" button_title="Save" button_css="btn-warning"/>
   </slot:template>
 </Modal>
