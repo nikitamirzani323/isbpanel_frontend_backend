@@ -3,7 +3,7 @@ version: '2'
 services:
   isbpanel-frontend-backend:
     container_name: isbpanel-frontend-backend
-    image: isbpanel-frontend-backend:0.0.7
+    image: isbpanel-frontend-backend:0.0.8
     build: .
     volumes:
     - ./frontend:/app/frontend
