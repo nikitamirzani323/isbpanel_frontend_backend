@@ -1286,6 +1286,7 @@ func Bannersave(c *fiber.Ctx) error {
 		Moviebanner_name           string `json:"moviebanner_name" `
 		Moviebanner_urlimg         string `json:"moviebanner_urlimg" `
 		Moviebanner_urldestination string `json:"moviebanner_urldestination" `
+		Moviebanner_device         string `json:"moviebanner_device" `
 		Moviebanner_status         string `json:"moviebanner_status" `
 		Moviebanner_display        int    `json:"moviebanner_display" `
 	}
@@ -1318,6 +1319,7 @@ func Bannersave(c *fiber.Ctx) error {
 			"moviebanner_name":           client.Moviebanner_name,
 			"moviebanner_urlimg":         client.Moviebanner_urlimg,
 			"moviebanner_urldestination": client.Moviebanner_urldestination,
+			"moviebanner_device":         client.Moviebanner_device,
 			"moviebanner_status":         client.Moviebanner_status,
 			"moviebanner_display":        client.Moviebanner_display,
 		}).

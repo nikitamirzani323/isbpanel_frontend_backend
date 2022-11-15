@@ -54,6 +54,7 @@
   let moviebanner_field_name = "";
   let moviebanner_field_urlimage = "";
   let moviebanner_field_urldestination = "";
+  let moviebanner_field_device = "";
   let moviebanner_field_status = "";
   let moviebanner_field_display = 0;
 
@@ -149,13 +150,24 @@
     myModal.show();
     call_moviemini();
   };
-  const ShowFormBanner = (id, name, urlimage,urldestination , display) => {
-    clearfield_banner()
-    moviebanner_field_idbanner = parseInt(id);
-    moviebanner_field_name = name;
-    moviebanner_field_urlimage = urlimage;
-    moviebanner_field_urldestination = urldestination;
-    moviebanner_field_display = parseInt(display);
+  const ShowFormBanner = (e,id, name, urlimage,urldestination , device, status,display) => {
+    sData = e;
+    if(sData == "NEW"){
+      clearfield_banner()
+    }else{
+      moviebanner_field_idbanner = parseInt(id);
+      moviebanner_field_name = name;
+      moviebanner_field_urlimage = urlimage;
+      moviebanner_field_urldestination = urldestination;
+      moviebanner_field_device = device;
+      if(status == "SHOW"){
+        moviebanner_field_status = "Y";
+      }else{
+        moviebanner_field_status = "N";
+      }
+      moviebanner_field_display = parseInt(display);
+    }
+    
 
     myModal = new bootstrap.Modal(document.getElementById("modalcrudbanner"));
     myModal.show();
@@ -342,10 +354,10 @@
               moviebanner_title: record[i]["moviebanner_title"],
               moviebanner_urlimage: record[i]["moviebanner_urlimage"],
               moviebanner_urldestination: record[i]["moviebanner_urldestination"],
+              moviebanner_device: record[i]["moviebanner_device"],
               moviebanner_status: record[i]["moviebanner_status"],
+              moviebanner_statuscss: record[i]["moviebanner_statuscss"],
               moviebanner_display: record[i]["moviebanner_display"],
-              moviebanner_create: record[i]["moviebanner_create"],
-              moviebanner_update: record[i]["moviebanner_update"],
             },
           ];
         }
@@ -475,6 +487,14 @@
       flag = false;
       msg += "The Banner URL Destination is required\n";
     }
+    if (moviebanner_field_device == "") {
+      flag = false;
+      msg += "The Banner Device is required\n";
+    }
+    if (moviebanner_field_status == "") {
+      flag = false;
+      msg += "The Banner Status is required\n";
+    }
     if (moviebanner_field_display == 0) {
       flag = false;
       msg += "The Cover is required\n";
@@ -489,12 +509,13 @@
           Authorization: "Bearer " + token,
         },
         body: JSON.stringify({
-          sdata: "New",
+          sdata: sData,
           page: "MOVIE-SAVE",
           moviebanner_id: parseInt(moviebanner_field_idbanner),
           moviebanner_name: moviebanner_field_name,
           moviebanner_urlimg: moviebanner_field_urlimage,
           moviebanner_urldestination: moviebanner_field_urldestination,
+          moviebanner_device: moviebanner_field_device,
           moviebanner_status: moviebanner_field_status,
           moviebanner_display: parseInt(moviebanner_field_display),
         }),
@@ -905,7 +926,7 @@
         ShowMovieBanner();
         break;
       case "FORMNEW_BANNER":
-        ShowFormBanner(0, "", "","" , 0);
+        ShowFormBanner("New",0, "", "","","","" , 0);
         break;
       case "SAVE_BANNER":
         handleSaveBanner();
@@ -984,6 +1005,7 @@
     moviebanner_field_name = "";
     moviebanner_field_urlimage = "";
     moviebanner_field_urldestination = "";
+    moviebanner_field_device = "";
     moviebanner_field_status = "Y";
     moviebanner_field_display = 0;
   }
@@ -1341,79 +1363,36 @@
       <div class="col-sm-6">
         <div class="mb-3">
           <label for="exampleForm" class="form-label">Movie</label>
-          <Input
-            bind:value={movie_field_title}
-            class="required"
-            type="text"
-            placeholder="Movie Title"
-          />
+          <Input bind:value={movie_field_title} class="required" type="text" placeholder="Movie Title"/>
         </div>
         <div class="mb-3">
           <label for="exampleForm" class="form-label">Label</label>
-          <Input
-            bind:value={movie_field_label}
-            class="required"
-            type="text"
-            placeholder="Movie Label"
-          />
+          <Input bind:value={movie_field_label} class="required" type="text" placeholder="Movie Label"/>
         </div>
         <div class="mb-3">
           <label for="exampleForm" class="form-label">Slug</label>
-          <input
-            use:lowercase
-            bind:value={movie_field_slug}
-            class="required form-control"
-            type="text"
-            placeholder="Movie Slug"
-          />
+          <input use:lowercase bind:value={movie_field_slug} class="required form-control" type="text" placeholder="Movie Slug"/>
           <p class="text-muted">Ex : dragon-ball-2021</p>
         </div>
         <div class="mb-3">
           <label for="exampleForm" class="form-label">Deskripsi</label>
-          <textarea
-            style="height: 100px;resize: none;"
-            bind:value={movie_field_descp}
-            class="form-control required"
-          />
+          <textarea style="height: 100px;resize: none;" bind:value={movie_field_descp} class="form-control required"/>
         </div>
         <div class="mb-3">
           <label for="exampleForm" class="form-label">Year</label>
-          <Input
-            bind:value={movie_field_year}
-            minlength="4"
-            maxlength="4"
-            style="text-align:right;"
-            class="required"
-            type="text"
-            placeholder="Movie Imdb"
-          />
+          <Input bind:value={movie_field_year} minlength="4" maxlength="4" style="text-align:right;" class="required" type="text" placeholder="Movie Imdb"/>
         </div>
         <div class="mb-3">
           <label for="exampleForm" class="form-label">Imdb</label>
-          <Input
-            bind:value={movie_field_imdb}
-            class="required"
-            style="text-align:right;"
-            type="text"
-            placeholder="Movie Imdb"
-          />
+          <Input bind:value={movie_field_imdb} class="required" style="text-align:right;" type="text" placeholder="Movie Imdb"/>
         </div>
         <div class="mb-3">
           <label for="exampleForm" class="form-label">Url Image</label>
           <div class="input-group mb-3">
-            <Input
-              bind:value={movie_field_image}
-              class="required"
-              type="text"
-              placeholder="Movie URL Image"
-            />
-            <button
-              on:click={() => {
+            <Input bind:value={movie_field_image} class="required" type="text" placeholder="Movie URL Image"/>
+            <button on:click={() => {
                 ShowAlbum(true);
-              }}
-              type="button"
-              class="btn btn-info">Album</button
-            >
+              }} type="button" class="btn btn-info">Album</button>
           </div>
           <a href="https://id.imgbb.com/" target="_blank">imgbb</a>,
           <a href="https://imgur.com/" target="_blank">imgur</a>
@@ -2025,7 +2004,7 @@
 
 <Modal
   modal_id="modalbanner"
-  modal_size="modal-dialog-centered"
+  modal_size="modal-dialog-centered modal-lg"
   modal_title="MOVIE BANNER"
   modal_body_css="height:500px; overflow-y: scroll;"
   modal_footer_css="padding:5px;"
@@ -2034,10 +2013,12 @@
     <table class="table table-sm">
       <thead>
         <tr>
-          <th width="1%">&nbsp;</th>
+          <th width="1%" colspan=2>&nbsp;</th>
+          <th width="1%" style="text-align: center;vertical-align: top;font-weight:bold;font-size:{table_header_font};">&nbsp;</th>
           <th width="1%" style="text-align: center;vertical-align: top;font-weight:bold;font-size:{table_header_font};">NO</th>
+          <th nowrap width="10%" style="text-align: left;vertical-align: top;font-weight:bold;font-size:{table_header_font};">DEVICE</th>
           <th width="*" style="text-align: left;vertical-align: top;font-weight:bold;font-size:{table_header_font};">TITLE</th>
-          <th nowrap width="25%" style="text-align: left;vertical-align: top;font-weight:bold;font-size:{table_header_font};">URL IMAGE</th>
+          <th nowrap width="35%" style="text-align: left;vertical-align: top;font-weight:bold;font-size:{table_header_font};">URL IMAGE</th>
           <th width="5%" style="text-align: right;vertical-align: top;font-weight:bold;font-size:{table_header_font};">DISPLAY</th>
         </tr>
       </thead>
@@ -2049,7 +2030,15 @@
                   handleDeleteBanner(rec.moviebanner_id);
                 }}  class="bi bi-trash"/>
             </td>
+            <td NOWRAP style="text-align: center;vertical-align: top;cursor:pointer;">
+              <i on:click={() => {
+                  ShowFormBanner("Edit",rec.moviebanner_id,rec.moviebanner_title,
+                  rec.moviebanner_urlimage,rec.moviebanner_urldestination,rec.moviebanner_device,rec.moviebanner_status,rec.moviebanner_display);
+                }}  class="bi bi-pencil"/>
+            </td>
+            <td NOWRAP style="text-align: center;vertical-align: top;font-size: {table_body_font}; {rec.moviebanner_statuscss}">{rec.moviebanner_status}</td>
             <td NOWRAP style="text-align: center;vertical-align: top;font-size: {table_body_font};">{rec.moviebanner_no}</td>
+            <td NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.moviebanner_device}</td>
             <td NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">
               <a href="{rec.moviebanner_urldestination}" target="_blank">
                 {rec.moviebanner_title}
@@ -2071,14 +2060,13 @@
       on:click={callFunction}
       button_function="FORMNEW_BANNER"
       button_title="New"
-      button_css="btn-warning"
-    />
+      button_css="btn-warning"/>
   </slot:template>
 </Modal>
 <Modal
   modal_id="modalcrudbanner"
   modal_size="modal-dialog-centered"
-  modal_title="Banner/New"
+  modal_title="Banner/{sData}"
   modal_body_css=""
   modal_footer_css="padding:5px;"
   modal_footer={true}>
@@ -2100,6 +2088,21 @@
     <div class="mb-3">
       <label for="exampleForm" class="form-label">Display</label>
       <Input bind:value={moviebanner_field_display} class="required" maxlength="3" type="text" style="text-align:right;" placeholder="Genre Display"/>
+    </div>
+    <div class="mb-3">
+      <label for="exampleForm" class="form-label">Device</label>
+      <select bind:value={moviebanner_field_device} class="form-control required">
+        <option value="DEVICE">DEVICE</option>
+        <option value="MOBILE">MOBILE</option>
+        <option value="DEKSTOP">DESKTOP</option>
+      </select>
+    </div>
+    <div class="mb-3">
+      <label for="exampleForm" class="form-label">Status</label>
+      <select bind:value={moviebanner_field_status} class="form-control required">
+        <option value="Y">SHOW</option>
+        <option value="N">HIDE</option>
+      </select>
     </div>
   </slot:template>
   <slot:template slot="footer">
