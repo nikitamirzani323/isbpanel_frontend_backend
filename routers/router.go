@@ -101,8 +101,6 @@ func Init() *fiber.App {
 	app.Post("/api/genremovie", controllers.Genrehome)
 	app.Post("/api/genremoviesave", controllers.Genresave)
 	app.Post("/api/genremoviedelete", controllers.Genredelete)
-	app.Post("/api/moviebannersave", controllers.Bannersave)
-	app.Post("/api/moviebannerdelete", controllers.Bannerdelete)
 
 	app.Post("/api/slider", controllers.Sliderhome)
 	app.Post("/api/slidersave", controllers.Slidersave)

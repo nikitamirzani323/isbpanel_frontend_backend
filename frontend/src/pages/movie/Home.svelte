@@ -50,13 +50,7 @@
   let moviemini_field_url = "";
   let moviemini_field_display = 0;
 
-  let moviebanner_field_idbanner = 0;
-  let moviebanner_field_name = "";
-  let moviebanner_field_urlimage = "";
-  let moviebanner_field_urldestination = "";
-  let moviebanner_field_device = "";
-  let moviebanner_field_status = "";
-  let moviebanner_field_display = 0;
+
 
   let album_field_name = "";
   let searchMovieMini = "";
@@ -111,11 +105,6 @@
     myModal.show();
     call_movienotcdn();
   };
-  const ShowMovieBanner = () => {
-    myModal = new bootstrap.Modal(document.getElementById("modalbanner"));
-    myModal.show();
-    call_moviebanner();
-  };
   const ShowSlider = () => {
     myModal = new bootstrap.Modal(document.getElementById("modalslider"));
     myModal.show();
@@ -149,28 +138,6 @@
     myModal = new bootstrap.Modal(document.getElementById("modalmovie"));
     myModal.show();
     call_moviemini();
-  };
-  const ShowFormBanner = (e,id, name, urlimage,urldestination , device, status,display) => {
-    sData = e;
-    if(sData == "NEW"){
-      clearfield_banner()
-    }else{
-      moviebanner_field_idbanner = parseInt(id);
-      moviebanner_field_name = name;
-      moviebanner_field_urlimage = urlimage;
-      moviebanner_field_urldestination = urldestination;
-      moviebanner_field_device = device;
-      if(status == "SHOW"){
-        moviebanner_field_status = "Y";
-      }else{
-        moviebanner_field_status = "N";
-      }
-      moviebanner_field_display = parseInt(display);
-    }
-    
-
-    myModal = new bootstrap.Modal(document.getElementById("modalcrudbanner"));
-    myModal.show();
   };
   const ShowFormSlider = (id, name, urlimage, display) => {
     genre_field_idrecord = parseInt(id);
@@ -329,42 +296,6 @@
       }
     }
   }
-  async function call_moviebanner() {
-    listmoviebanner = [];
-    const res = await fetch("/api/moviebanner", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: "Bearer " + token,
-      },
-      body: JSON.stringify({}),
-    });
-    const json = await res.json();
-    if (json.status == 200) {
-      record = json.record;
-      if (record != null) {
-        let no = 0;
-        for (var i = 0; i < record.length; i++) {
-          no = no + 1;
-          listmoviebanner = [
-            ...listmoviebanner,
-            {
-              moviebanner_no: no,
-              moviebanner_id: record[i]["moviebanner_id"],
-              moviebanner_title: record[i]["moviebanner_title"],
-              moviebanner_urlimage: record[i]["moviebanner_urlimage"],
-              moviebanner_urldestination: record[i]["moviebanner_urldestination"],
-              moviebanner_device: record[i]["moviebanner_device"],
-              moviebanner_status: record[i]["moviebanner_status"],
-              moviebanner_statuscss: record[i]["moviebanner_statuscss"],
-              moviebanner_display: record[i]["moviebanner_display"],
-            },
-          ];
-        }
-        totalmovienotcdn = no;
-      }
-    }
-  }
   async function call_slider() {
     listslide = [];
     const res = await fetch("/api/slider", {
@@ -468,74 +399,6 @@
           ];
         }
       }
-    }
-  }
-  async function handleSaveBanner() {
-    let flag = true;
-    let msg = "";
-    css_loader = "display: inline-block;";
-    msgloader = "Sending...";
-    if (moviebanner_field_name == "") {
-      flag = false;
-      msg += "The Name Banner is required\n";
-    }
-    if (moviebanner_field_urlimage == "") {
-      flag = false;
-      msg += "The Banner URL Image is required\n";
-    }
-    if (moviebanner_field_urldestination == "") {
-      flag = false;
-      msg += "The Banner URL Destination is required\n";
-    }
-    if (moviebanner_field_device == "") {
-      flag = false;
-      msg += "The Banner Device is required\n";
-    }
-    if (moviebanner_field_status == "") {
-      flag = false;
-      msg += "The Banner Status is required\n";
-    }
-    if (moviebanner_field_display == 0) {
-      flag = false;
-      msg += "The Cover is required\n";
-    }
-    if (flag) {
-      css_loader = "display: inline-block;";
-      msgloader = "Sending...";
-      const res = await fetch("/api/moviebannersave", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: "Bearer " + token,
-        },
-        body: JSON.stringify({
-          sdata: sData,
-          page: "MOVIE-SAVE",
-          moviebanner_id: parseInt(moviebanner_field_idbanner),
-          moviebanner_name: moviebanner_field_name,
-          moviebanner_urlimg: moviebanner_field_urlimage,
-          moviebanner_urldestination: moviebanner_field_urldestination,
-          moviebanner_device: moviebanner_field_device,
-          moviebanner_status: moviebanner_field_status,
-          moviebanner_display: parseInt(moviebanner_field_display),
-        }),
-      });
-      const json = await res.json();
-      if (json.status == 200) {
-        msgloader = json.message;
-        myModal.hide();
-        call_moviebanner();
-        clearfield_banner();
-      } else if (json.status == 403) {
-        alert(json.message);
-      } else {
-        msgloader = json.message;
-      }
-      setTimeout(function () {
-        css_loader = "display: none;";
-      }, 1000);
-    } else {
-      alert(msg);
     }
   }
   async function handleSaveSlider() {
@@ -880,56 +743,11 @@
       alert(msg);
     }
   }
-  async function handleDeleteBanner(e) {
-    let flag = true;
-    let msg = "";
-    if (e == "") {
-      flag = false;
-      msg = "The Banner is required";
-    }
-    if (flag) {
-      css_loader = "display: inline-block;";
-      msgloader = "Sending...";
-      const res = await fetch("/api/moviebannerdelete", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: "Bearer " + token,
-        },
-        body: JSON.stringify({
-          page: "MOVIE-DELETE",
-          moviebannerid: parseInt(e),
-        }),
-      });
-      const json = await res.json();
-      if (json.status == 200) {
-        call_moviebanner();
-        msgloader = json.message;
-      } else if (json.status == 403) {
-        alert(json.message);
-      } else {
-        msgloader = json.message;
-      }
-      setTimeout(function () {
-        css_loader = "display: none;";
-      }, 1000);
-    } else {
-      alert(msg);
-    }
-  }
+
   function callFunction(event) {
     switch (event.detail) {
       case "MOVIE_NOT_CDN":
         ShowMovieNotCDN();
-        break;
-      case "MOVIE_BANNER":
-        ShowMovieBanner();
-        break;
-      case "FORMNEW_BANNER":
-        ShowFormBanner("New",0, "", "","","","" , 0);
-        break;
-      case "SAVE_BANNER":
-        handleSaveBanner();
         break;
       case "CALL_SLIDER":
         ShowSlider();
@@ -1000,15 +818,7 @@
     moviemini_field_url = "";
     moviemini_field_display = 0;
   }
-  function clearfield_banner() {
-    moviebanner_field_idbanner = 0;
-    moviebanner_field_name = "";
-    moviebanner_field_urlimage = "";
-    moviebanner_field_urldestination = "";
-    moviebanner_field_device = "";
-    moviebanner_field_status = "Y";
-    moviebanner_field_display = 0;
-  }
+
   const handleKeyboard_checkenter = (e) => {
     let keyCode = e.which || e.keyCode;
     if (keyCode === 13) {
@@ -1078,11 +888,6 @@
         on:click={callFunction}
         button_function="MOVIE_NOT_CDN"
         button_title="MOVIE NOT CDN"
-        button_css="btn-primary" />
-      <Button
-        on:click={callFunction}
-        button_function="MOVIE_BANNER"
-        button_title="MOVIE BANNER"
         button_css="btn-primary" />
       <Button
         on:click={callFunction}
@@ -2002,110 +1807,3 @@
 
 
 
-<Modal
-  modal_id="modalbanner"
-  modal_size="modal-dialog-centered modal-lg"
-  modal_title="MOVIE BANNER"
-  modal_body_css="height:500px; overflow-y: scroll;"
-  modal_footer_css="padding:5px;"
-  modal_footer={true}>
-  <slot:template slot="body">
-    <table class="table table-sm">
-      <thead>
-        <tr>
-          <th width="1%" colspan=2>&nbsp;</th>
-          <th width="1%" style="text-align: center;vertical-align: top;font-weight:bold;font-size:{table_header_font};">&nbsp;</th>
-          <th width="1%" style="text-align: center;vertical-align: top;font-weight:bold;font-size:{table_header_font};">NO</th>
-          <th nowrap width="10%" style="text-align: left;vertical-align: top;font-weight:bold;font-size:{table_header_font};">DEVICE</th>
-          <th width="*" style="text-align: left;vertical-align: top;font-weight:bold;font-size:{table_header_font};">TITLE</th>
-          <th nowrap width="35%" style="text-align: left;vertical-align: top;font-weight:bold;font-size:{table_header_font};">URL IMAGE</th>
-          <th width="5%" style="text-align: right;vertical-align: top;font-weight:bold;font-size:{table_header_font};">DISPLAY</th>
-        </tr>
-      </thead>
-      <tbody>
-        {#each listmoviebanner as rec}
-          <tr>
-            <td NOWRAP style="text-align: center;vertical-align: top;cursor:pointer;">
-              <i on:click={() => {
-                  handleDeleteBanner(rec.moviebanner_id);
-                }}  class="bi bi-trash"/>
-            </td>
-            <td NOWRAP style="text-align: center;vertical-align: top;cursor:pointer;">
-              <i on:click={() => {
-                  ShowFormBanner("Edit",rec.moviebanner_id,rec.moviebanner_title,
-                  rec.moviebanner_urlimage,rec.moviebanner_urldestination,rec.moviebanner_device,rec.moviebanner_status,rec.moviebanner_display);
-                }}  class="bi bi-pencil"/>
-            </td>
-            <td NOWRAP style="text-align: center;vertical-align: top;font-size: {table_body_font}; {rec.moviebanner_statuscss}">{rec.moviebanner_status}</td>
-            <td NOWRAP style="text-align: center;vertical-align: top;font-size: {table_body_font};">{rec.moviebanner_no}</td>
-            <td NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.moviebanner_device}</td>
-            <td NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">
-              <a href="{rec.moviebanner_urldestination}" target="_blank">
-                {rec.moviebanner_title}
-              </a>
-            </td>
-            <td NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">
-              <a href="{rec.moviebanner_urlimage}" target="_blank">
-                Link Image
-              </a>
-            </td>
-            <td NOWRAP style="text-align: right;vertical-align: top;font-size: {table_body_font};">{rec.moviebanner_display}</td>
-          </tr>
-        {/each}
-      </tbody>
-    </table>
-  </slot:template>
-  <slot:template slot="footer">
-    <Button
-      on:click={callFunction}
-      button_function="FORMNEW_BANNER"
-      button_title="New"
-      button_css="btn-warning"/>
-  </slot:template>
-</Modal>
-<Modal
-  modal_id="modalcrudbanner"
-  modal_size="modal-dialog-centered"
-  modal_title="Banner/{sData}"
-  modal_body_css=""
-  modal_footer_css="padding:5px;"
-  modal_footer={true}>
-  <slot:template slot="body">
-    <div class="mb-3">
-      <label for="exampleForm" class="form-label">Name</label>
-      <Input bind:value={moviebanner_field_name} class="required" type="text" placeholder="Name" />
-    </div>
-    <div class="mb-3">
-      <label for="exampleForm" class="form-label">URL Image</label>
-      <Input bind:value={moviebanner_field_urlimage} class="required" type="text" placeholder="URL Image" />
-      <a href="https://id.imgbb.com/" target="_blank">imgbb</a>,
-      <a href="https://imgur.com/" target="_blank">imgur</a>
-    </div>
-    <div class="mb-3">
-      <label for="exampleForm" class="form-label">URL Destination</label>
-      <Input bind:value={moviebanner_field_urldestination} class="required" type="text" placeholder="URL Destination" />
-    </div>
-    <div class="mb-3">
-      <label for="exampleForm" class="form-label">Display</label>
-      <Input bind:value={moviebanner_field_display} class="required" maxlength="3" type="text" style="text-align:right;" placeholder="Genre Display"/>
-    </div>
-    <div class="mb-3">
-      <label for="exampleForm" class="form-label">Device</label>
-      <select bind:value={moviebanner_field_device} class="form-control required">
-        <option value="DEVICE">DEVICE</option>
-        <option value="MOBILE">MOBILE</option>
-        <option value="DEKSTOP">DESKTOP</option>
-      </select>
-    </div>
-    <div class="mb-3">
-      <label for="exampleForm" class="form-label">Status</label>
-      <select bind:value={moviebanner_field_status} class="form-control required">
-        <option value="Y">SHOW</option>
-        <option value="N">HIDE</option>
-      </select>
-    </div>
-  </slot:template>
-  <slot:template slot="footer">
-    <Button on:click={callFunction} button_function="SAVE_BANNER" button_title="Save" button_css="btn-warning"/>
-  </slot:template>
-</Modal>

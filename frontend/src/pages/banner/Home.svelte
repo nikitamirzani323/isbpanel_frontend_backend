@@ -51,7 +51,9 @@
         if(sData == "New"){
             clearField()
         }else{
-            idrecord = parseInt(id)
+            if(sData == "Edit"){
+                idrecord = parseInt(id)
+            }
             nmbanner_field = nm;
             urlbanner_field = url;
             urlwebsite_field = urlwebsite;
@@ -60,9 +62,15 @@
             displaybanner_field = display;
             statusbanner_field = status;
         }
-        myModal_newentry = new bootstrap.Modal(document.getElementById("modalentrycrud"));
-        myModal_newentry.show();
-        
+        if(sData == "New" || sData == "Edit"){
+            myModal_newentry = new bootstrap.Modal(document.getElementById("modalentrycrud"));
+            myModal_newentry.show();
+        }
+        if(sData == "Duplicate"){
+                sData = "New"
+                idrecord = "";
+                handleSave()
+        }
     };
     const RefreshHalaman = () => {
         dispatch("handleRefreshData", "call");
@@ -227,7 +235,7 @@
                     <table class="table table-striped table-hover">
                         <thead>
                             <tr>
-                                <th NOWRAP width="1%" style="text-align: center;vertical-align: top;" >&nbsp;</th>
+                                <th NOWRAP width="1%" style="text-align: center;vertical-align: top;" colspan=2>&nbsp;</th>
                                 <th NOWRAP width="1%" style="text-align: center;vertical-align: top;font-weight:bold;font-size:{table_header_font};">NO</th>
                                 <th NOWRAP width="1%" style="text-align: center;vertical-align: top;font-weight:bold;font-size:{table_header_font};">STATUS</th>
                                 <th NOWRAP width="5%" style="text-align: left;vertical-align: top;font-weight:bold;font-size:{table_header_font};">DEVICE</th>
@@ -248,6 +256,13 @@
                                                 NewData("Edit",rec.banner_id,rec.banner_name, rec.banner_url,rec.banner_urlwebsite,rec.banner_device,rec.banner_posisi,rec.banner_display,rec.banner_status);
                                             }} 
                                             class="bi bi-pencil"></i>
+                                    </td>
+                                    <td NOWRAP style="text-align: center;vertical-align: top;cursor:pointer;">
+                                        <i 
+                                            on:click={() => {
+                                                NewData("Duplicate",rec.banner_id,rec.banner_name, rec.banner_url,rec.banner_urlwebsite,rec.banner_device,rec.banner_posisi,rec.banner_display,rec.banner_status);
+                                            }} 
+                                            class="bi bi-files"></i>
                                     </td>
                                     <td NOWRAP style="text-align: center;vertical-align: top;font-size: {table_body_font};">{rec.banner_no}</td>
                                     <td NOWRAP style="text-align: center;vertical-align: top;font-size: {table_body_font};{rec.banner_statuscss}">{status(rec.banner_status)}</td>
@@ -320,6 +335,7 @@
                     <select class="form-control required" bind:value="{devicebanner_field}">
                         <option value="WEB">WEB</option>
                         <option value="MOBILE">MOBILE</option>
+                        <option value="DEVICE">DEVICE</option>
                     </select>
                 </div>
                 <div class="mb-3">
