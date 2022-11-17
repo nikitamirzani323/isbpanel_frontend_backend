@@ -558,7 +558,7 @@
                     </div>
                 </slot:template>
                 <slot:template slot="card-body">
-                    <table class="table table-striped table-hover">
+                    <table class="table table-striped ">
                         <thead>
                             <tr>
                                 <th NOWRAP width="1%" style="text-align: center;vertical-align: top;" colspan="3">&nbsp;</th>
@@ -601,7 +601,11 @@
                                             class="bi bi-gear"></i>
                                     </td>
                                     <td NOWRAP style="text-align: center;vertical-align: top;font-size: {table_body_font};">{rec.providerslot_no}</td>
-                                    <td NOWRAP style="text-align: center;vertical-align: top;font-size: {table_body_font};{rec.providerslot_statuscss}">{status(rec.providerslot_status)}</td>
+                                    <td NOWRAP style="text-align: center;vertical-align: top;font-size: {table_body_font};">
+                                        <span style="padding: 5px;border-radius: 10px;padding-right:10px;padding-left:10px;{rec.providerslot_statuscss}">
+                                            {status(rec.providerslot_status)}
+                                        </span>
+                                    </td>
                                     <td  style="text-align: left;vertical-align: top;font-size: {table_body_font};">
                                         <img src="{rec.providerslot_image}" width="100" alt="">
                                     </td>

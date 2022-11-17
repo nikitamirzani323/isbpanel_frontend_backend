@@ -684,7 +684,7 @@
         button_css="btn-primary"/>
       <Panel card_title={title_page} card_footer={totalrecord}>
         <slot:template slot="card-body">
-          <table class="table table-striped table-hover ">
+          <table class="table table-striped ">
             <thead>
               <tr>
                 <th NOWRAP width="1%" style="text-align: center;vertical-align: top;" colspan="4">&nbsp;</th>
@@ -741,7 +741,11 @@
                         class="bi bi-book"/>
                     </td>
                     <td NOWRAP style="text-align: center;vertical-align: top;font-size: {table_body_font};">{rec.pasaran_no}</td>
-                    <td NOWRAP style="text-align: center;vertical-align: top;font-size: {table_body_font};{rec.pasaran_statuscss}">{rec.pasaran_status}</td>
+                    <td NOWRAP style="text-align: center;vertical-align: top;font-size: {table_body_font};">
+                      <span style="padding: 5px;border-radius: 10px;padding-right:10px;padding-left:10px;{rec.pasaran_statuscss}">
+                        {rec.pasaran_status}
+                      </span>
+                    </td>
                     <td NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.pasaran_id}</td>
                     <td NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">
                       <a href={rec.pasaran_url} target="_blank">{rec.pasaran_name}</a>

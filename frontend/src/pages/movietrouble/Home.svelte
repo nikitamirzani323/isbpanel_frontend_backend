@@ -859,7 +859,7 @@
                     </div>
                 </slot:template>
                 <slot:template slot="card-body">
-                    <table class="table table-striped table-hover">
+                    <table class="table table-striped">
                         <thead>
                             <tr>
                                 <th NOWRAP width="1%" style="text-align: center;vertical-align: top;" colspan="2">&nbsp;</th>
@@ -898,16 +898,20 @@
                                             class="bi bi-trash"></i>
                                     </td>
                                     <td NOWRAP style="text-align: center;vertical-align: top;font-size: {table_body_font};">{rec.movie_no}</td>
-                                    <td NOWRAP style="text-align: center;vertical-align: top;font-size: {table_body_font};{rec.movie_statuscss}">{rec.movie_status}</td>
+                                    <td NOWRAP style="text-align: center;vertical-align: top;font-size: {table_body_font};  ">
+                                        <span style="padding: 5px;border-radius: 10px;padding-right:10px;padding-left:10px;{rec.movie_statuscss}">
+                                            {rec.movie_status}
+                                        </span>
+                                    </td>
                                     <td NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">
                                         CREATE : {rec.movie_date}<br>
                                         UPDATE : {rec.movie_update}
                                     </td>
                                     <td NOWRAP style="text-align: center;vertical-align: top;font-size: {table_body_font};">
-                                        <span style="{rec.movie_css_cdn}padding:5px 10px 5px 10px;">{rec.movie_imgcdn}</span>
+                                        <span style="{rec.movie_css_cdn}padding: 5px;border-radius: 10px;padding-right:10px;padding-left:10px;">{rec.movie_imgcdn}</span>
                                     </td>
                                     <td NOWRAP style="text-align: center;vertical-align: top;font-size: {table_body_font};">
-                                        <span style="{rec.movie_csstype}padding:5px 10px 5px 10px;">{rec.movie_type}</span>
+                                        <span style="{rec.movie_csstype}padding: 5px;border-radius: 10px;padding-right:10px;padding-left:10px;">{rec.movie_type}</span>
                                     </td>
                                     <td NOWRAP style="text-align: right;vertical-align: top;font-size: {table_body_font};">{rec.movie_year}</td>
                                     <td NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">

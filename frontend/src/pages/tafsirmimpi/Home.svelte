@@ -208,6 +208,13 @@
         };
         dispatch("handlePaging", movie);
     };
+    function status(e){
+        let result = "HIDE"
+        if(e == "Y"){
+            result = "SHOW"
+        }
+        return result
+    }
 </script>
 <div id="loader" style="margin-left:50%;{css_loader}">
     {msgloader}
@@ -279,7 +286,11 @@
                                             class="bi bi-pencil"></i>
                                     </td>
                                     <td NOWRAP style="text-align: center;vertical-align: top;font-size: {table_body_font};">{rec.tafsirmimpi_no}</td>
-                                    <td NOWRAP style="text-align: center;vertical-align: top;font-size: {table_body_font};{rec.tafsirmimpi_statuscss}">{rec.tafsirmimpi_status}</td>
+                                    <td NOWRAP style="text-align: center;vertical-align: top;font-size: {table_body_font};">
+                                        <span style="padding: 5px;border-radius: 10px;padding-right:10px;padding-left:10px;{rec.tafsirmimpi_statuscss}">
+                                            {status(rec.tafsirmimpi_status)}
+                                        </span>
+                                    </td>
                                     <td  style="text-align: left;vertical-align: top;font-size: {table_body_font};">
                                         {rec.tafsirmimpi_mimpi}<br>
                                         {rec.tafsirmimpi_artimimpi}<br>

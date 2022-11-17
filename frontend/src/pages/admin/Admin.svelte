@@ -51,10 +51,9 @@
         for (var i = 0; i < record.length; i++) {
           no = no + 1;
           if (record[i]["admin_status"] == "ACTIVE") {
-            css_status = "background:#8BC34A;color:black;font-weight:bold;";
+            css_status = "background:#10b981;color:#ffffff;font-weight:bold;";
           } else {
-            css_status =
-              "background:#E91E63;font-size:12px;font-weight:bold;color:white;";
+            css_status = "background:#E91E63;font-size:12px;font-weight:bold;color:white;";
           }
           listAdmin = [
             ...listAdmin,

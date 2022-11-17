@@ -924,104 +924,31 @@
           </div>
         </slot:template>
         <slot:template slot="card-body">
-          <table class="table table-striped table-hover">
+          <table class="table table-striped ">
             <thead>
               <tr>
-                <th
-                  NOWRAP
-                  width="1%"
-                  style="text-align: center;vertical-align: top;">&nbsp;</th
-                >
-                <th
-                  NOWRAP
-                  width="1%"
-                  style="text-align: center;vertical-align: top;font-weight:bold;font-size:{table_header_font};"
-                  >NO</th
-                >
-                <th
-                  NOWRAP
-                  width="1%"
-                  style="text-align: center;vertical-align: top;font-weight:bold;font-size:{table_header_font};"
-                  >&nbsp;</th
-                >
-                <th
-                  NOWRAP
-                  width="5%"
-                  style="text-align: center;vertical-align: top;font-weight:bold;font-size: {table_header_font};"
-                  >DATE</th
-                >
-                <th
-                  NOWRAP
-                  width="2%"
-                  style="text-align: center;vertical-align: top;font-weight:bold;font-size: {table_header_font};"
-                  >CDN</th
-                >
-                <th
-                  NOWRAP
-                  width="2%"
-                  style="text-align: center;vertical-align: top;font-weight:bold;font-size: {table_header_font};"
-                  >TYPE</th
-                >
-                <th
-                  NOWRAP
-                  width="2%"
-                  style="text-align: right;vertical-align: top;font-weight:bold;font-size: {table_header_font};"
-                  >YEAR</th
-                >
-                <th
-                  NOWRAP
-                  width="5%"
-                  style="text-align: left;vertical-align: top;font-weight:bold;font-size: {table_header_font};"
-                  >GENRE</th
-                >
-                <th
-                  NOWRAP
-                  width="5%"
-                  style="text-align: left;vertical-align: top;font-weight:bold;font-size: {table_header_font};"
-                  >SOURCE</th
-                >
-                <th
-                  NOWRAP
-                  width="2%"
-                  style="text-align: left;vertical-align: top;font-weight:bold;font-size: {table_header_font};"
-                  >THUMBNAIL</th
-                >
-                <th
-                  NOWRAP
-                  width="*"
-                  style="text-align: left;vertical-align: top;font-weight:bold;font-size: {table_header_font};"
-                  >MOVIE</th
-                >
-                <th
-                  NOWRAP
-                  width="2%"
-                  style="text-align: right;vertical-align: top;font-weight:bold;font-size: {table_header_font};"
-                  >IMDB</th
-                >
-                <th
-                  NOWRAP
-                  width="2%"
-                  style="text-align: right;vertical-align: top;font-weight:bold;font-size: {table_header_font};"
-                  >VIEW</th
-                >
-                <th
-                  NOWRAP
-                  width="2%"
-                  style="text-align: right;vertical-align: top;font-weight:bold;font-size: {table_header_font};"
-                  >COMMENT</th
-                >
+                <th NOWRAP width="1%" style="text-align: center;vertical-align: top;">&nbsp;</th>
+                <th NOWRAP width="1%" style="text-align: center;vertical-align: top;font-weight:bold;font-size:{table_header_font};">NO</th>
+                <th NOWRAP width="1%" style="text-align: center;vertical-align: top;font-weight:bold;font-size:{table_header_font};">&nbsp;</th>
+                <th NOWRAP width="5%" style="text-align: center;vertical-align: top;font-weight:bold;font-size: {table_header_font};">DATE</th>
+                <th NOWRAP width="2%" style="text-align: center;vertical-align: top;font-weight:bold;font-size: {table_header_font};">CDN</th>
+                <th NOWRAP width="2%" style="text-align: center;vertical-align: top;font-weight:bold;font-size: {table_header_font};">TYPE</th>
+                <th NOWRAP width="2%" style="text-align: right;vertical-align: top;font-weight:bold;font-size: {table_header_font};">YEAR</th>
+                <th NOWRAP width="5%" style="text-align: left;vertical-align: top;font-weight:bold;font-size: {table_header_font};">GENRE</th>
+                <th NOWRAP width="5%" style="text-align: left;vertical-align: top;font-weight:bold;font-size: {table_header_font};">SOURCE</th>
+                <th NOWRAP width="2%" style="text-align: left;vertical-align: top;font-weight:bold;font-size: {table_header_font};">THUMBNAIL</th>
+                <th NOWRAP width="*" style="text-align: left;vertical-align: top;font-weight:bold;font-size: {table_header_font};">MOVIE</th>
+                <th NOWRAP width="2%" style="text-align: right;vertical-align: top;font-weight:bold;font-size: {table_header_font};">IMDB</th>
+                <th NOWRAP width="2%" style="text-align: right;vertical-align: top;font-weight:bold;font-size: {table_header_font};">VIEW</th>
+                <th NOWRAP width="2%" style="text-align: right;vertical-align: top;font-weight:bold;font-size: {table_header_font};">COMMENT</th>
               </tr>
             </thead>
             {#if totalrecord > 0}
               <tbody>
                 {#each filterMovie as rec}
                   <tr>
-                    <td
-                      NOWRAP
-                      style="text-align: center;vertical-align: top;cursor:pointer;"
-                    >
-                      <i
-                        on:click={() => {
+                    <td NOWRAP style="text-align: center;vertical-align: top;cursor:pointer;">
+                      <i on:click={() => {
                           ShowFormMovie(
                             "Edit",
                             rec.movie_type,
@@ -1037,62 +964,31 @@
                             rec.movie_genre,
                             rec.movie_source
                           );
-                        }}
-                        class="bi bi-pencil"
-                      />
+                        }} class="bi bi-pencil" />
                     </td>
-                    <td
-                      NOWRAP
-                      style="text-align: center;vertical-align: top;font-size: {table_body_font};"
-                      >{rec.movie_no}</td
-                    >
-                    <td
-                      NOWRAP
-                      style="text-align: center;vertical-align: top;font-size: {table_body_font};{rec.movie_statuscss}"
-                      >{rec.movie_status}</td
-                    >
-                    <td
-                      NOWRAP
-                      style="text-align: left;vertical-align: top;font-size: {table_body_font};"
-                    >
+                    <td NOWRAP style="text-align: center;vertical-align: top;font-size: {table_body_font};">{rec.movie_no}</td>
+                    <td NOWRAP style="text-align: center;vertical-align: top;font-size: {table_body_font};">
+                      <span style="padding: 5px;border-radius: 10px;padding-right:10px;padding-left:10px;{rec.movie_statuscss}">
+                        {rec.movie_status}
+                      </span>
+                    </td>
+                    <td NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">
                       CREATE : {rec.movie_date}<br />
                       UPDATE : {rec.movie_update}
                     </td>
-                    <td
-                      NOWRAP
-                      style="text-align: center;vertical-align: top;font-size: {table_body_font};"
-                    >
-                      <span
-                        style="{rec.movie_css_cdn}padding:5px 10px 5px 10px;"
-                        >{rec.movie_imgcdn}</span
-                      >
+                    <td NOWRAP style="text-align: center;vertical-align: top;font-size: {table_body_font};">
+                      <span style="{rec.movie_css_cdn}padding: 5px;border-radius: 10px;padding-right:10px;padding-left:10px;">{rec.movie_imgcdn}</span>
                     </td>
-                    <td
-                      NOWRAP
-                      style="text-align: center;vertical-align: top;font-size: {table_body_font};"
-                    >
-                      <span
-                        style="{rec.movie_csstype}padding:5px 10px 5px 10px;"
-                        >{rec.movie_type}</span
-                      >
+                    <td NOWRAP style="text-align: center;vertical-align: top;font-size: {table_body_font};">
+                      <span style="{rec.movie_csstype}padding: 5px;border-radius: 10px;padding-right:10px;padding-left:10px;">{rec.movie_type}</span>
                     </td>
-                    <td
-                      NOWRAP
-                      style="text-align: right;vertical-align: top;font-size: {table_body_font};"
-                      >{rec.movie_year}</td
-                    >
-                    <td
-                      NOWRAP
-                      style="text-align: left;vertical-align: top;font-size: {table_body_font};"
-                    >
+                    <td NOWRAP style="text-align: right;vertical-align: top;font-size: {table_body_font};">{rec.movie_year}</td>
+                    <td NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">
                       {#each rec.movie_genre as rec2}
                         {rec2.moviegenre_name}<br />
                       {/each}
                     </td>
-                    <td
-                      NOWRAP
-                      style="text-align: left;vertical-align: top;font-size: {table_body_font};"
-                    >
+                    <td NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">
                       {#each rec.movie_source as rec2}
                         <span
                           style="text-decoration: underline;color:blue;cursor:pointer;"
@@ -1102,40 +998,17 @@
                         ><br />
                       {/each}
                     </td>
-                    <td
-                      NOWRAP
-                      style="text-align: left;vertical-align: top;font-size: {table_body_font};"
-                    >
-                      <img
-                        width="50"
-                        class="img-thumbnail"
-                        src={rec.movie_thumbnail}
-                        alt=""
-                      />
+                    <td NOWRAPstyle="text-align: left;vertical-align: top;font-size: {table_body_font};">
+                      <img width="50" class="img-thumbnail" src={rec.movie_thumbnail} alt=""/>
                     </td>
-                    <td
-                      NOWRAP
-                      style="text-align: left;vertical-align: top;font-size: {table_body_font};"
-                    >
+                    <td NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">
                       {rec.movie_title}<br />
                       <b>LABEL</b> : {rec.movie_label}<br />
                       <b>SLUG</b> : {rec.movie_slug}
                     </td>
-                    <td
-                      NOWRAP
-                      style="text-align: right;vertical-align: top;font-size: {table_body_font};{rec.movie_imdbcss}"
-                      >{rec.movie_imdb}</td
-                    >
-                    <td
-                      NOWRAP
-                      style="text-align: right;vertical-align: top;font-size: {table_body_font};{rec.movie_viewcss}"
-                      >{rec.movie_view}</td
-                    >
-                    <td
-                      NOWRAP
-                      style="text-align: right;vertical-align: top;font-size: {table_body_font};{rec.movie_commentcss}"
-                      >{rec.movie_comment}</td
-                    >
+                    <td NOWRAP style="text-align: right;vertical-align: top;font-size: {table_body_font};{rec.movie_imdbcss}">{rec.movie_imdb}</td>
+                    <td NOWRAP style="text-align: right;vertical-align: top;font-size: {table_body_font};{rec.movie_viewcss}">{rec.movie_view}</td>
+                    <td NOWRAP style="text-align: right;vertical-align: top;font-size: {table_body_font};{rec.movie_commentcss}">{rec.movie_comment}</td>
                   </tr>
                 {/each}
               </tbody>

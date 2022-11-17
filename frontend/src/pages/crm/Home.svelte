@@ -1012,7 +1012,7 @@
                     </div>
                 </slot:template>
                 <slot:template slot="card-body">
-                        <table class="table table-striped table-hover table-sm">
+                        <table class="table table-striped table-sm">
                             <thead>
                                 <tr>
                                     <th NOWRAP width="1%" style="text-align: center;vertical-align: top;" colspan="2">&nbsp;</th>
@@ -1055,7 +1055,11 @@
                                                     type="button" class="btn btn-warning btn-sm">Process</button>
                                             {/if}
                                         </td>
-                                        <td NOWRAP style="text-align: center;vertical-align: top;font-size: {table_body_font};{rec.crm_statuscss}">{rec.crm_status}</td>
+                                        <td NOWRAP style="text-align: center;vertical-align: top;font-size: {table_body_font};">
+                                            <span style="padding: 5px;border-radius: 10px;padding-right:10px;padding-left:10px;{rec.crm_statuscss}">
+                                                {rec.crm_status}
+                                            </span>
+                                        </td>
                                         <td NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">
                                             <a href="https://wa.me/{rec.crm_phone}" target="_blank">{rec.crm_phone}</a>
                                             &nbsp;
