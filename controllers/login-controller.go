@@ -28,7 +28,6 @@ type responseerror struct {
 var PATH string = configs.GetPathAPI()
 
 func CheckLogin(c *fiber.Ctx) error {
-	log.Println("PATH: ", PATH)
 	hostname := c.Hostname()
 	client := new(entities.Login)
 	if err := c.BodyParser(client); err != nil {
@@ -39,8 +38,6 @@ func CheckLogin(c *fiber.Ctx) error {
 			"record":  nil,
 		})
 	}
-
-	log.Println("Hostname: ", hostname)
 	render_page := time.Now()
 	axios := resty.New()
 	resp, err := axios.R().

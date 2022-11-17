@@ -268,7 +268,7 @@
                     </div>
                 </slot:template>
                 <slot:template slot="card-body">
-                    <table class="table table-striped table-hover">
+                    <table class="table table-striped ">
                         <thead>
                             <tr>
                                 <th NOWRAP width="1%" style="text-align: center;vertical-align: top;" >&nbsp;</th>
@@ -321,7 +321,11 @@
                                         ID : {rec.album_movieid}<br>
                                         TITLE : {rec.album_movie}
                                     </td>
-                                    <td  style="text-align: center;vertical-align: top;font-size: {table_body_font};{rec.album_moviestatuscss}">{rec.album_moviestatus}</td>
+                                    <td  style="text-align: center;vertical-align: top;font-size: {table_body_font};">
+                                        <span style="padding: 5px;border-radius: 10px;padding-right:10px;padding-left:10px;{rec.album_moviestatuscss}">
+                                            {rec.album_moviestatus}
+                                        </span>
+                                    </td>
                                 </tr>
                             {/each}
                         </tbody>

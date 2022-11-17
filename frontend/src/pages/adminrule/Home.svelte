@@ -130,27 +130,12 @@
             />
             <Panel card_title={title_page} card_footer={totalrecord}>
                 <slot:template slot="card-body">
-                    <table class="table table-striped table-hover">
+                    <table class="table table-striped ">
                         <thead>
                             <tr>
-                                <th
-                                    NOWRAP
-                                    width="1%"
-                                    style="text-align: center;vertical-align: top;"
-                                    >&nbsp;</th
-                                >
-                                <th
-                                    NOWRAP
-                                    width="1%"
-                                    style="text-align: center;vertical-align: top;font-weight:bold;font-size:{table_header_font};"
-                                    >NO</th
-                                >
-                                <th
-                                    NOWRAP
-                                    width="*"
-                                    style="text-align: left;vertical-align: top;font-weight:bold;font-size: {table_header_font};"
-                                    >RULE</th
-                                >
+                                <th NOWRAP width="1%" style="text-align: center;vertical-align: top;">&nbsp;</th>
+                                <th NOWRAP width="1%" style="text-align: center;vertical-align: top;font-weight:bold;font-size:{table_header_font};">NO</th>
+                                <th NOWRAP width="*" style="text-align: left;vertical-align: top;font-weight:bold;font-size: {table_header_font};">RULE</th>
                             </tr>
                         </thead>
                         {#if totalrecord > 0}
@@ -159,28 +144,16 @@
                                     <tr>
                                         <td
                                             NOWRAP
-                                            style="text-align: center;vertical-align: top;cursor:pointer;"
-                                        >
-                                            <i
-                                                on:click={() => {
+                                            style="text-align: center;vertical-align: top;cursor:pointer;">
+                                            <i on:click={() => {
                                                     EditData(
                                                         rec.adminrule_idadmin,
                                                         rec.adminrule_rule
                                                     );
-                                                }}
-                                                class="bi bi-pencil"
-                                            />
+                                                }} class="bi bi-pencil"/>
                                         </td>
-                                        <td
-                                            NOWRAP
-                                            style="text-align: center;vertical-align: top;font-size: {table_body_font};"
-                                            >{rec.adminrule_no}</td
-                                        >
-                                        <td
-                                            NOWRAP
-                                            style="text-align: left;vertical-align: top;font-size: {table_body_font};"
-                                            >{rec.adminrule_idadmin}</td
-                                        >
+                                        <td NOWRAP style="text-align: center;vertical-align: top;font-size: {table_body_font};">{rec.adminrule_no}</td>
+                                        <td NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.adminrule_idadmin}</td>
                                     </tr>
                                 {/each}
                             </tbody>

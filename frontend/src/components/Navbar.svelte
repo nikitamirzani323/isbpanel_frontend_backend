@@ -9,7 +9,7 @@
 <header>
     <nav
         class="navbar navbar-expand-md navbar-dark fixed-top bg-dark"
-        style="background-color: #1f2937!important;">
+        style="background-color: #343b45!important;">
         <div class="container-fluid">
             <a class="navbar-brand" href="/" style="font-size: 13px;">BACKEND</a>
             <button

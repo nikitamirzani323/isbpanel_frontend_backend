@@ -181,7 +181,7 @@
                 card_title="{title_page}"
                 card_footer={totalrecord}>
                 <slot:template slot="card-body">
-                        <table class="table table-striped table-hover">
+                        <table class="table table-striped ">
                             <thead>
                                 <tr>
                                     <th NOWRAP width="1%" style="text-align: center;vertical-align: top;">&nbsp;</th>
@@ -207,7 +207,11 @@
                                                 }} 
                                                 class="bi bi-pencil"></i>
                                         </td>
-                                        <td NOWRAP style="text-align: center;vertical-align: top;font-size: {table_body_font};{rec.admin_statuscss}">{rec.admin_status}</td>
+                                        <td NOWRAP style="text-align: center;vertical-align: top;font-size: {table_body_font};">
+                                            <span style="padding: 5px;border-radius: 10px;padding-right:10px;padding-left:10px;{rec.admin_statuscss}">
+                                                {rec.admin_status}
+                                            </span>
+                                        </td>
                                         <td NOWRAP style="text-align: center;vertical-align: top;font-size: {table_body_font};">{rec.admin_no}</td>
                                         <td NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.admin_username}</td>
                                         <td NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.admin_nama}</td>
