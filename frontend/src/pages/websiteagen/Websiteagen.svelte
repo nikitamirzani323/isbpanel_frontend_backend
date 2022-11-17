@@ -71,8 +71,14 @@ import Login from "../Login.svelte";
                 }
                 for (var i = 0; i < record.length; i++) {
                     let status_home = "BANNED"
+                    let home_statuscss = ""
                     if(record[i]["websiteagen_status"] == "Y"){
                         status_home = "RUNNING"
+                    }
+                    if(record[i]["websiteagen_status"] == "Y"){
+                        home_statuscss = "background:#FFEB3B;font-weight:bold;color:black;"
+                    }else{
+                        home_statuscss = "background:#E91E63;font-weight:bold;color:white;"
                     }
                     no = no + 1;
                     listHome = [
@@ -82,6 +88,7 @@ import Login from "../Login.svelte";
                             home_id: record[i]["websiteagen_id"],
                             home_name: record[i]["websiteagen_name"],
                             home_status: status_home,
+                            home_statuscss: home_statuscss,
                             home_create: record[i]["websiteagen_create"],
                             home_update: record[i]["websiteagen_update"],
                         },

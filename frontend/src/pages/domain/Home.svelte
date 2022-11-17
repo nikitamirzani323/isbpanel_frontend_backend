@@ -201,7 +201,11 @@
                                             class="bi bi-pencil"></i>
                                     </td>
                                     <td NOWRAP style="text-align: center;vertical-align: top;font-size: {table_body_font};">{rec.domain_no}</td>
-                                    <td NOWRAP style="text-align: center;vertical-align: top;font-size: {table_body_font};{rec.tafsirmimpi_statuscss}">{rec.domain_status}</td>
+                                    <td NOWRAP style="text-align: center;vertical-align: top;font-size: {table_body_font};">
+                                        <span style="padding: 5px;border-radius: 10px;padding-right:10px;padding-left:10px;{rec.domain_css}">
+                                            {rec.domain_status}
+                                        </span>
+                                    </td>
                                     <td  style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.domain_name}</td>
                                 </tr>
                             {/each}
