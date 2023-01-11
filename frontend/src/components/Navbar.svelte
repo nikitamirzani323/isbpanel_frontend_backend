@@ -114,6 +114,24 @@
                             role="button"
                             data-bs-toggle="dropdown"
                             aria-expanded="false" style="font-size: 13px;">
+                            EVENT
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                            <li>
+                                <a class="dropdown-item" use:link href="/departement" style="font-size: 13px;">EVENT</a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" use:link href="/member" style="font-size: 13px;">MEMBER</a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a
+                            class="nav-link dropdown-toggle"
+                            id="navbarDropdown"
+                            role="button"
+                            data-bs-toggle="dropdown"
+                            aria-expanded="false" style="font-size: 13px;">
                             MASTER
                         </a>
                         <ul class="dropdown-menu" aria-labelledby="navbarDropdown">

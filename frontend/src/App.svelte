@@ -25,6 +25,7 @@
 	import Crmisbtv from "./pages/crmisbtv/Crmisbtv.svelte";
 	import Crmduniafilm from "./pages/crmduniafilm/Crmduniafilm.svelte";
 	import Websiteagen from "./pages/websiteagen/Websiteagen.svelte";
+	import Member from "./pages/member/member.svelte";
 	import Game from "./pages/game/Game.svelte";
 	import Login from "./pages/Login.svelte";
 	import NotFound from "./pages/NotFound.svelte";
@@ -49,6 +50,13 @@
 					table_body_font: table_body_font,
 				},
 				component: Dashboard,
+			}),
+			"/member": wrap({
+				component: Member,
+				props: {
+					table_header_font: table_header_font,
+					table_body_font: table_body_font,
+				},
 			}),
 			"/departement": wrap({
 				component: Departement,
