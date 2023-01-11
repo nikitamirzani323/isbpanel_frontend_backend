@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"encoding/json"
 	"log"
 	"strings"
 	"time"
@@ -68,10 +69,11 @@ func Memberhome(c *fiber.Ctx) error {
 }
 func MemberSave(c *fiber.Ctx) error {
 	type payload_membersave struct {
-		Page         string `json:"page"`
-		Sdata        string `json:"sdata" `
-		Member_phone string `json:"member_phone" `
-		Member_name  string `json:"member_name" `
+		Page         string          `json:"page"`
+		Sdata        string          `json:"sdata" `
+		Member_phone string          `json:"member_phone" `
+		Member_name  string          `json:"member_name" `
+		Member_agen  json.RawMessage `json:"member_agen" `
 	}
 	hostname := c.Hostname()
 	bearToken := c.Get("Authorization")
@@ -100,6 +102,7 @@ func MemberSave(c *fiber.Ctx) error {
 			"sdata":           client.Sdata,
 			"member_phone":    client.Member_phone,
 			"member_name":     client.Member_name,
+			"member_listagen": client.Member_agen,
 		}).
 		Post(PATH + "api/membersave")
 	if err != nil {

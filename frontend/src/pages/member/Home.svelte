@@ -20,10 +20,10 @@
     let phone_flag = false;
     let phone_field = "";
     let nama_field = "";
+    let listwebsiteagen = [];
     let list_agen = [];
     let website_agen_field = "";
     let username_agen_field = "";
-    let name_agen_field = "";
     let searchMember = "";
     let filterMember = [];
     let css_loader = "display: none;";
@@ -59,14 +59,57 @@
         
     };
     const ShowFormAgen = () => {
+        call_websiteagen()
         myModal_newentry = new bootstrap.Modal(document.getElementById("modalformagen"));
         myModal_newentry.show();
     };
     const RefreshHalaman = () => {
         dispatch("handleRefreshData", "call");
     };
-    
-    
+    async function call_websiteagen() {
+        listwebsiteagen = [];
+        const res = await fetch("/api/webagen", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: "Bearer " + token,
+            },
+            body: JSON.stringify({
+                sdata: sData,
+                page: "MOVIEALBUM-VIEW",
+            }),
+        });
+        const json = await res.json();
+        if (json.status == 200) {
+            let record = json.record;
+            if (record != null) {
+                for (var i = 0; i < record.length; i++) {
+                    listwebsiteagen = [
+                        ...listwebsiteagen,
+                        {
+                        websiteagen_id: record[i]["websiteagen_id"],
+                        websiteagen_name: record[i]["websiteagen_name"],
+                        },
+                    ];
+                }
+            }
+        }
+    }
+    async function handleNewWebsiteAgen() {
+    if (username_agen_field != "" || website_agen_field != "") {
+      list_agen = [
+        ...list_agen,
+        {
+          agen_website: website_agen_field,
+          agen_username: username_agen_field,
+        },
+      ];
+    } else {
+      alert("The Website Agen + Username is required");
+    }
+    username_agen_field = "";
+    website_agen_field = "";
+  }
     async function handleSave() {
         let flag = true
         let msg = ""
@@ -104,6 +147,7 @@
                     page:"DOMAIN-SAVE",
                     member_phone: phone_field,
                     member_name: nama_field,
+                    member_agen: list_agen,
                 }),
             });
             const json = await res.json();
@@ -141,6 +185,7 @@
         }
     }
     function clearField(){
+        list_agen = [];
         phone_flag = false;
         phone_field = "";
         nama_field = "";
@@ -154,6 +199,8 @@
                 RefreshHalaman();break;
             case "SAVE":
                 handleSubmit();break;
+            case "SAVE_WEBSITEAGEN":
+                handleNewWebsiteAgen();break;
         }
     }
     const handleKeyboard_checkenter = (e) => {
@@ -290,7 +337,7 @@
                               }} class="bi bi-trash"/>
                           </td>
                           <td width="*" style="text-align:left;vertical-align:top;font-size:12px;cursor:pointer;text-decoration:underline;color:blue;">
-                            {rec.movie_source_name}
+                            {rec.agen_username}
                           </td>
                         </tr>
                       {/each}
@@ -325,8 +372,9 @@
     <div class="mb-3">
         <label for="exampleForm" class="form-label">Website</label>
         <select bind:value={website_agen_field} class="form-control required">
-          <option value="1">SHOW</option>
-          <option value="0">HIDE</option>
+            {#each listwebsiteagen as rec}
+                <option value="{rec.websiteagen_id}">{rec.websiteagen_name}</option>
+            {/each}
         </select>
       </div>
     <div class="mb-3">
@@ -341,7 +389,7 @@
   <slot:template slot="footer">
     <Button
       on:click={callFunction}
-      button_function="SAVE_SOURCE"
+      button_function="SAVE_WEBSITEAGEN"
       button_title="Save"
       button_css="btn-warning"/>
   </slot:template>
