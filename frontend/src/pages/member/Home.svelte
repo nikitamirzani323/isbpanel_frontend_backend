@@ -20,6 +20,8 @@
     let phone_flag = false;
     let phone_field = "";
     let nama_field = "";
+    let create_field = "";
+    let update_field = "";
     let listwebsiteagen_db = [];
     let list_agen = [];
     let list_agen_count = 0;
@@ -45,7 +47,7 @@
         }
         
     }
-    const NewData = (e,phone,nama,dataagen) => {
+    const NewData = (e,phone,nama,dataagen,create,update) => {
         sData = e
         if(sData == "New"){
             clearField()
@@ -55,6 +57,8 @@
             phone_flag = true;
             phone_field = phone;
             nama_field = nama;
+            create_field = create;
+            update_field = update;
             if(dataagen != null){
                 for (var i = 0; i < dataagen.length; i++) {
                     list_agen_count = list_agen_count + 1;
@@ -219,6 +223,8 @@
         phone_flag = false;
         phone_field = "";
         nama_field = "";
+        create_field = "";
+        update_field = "";
     }
     function callFunction(event){
         switch(event.detail){
@@ -285,6 +291,8 @@
                                 <th NOWRAP width="8%" style="text-align: left;vertical-align: top;font-weight:bold;font-size: {table_header_font};">PHONE</th>
                                 <th NOWRAP width="*" style="text-align: left;vertical-align: top;font-weight:bold;font-size: {table_header_font};">NAMA</th>
                                 <th NOWRAP width="25%" style="text-align: left;vertical-align: top;font-weight:bold;font-size: {table_header_font};">WEBSITE AGEN</th>
+                                <th NOWRAP width="15%" style="text-align: left;vertical-align: top;font-weight:bold;font-size: {table_header_font};">CREATE</th>
+                                <th NOWRAP width="15%" style="text-align: left;vertical-align: top;font-weight:bold;font-size: {table_header_font};">UPDATE</th>
                             </tr>
                         </thead>
                         {#if totalrecord > 0}
@@ -294,7 +302,7 @@
                                     <td NOWRAP style="text-align: center;vertical-align: top;cursor:pointer;">
                                         <i 
                                             on:click={() => {
-                                                NewData("Edit",rec.home_phone, rec.home_name, rec.home_agen);
+                                                NewData("Edit",rec.home_phone, rec.home_name, rec.home_agen,rec.home_create,rec.home_update);
                                             }} 
                                             class="bi bi-pencil"></i>
                                     </td>
@@ -303,11 +311,13 @@
                                     <td  style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.home_name}</td>
                                     <td  style="text-align: left;vertical-align: top;font-size: {table_body_font};">
                                         {#if rec.home_agen != null}
-                                            {#each rec.home_agen as rec2}
-                                                {rec2.memberagen_website} - {rec2.memberagen_username}<br />
-                                            {/each}
+                                        {#each rec.home_agen as rec2}
+                                        {rec2.memberagen_website} - {rec2.memberagen_username}<br />
+                                        {/each}
                                         {/if}
                                     </td>
+                                    <td  NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.home_create}</td>
+                                    <td  NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.home_update}</td>
                                 </tr>
                             {/each}
                         </tbody>
@@ -356,6 +366,13 @@
                         type="text"
                         placeholder="nama"/>
                 </div>
+                {#if sData == "Edit"}
+                    <div class="alert alert-dark" role="alert" style="font-size:11px;padding:5px;">
+                        Create : {create_field}
+                        <br />
+                        Update : {update_field}
+                    </div>
+                {/if}
             </div>
             <div class="col-sm-6">
                 <div class="mb-3">
@@ -382,9 +399,6 @@
                 </div>
             </div>
         </div>
-        
-        
-        
 	</slot:template>
 	<slot:template slot="footer">
         <Button
