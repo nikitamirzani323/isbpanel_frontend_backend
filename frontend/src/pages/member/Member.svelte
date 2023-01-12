@@ -50,7 +50,6 @@
             if (record != null) {
                 totalrecord = record.length;
                 let no = 0
-                let domain_css = "";
                 for (var i = 0; i < record.length; i++) {
                     no = no + 1;
                     listHome = [
@@ -59,6 +58,7 @@
                             home_no: no,
                             home_phone: record[i]["member_phone"],
                             home_name: record[i]["member_name"],
+                            home_agen: record[i]["member_agen"],
                             home_create: record[i]["member_create"],
                             home_update: record[i]["member_update"],
                         },

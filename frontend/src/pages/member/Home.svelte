@@ -20,9 +20,11 @@
     let phone_flag = false;
     let phone_field = "";
     let nama_field = "";
-    let listwebsiteagen = [];
+    let listwebsiteagen_db = [];
     let list_agen = [];
-    let website_agen_field = "";
+    let list_agen_count = 0;
+    let idwebsite_agen_field = 0;
+    let nmwebsite_agen_field = "";
     let username_agen_field = "";
     let searchMember = "";
     let filterMember = [];
@@ -31,11 +33,10 @@
     
    
     $: {
-      
         if (searchMember) {
             filterMember = listHome.filter(
                 (item) =>
-                    item.domain_name
+                    item.home_phone
                         .toLowerCase()
                         .includes(searchMember.toLowerCase())
             );
@@ -44,15 +45,30 @@
         }
         
     }
-    
-    const NewData = (e,phone,nama) => {
+    const NewData = (e,phone,nama,dataagen) => {
         sData = e
         if(sData == "New"){
             clearField()
         }else{
+            list_agen = [];
+            list_agen_count = 0;
             phone_flag = true;
             phone_field = phone;
             nama_field = nama;
+            if(dataagen != null){
+                for (var i = 0; i < dataagen.length; i++) {
+                    list_agen_count = list_agen_count + 1;
+                    list_agen = [
+                        ...list_agen,
+                        {
+                            agen_no: list_agen_count,
+                            agen_idwebsite: dataagen[i].memberagen_idwebagen,
+                            agen_nmwebsite: dataagen[i].memberagen_website,
+                            agen_username: dataagen[i].memberagen_username,
+                        },
+                    ];
+                }
+            }
         }
         myModal_newentry = new bootstrap.Modal(document.getElementById("modalentrycrud"));
         myModal_newentry.show();
@@ -67,7 +83,7 @@
         dispatch("handleRefreshData", "call");
     };
     async function call_websiteagen() {
-        listwebsiteagen = [];
+        listwebsiteagen_db = [];
         const res = await fetch("/api/webagen", {
             method: "POST",
             headers: {
@@ -84,32 +100,55 @@
             let record = json.record;
             if (record != null) {
                 for (var i = 0; i < record.length; i++) {
-                    listwebsiteagen = [
-                        ...listwebsiteagen,
+                    listwebsiteagen_db = [
+                        ...listwebsiteagen_db,
                         {
-                        websiteagen_id: record[i]["websiteagen_id"],
-                        websiteagen_name: record[i]["websiteagen_name"],
+                            websiteagen_id: record[i]["websiteagen_id"],
+                            websiteagen_name: record[i]["websiteagen_name"],
                         },
                     ];
                 }
             }
         }
     }
-    async function handleNewWebsiteAgen() {
-    if (username_agen_field != "" || website_agen_field != "") {
-      list_agen = [
-        ...list_agen,
-        {
-          agen_website: website_agen_field,
-          agen_username: username_agen_field,
-        },
-      ];
-    } else {
-      alert("The Website Agen + Username is required");
+    async function handle_newWebsiteAgen() {
+        if (username_agen_field != "" || idwebsite_agen_field != "") {
+            list_agen_count = list_agen_count + 1;
+            let obj = listwebsiteagen_db.find(o => o.websiteagen_id === idwebsite_agen_field);
+            nmwebsite_agen_field = obj.websiteagen_name;
+            list_agen = [
+                ...list_agen,
+                {
+                    agen_no: parseInt(list_agen_count),
+                    agen_idwebsite: idwebsite_agen_field,
+                    agen_nmwebsite: nmwebsite_agen_field,
+                    agen_username: username_agen_field,
+                },
+            ];
+        } else {
+            alert("The Website Agen + Username is required");
+        }
+        idwebsite_agen_field = 0;
+        nmwebsite_agen_field = ""
+        username_agen_field = "";
     }
-    username_agen_field = "";
-    website_agen_field = "";
-  }
+    async function handle_deleteWebsiteAgen(e) {
+        let temp = list_agen.filter(
+            (item) => item.agen_no !== parseInt(e)
+        );
+        list_agen = [];
+        for (var i = 0; i < temp.length; i++) {
+            list_agen = [
+                ...list_agen,
+                {
+                    agen_no: parseInt(temp[i].agen_no),
+                    agen_idwebsite: temp[i].agen_idwebsite,
+                    agen_nmwebsite: temp[i].agen_nmwebsite,
+                    agen_username: temp[i].agen_username,
+                },
+            ];
+        }
+    }
     async function handleSave() {
         let flag = true
         let msg = ""
@@ -121,6 +160,10 @@
             if(nama_field == ""){
                 flag = false
                 msg += "The Nama is required\n"
+            }
+            if(list_agen.length < 1){
+                flag = false
+                msg += "The Website Agen is required\n"
             }
         }else{
             if(phone_field == ""){
@@ -169,23 +212,10 @@
             alert(msg)
         }
     }
-    async function handleDeleteAgen(e) {
-        let temp = list_agen.filter(
-            (item) => item.movie_source_id !== parseInt(e)
-        );
-        list_agen = [];
-        for (var i = 0; i < temp.length; i++) {
-            list_agen = [
-            ...list_agen,
-            {
-                movie_source_id: parseInt(temp[i].movie_source_id),
-                movie_source_name: temp[i].movie_source_name,
-            },
-        ];
-        }
-    }
+    
     function clearField(){
         list_agen = [];
+        list_agen_count = 0;
         phone_flag = false;
         phone_field = "";
         nama_field = "";
@@ -200,7 +230,7 @@
             case "SAVE":
                 handleSubmit();break;
             case "SAVE_WEBSITEAGEN":
-                handleNewWebsiteAgen();break;
+                handle_newWebsiteAgen();break;
         }
     }
     const handleKeyboard_checkenter = (e) => {
@@ -252,8 +282,9 @@
                             <tr>
                                 <th NOWRAP width="1%" style="text-align: center;vertical-align: top;" >&nbsp;</th>
                                 <th NOWRAP width="1%" style="text-align: center;vertical-align: top;font-weight:bold;font-size:{table_header_font};">NO</th>
-                                <th NOWRAP width="15%" style="text-align: left;vertical-align: top;font-weight:bold;font-size: {table_header_font};">PHONE</th>
+                                <th NOWRAP width="8%" style="text-align: left;vertical-align: top;font-weight:bold;font-size: {table_header_font};">PHONE</th>
                                 <th NOWRAP width="*" style="text-align: left;vertical-align: top;font-weight:bold;font-size: {table_header_font};">NAMA</th>
+                                <th NOWRAP width="25%" style="text-align: left;vertical-align: top;font-weight:bold;font-size: {table_header_font};">WEBSITE AGEN</th>
                             </tr>
                         </thead>
                         {#if totalrecord > 0}
@@ -263,13 +294,20 @@
                                     <td NOWRAP style="text-align: center;vertical-align: top;cursor:pointer;">
                                         <i 
                                             on:click={() => {
-                                                NewData("Edit",rec.home_phone, rec.home_name);
+                                                NewData("Edit",rec.home_phone, rec.home_name, rec.home_agen);
                                             }} 
                                             class="bi bi-pencil"></i>
                                     </td>
                                     <td NOWRAP style="text-align: center;vertical-align: top;font-size: {table_body_font};">{rec.home_no}</td>
                                     <td  style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.home_phone}</td>
                                     <td  style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.home_name}</td>
+                                    <td  style="text-align: left;vertical-align: top;font-size: {table_body_font};">
+                                        {#if rec.home_agen != null}
+                                            {#each rec.home_agen as rec2}
+                                                {rec2.memberagen_website} - {rec2.memberagen_username}<br />
+                                            {/each}
+                                        {/if}
+                                    </td>
                                 </tr>
                             {/each}
                         </tbody>
@@ -295,7 +333,7 @@
 	modal_id="modalentrycrud"
 	modal_size="modal-dialog-centered modal-lg"
 	modal_title="{title_page+"/"+sData}"
-    modal_body_css="height:300px;overflow-y: scroll;"
+    modal_body_css="height:250px;overflow-y: scroll;"
     modal_footer_css="padding:5px;"
 	modal_footer={true}>
 	<slot:template slot="body">
@@ -332,12 +370,10 @@
                       {#each list_agen as rec}
                         <tr>
                           <td width="1%" style="cursor: pointer;">
-                            <i on:click={() => {
-                                handleDeleteAgen(rec.movie_source_id);
-                              }} class="bi bi-trash"/>
+                            <i on:click={() => { handle_deleteWebsiteAgen(rec.agen_no);}} class="bi bi-trash"/>
                           </td>
-                          <td width="*" style="text-align:left;vertical-align:top;font-size:12px;cursor:pointer;text-decoration:underline;color:blue;">
-                            {rec.agen_username}
+                          <td width="*" style="text-align:left;vertical-align:top;font-size:12px;color:blue;">
+                            {rec.agen_nmwebsite} - {rec.agen_username}
                           </td>
                         </tr>
                       {/each}
@@ -371,8 +407,8 @@
   <slot:template slot="body">
     <div class="mb-3">
         <label for="exampleForm" class="form-label">Website</label>
-        <select bind:value={website_agen_field} class="form-control required">
-            {#each listwebsiteagen as rec}
+        <select bind:value={idwebsite_agen_field} class="form-control required">
+            {#each listwebsiteagen_db as rec}
                 <option value="{rec.websiteagen_id}">{rec.websiteagen_name}</option>
             {/each}
         </select>
