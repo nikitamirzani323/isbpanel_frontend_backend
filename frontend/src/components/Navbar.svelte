@@ -118,7 +118,7 @@
                         </a>
                         <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
                             <li>
-                                <a class="dropdown-item" use:link href="/departement" style="font-size: 13px;">EVENT</a>
+                                <a class="dropdown-item" use:link href="/event" style="font-size: 13px;">EVENT</a>
                             </li>
                             <li>
                                 <a class="dropdown-item" use:link href="/member" style="font-size: 13px;">MEMBER</a>
