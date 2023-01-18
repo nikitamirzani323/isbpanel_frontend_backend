@@ -150,8 +150,11 @@ func Init() *fiber.App {
 	app.Post("/api/employeesave", controllers.EmployeeSave)
 
 	app.Post("/api/event", controllers.Eventhome)
+	app.Post("/api/eventdetail", controllers.Eventdetailhome)
 	app.Post("/api/eventsave", controllers.EventSave)
+	app.Post("/api/eventdetailsave", controllers.EventDetailSave)
 	app.Post("/api/member", controllers.Memberhome)
+	app.Post("/api/memberselect", controllers.MemberSelecthome)
 	app.Post("/api/membersave", controllers.MemberSave)
 	return app
 }
