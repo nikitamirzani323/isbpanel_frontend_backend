@@ -28,6 +28,7 @@
     let startevent_jam_field = "00:00";
     let endevent_field = "";
     let endevent_jam_field = "00:00";
+    let mindeposit_field = 0;
     let create_field = "";
     let update_field = "";
 
@@ -390,7 +391,27 @@
                 }
             }
         }
+        for (let i = 0; i < endevent_jam_field.length; i++) {
+            numbera = parseInt(endevent_jam_field[i]);
+            if (isNaN(numbera)) {
+                if (endevent_jam_field[i] != ":") {
+                    endevent_jam_field = "";
+                }
+            }
+        }
         
+        for (let i = 0; i < mindeposit_field.length; i++) {
+            numbera = parseInt(mindeposit_field[i]);
+            if (isNaN(numbera)) {
+                mindeposit_field = 0;
+            }
+        }
+        for (let i = 0; i < deposito_partisipasi_field.length; i++) {
+            numbera = parseInt(deposito_partisipasi_field[i]);
+            if (isNaN(numbera)) {
+                deposito_partisipasi_field = 0;
+            }
+        }
     };
     const handleKeyboard_checkenter = (e) => {
         let keyCode = e.which || e.keyCode;
@@ -499,7 +520,7 @@
 	modal_id="modalentrycrud"
 	modal_size="modal-dialog-centered"
 	modal_title="{title_page+"/"+sData}"
-    modal_body_css="height:450px;overflow-y: scroll;"
+    modal_body_css="height:490px;overflow-y: scroll;"
     modal_footer_css="padding:5px;"
 	modal_footer={true}>
 	<slot:template slot="body">
@@ -558,7 +579,20 @@
                     type="text"
                     placeholder="00:00"/>
             </div>
-            
+        </div>
+        <div class="mb-3">
+            <label for="exampleForm" class="form-label">Min Deposit</label>
+            <input
+                bind:value={mindeposit_field}
+                on:keyup={handleKeyboard_format}
+                class="form-control required"
+                type="text"
+                style="text-align:right;"
+                placeholder=""/>
+            <div id="emailHelp" class="form-text" style="color:blue;text-align: right;font-size: 11px;">
+                {new Intl.NumberFormat().format(mindeposit_field)}
+            </div>
+
         </div>
         {#if sData == "Edit"}
             <div class="alert alert-dark" role="alert" style="font-size:11px;padding:5px;">
@@ -670,6 +704,7 @@
             <label for="exampleForm" class="form-label">Deposit</label>
             <input
                 bind:value={deposito_partisipasi_field}
+                on:keyup={handleKeyboard_format}
                 class="form-control required"
                 type="text"
                 style="text-align:right;"
