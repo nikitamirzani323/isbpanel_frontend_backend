@@ -305,7 +305,7 @@
             }
             if(parseInt(deposito_partisipasi_field) < parseInt(deposit_global)){
                 flag = false
-                msg += "This deposit cannot exceeds the initial minimal deposit\n"
+                msg += "This Deposit cannot exceeds the initial minimal deposit\n"
             }
         }else{
             if(idmemberagen_partisipasi_field == 0){
@@ -318,7 +318,7 @@
             }
             if(parseInt(deposito_partisipasi_field) < parseInt(deposit_global)){
                 flag = false
-                msg += "This deposit cannot exceeds the initial minimal deposit\n"
+                msg += "This Deposit cannot exceeds the initial minimal deposit\n"
             }
         }
         
