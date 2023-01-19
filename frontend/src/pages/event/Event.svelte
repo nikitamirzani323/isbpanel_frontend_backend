@@ -1,6 +1,6 @@
 <script>
     import Home from "./Home.svelte";
-   
+    import dayjs from "dayjs";
     
     export let table_header_font = "";
 	export let table_body_font = "";
@@ -60,8 +60,9 @@
                             home_idwebsite: record[i]["event_idwebagen"],
                             home_websiteagen: record[i]["event_nmwebagen"],
                             home_name: record[i]["event_name"],
-                            home_start: record[i]["event_startevent"],
-                            home_end: record[i]["event_endevent"],
+                            home_start: dayjs(record[i]["event_startevent"]).format("YYYY-MM-DD HH:MM"),
+                            home_end: dayjs(record[i]["event_endevent"]).format("YYYY-MM-DD HH:MM"),
+                            home_mindeposit: record[i]["event_mindeposit"],
                             home_create: record[i]["event_create"],
                             home_update: record[i]["event_update"],
                         },

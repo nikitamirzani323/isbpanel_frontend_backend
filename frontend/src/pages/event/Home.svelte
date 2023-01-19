@@ -22,6 +22,7 @@
     let idevent_global = 0;
     let idwebsite_global = 0;
     let nmwebsite_global = "";
+    let deposit_global = "";
     let idwebsite_field = 0;
     let nmevent_field = "";
     let startevent_field = "";
@@ -60,7 +61,7 @@
         }
         
     }
-    const NewData = (e,idwebsite,event,start,end,create,update) => {
+    const NewData = (e,idwebsite,event,start,end,deposit, create,update) => {
         sData = e
         call_websiteagen()
         if(sData == "New"){
@@ -73,6 +74,7 @@
             startevent_jam_field = dayjs(start).format("HH:MM");
             endevent_field = dayjs(end).format("YYYY-MM-DD");
             endevent_jam_field = dayjs(end).format("HH:MM");
+            mindeposit_field = deposit;
             create_field = create;
             update_field = update;
             
@@ -81,11 +83,12 @@
         myModal_newentry.show();
         
     };
-    const ListPartisipasi = (idevent,idwebsite,nmwebsite) => {
+    const ListPartisipasi = (idevent,idwebsite,nmwebsite,deposit) => {
         call_listpartisipasi(idevent)
         idevent_global = idevent
         idwebsite_global = idwebsite
         nmwebsite_global = nmwebsite
+        deposit_global = deposit
         myModal_newentry = new bootstrap.Modal(document.getElementById("modallistpartisipasi"));
         myModal_newentry.show();
     };
@@ -300,6 +303,10 @@
                 flag = false
                 msg += "The Deposit is required\n"
             }
+            if(parseInt(deposito_partisipasi_field) < parseInt(deposit_global)){
+                flag = false
+                msg += "This deposit cannot exceeds the initial minimal deposit\n"
+            }
         }else{
             if(idmemberagen_partisipasi_field == 0){
                 flag = false
@@ -308,6 +315,10 @@
             if(deposito_partisipasi_field == ""){
                 flag = false
                 msg += "The Deposit is required\n"
+            }
+            if(parseInt(deposito_partisipasi_field) < parseInt(deposit_global)){
+                flag = false
+                msg += "This deposit cannot exceeds the initial minimal deposit\n"
             }
         }
         
@@ -351,12 +362,14 @@
         idevent_global = 0;
         idwebsite_global = 0;
         nmwebsite_global = "";
+        deposit_global = 0;
         idwebsite_field = 0;
         nmevent_field = "";
         startevent_field = "";
         startevent_jam_field = "00:00";
         endevent_field = "";
         endevent_jam_field = "00:00";
+        mindeposit_field = 0;
         create_field = "";
         update_field = "";
     }
@@ -462,10 +475,11 @@
                             <tr>
                                 <th NOWRAP width="1%" style="text-align: center;vertical-align: top;" colspan="2">&nbsp;</th>
                                 <th NOWRAP width="1%" style="text-align: center;vertical-align: top;font-weight:bold;font-size:{table_header_font};">NO</th>
+                                <th NOWRAP width="8%" style="text-align: center;vertical-align: top;font-weight:bold;font-size: {table_header_font};">START</th>
+                                <th NOWRAP width="8%" style="text-align: center;vertical-align: top;font-weight:bold;font-size: {table_header_font};">END</th>
                                 <th NOWRAP width="10%" style="text-align: left;vertical-align: top;font-weight:bold;font-size: {table_header_font};">WEBSITE AGEN</th>
                                 <th NOWRAP width="*" style="text-align: left;vertical-align: top;font-weight:bold;font-size: {table_header_font};">NAMA</th>
-                                <th NOWRAP width="10%" style="text-align: center;vertical-align: top;font-weight:bold;font-size: {table_header_font};">START</th>
-                                <th NOWRAP width="10%" style="text-align: center;vertical-align: top;font-weight:bold;font-size: {table_header_font};">END</th>
+                                <th NOWRAP width="10%" style="text-align: right;vertical-align: top;font-weight:bold;font-size: {table_header_font};">MINDEPOSIT</th>
                                 <th NOWRAP width="15%" style="text-align: left;vertical-align: top;font-weight:bold;font-size: {table_header_font};">CREATE</th>
                                 <th NOWRAP width="15%" style="text-align: left;vertical-align: top;font-weight:bold;font-size: {table_header_font};">UPDATE</th>
                             </tr>
@@ -477,22 +491,28 @@
                                     <td NOWRAP style="text-align: center;vertical-align: top;cursor:pointer;">
                                         <i 
                                             on:click={() => {
-                                                NewData("Edit",rec.home_idwebsite, rec.home_name,rec.home_start, rec.home_end,rec.home_create,rec.home_update);
+                                                NewData("Edit",rec.home_idwebsite, rec.home_name,
+                                                rec.home_start, rec.home_end,
+                                                rec.home_mindeposit,
+                                                rec.home_create,rec.home_update);
                                             }} 
                                             class="bi bi-pencil"></i>
                                     </td>
                                     <td NOWRAP style="text-align: center;vertical-align: top;cursor:pointer;">
                                         <i 
                                             on:click={() => {
-                                                ListPartisipasi(rec.home_id,rec.home_idwebsite,rec.home_websiteagen);
+                                                ListPartisipasi(rec.home_id,rec.home_idwebsite,rec.home_websiteagen,rec.home_mindeposit);
                                             }} 
                                             class="bi bi-person-badge"></i>
                                     </td>
                                     <td NOWRAP style="text-align: center;vertical-align: top;font-size: {table_body_font};">{rec.home_no}</td>
-                                    <td  style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.home_websiteagen}</td>
-                                    <td  style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.home_name}</td>
                                     <td  NOWRAP style="text-align: center;vertical-align: top;font-size: {table_body_font};">{rec.home_start}</td>
                                     <td  NOWRAP style="text-align: center;vertical-align: top;font-size: {table_body_font};">{rec.home_end}</td>
+                                    <td  style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.home_websiteagen}</td>
+                                    <td  style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.home_name}</td>
+                                    <td  NOWRAP style="text-align: right;vertical-align: top;font-size: {table_body_font};color:blue;font-weight:bold;">
+                                        {new Intl.NumberFormat().format(rec.home_mindeposit)}
+                                    </td>
                                     <td  NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.home_create}</td>
                                     <td  NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.home_update}</td>
                                 </tr>
