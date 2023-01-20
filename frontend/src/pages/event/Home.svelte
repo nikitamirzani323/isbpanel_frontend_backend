@@ -19,10 +19,14 @@
     let sDataNewPartisipasi = "";
     let myModal_newentry = "";
     let myModal_memberagen = "";
+
     let idevent_global = 0;
     let idwebsite_global = 0;
     let nmwebsite_global = "";
-    let deposit_global = "";
+    let nmwevent_global = "";
+    let deposit_global = 0;
+    let username_global = "";
+
     let idwebsite_field = 0;
     let nmevent_field = "";
     let startevent_field = "";
@@ -33,8 +37,12 @@
     let create_field = "";
     let update_field = "";
 
+    let listmembergroup_total = 0;
     let listpartisipasi_total = 0;
+    let listpartisipasivoucher_total = 0;
     let listpartisipasi_db = [];
+    let listpartisipasivoucher_db = [];
+    let listmembergroup_db = [];
     let listwebsiteagen_db = [];
     let listmemberagen_db = [];
     
@@ -42,6 +50,11 @@
     let username_partisipasi_field = "";
     let deposito_partisipasi_field = 0;
 
+    let panel_footer_listall = true;
+    let panel_footer_member = false;
+
+    let searchListpartisipasi = "";
+    let filterListpartisipasi = [];
     let searchMember = "";
     let filterMember = [];
     let css_loader = "display: none;";
@@ -60,6 +73,19 @@
             filterMember = [...listHome];
         }
         
+        if (searchListpartisipasi) {
+            filterListpartisipasi = listpartisipasi_db.filter(
+                (item) =>
+                    item.eventdetail_voucher
+                        .toLowerCase()
+                        .includes(searchListpartisipasi.toLowerCase()) ||
+                    item.eventdetail_username
+                        .toLowerCase()
+                        .includes(searchListpartisipasi.toLowerCase())
+            );
+        } else {
+            filterListpartisipasi = [...listpartisipasi_db];
+        }
     }
     const NewData = (e,idwebsite,event,start,end,deposit, create,update) => {
         sData = e
@@ -83,11 +109,12 @@
         myModal_newentry.show();
         
     };
-    const ListPartisipasi = (idevent,idwebsite,nmwebsite,deposit) => {
-        call_listpartisipasi(idevent)
+    const ListPartisipasi = (idevent,idwebsite,nmwebsite,nmevent,deposit) => {
+        call_listpartisipasi(idevent,0)
         idevent_global = idevent
         idwebsite_global = idwebsite
         nmwebsite_global = nmwebsite
+        nmwevent_global = nmevent
         deposit_global = deposit
         myModal_newentry = new bootstrap.Modal(document.getElementById("modallistpartisipasi"));
         myModal_newentry.show();
@@ -103,6 +130,24 @@
         myModal_memberagen = new bootstrap.Modal(document.getElementById("modallistmemberagen"));
         myModal_memberagen.show();
     };
+    const ListMemberAgenVoucher = (e,f) => {
+        username_global = f;
+        call_listpartisipasi(idevent_global,e)
+        myModal_memberagen = new bootstrap.Modal(document.getElementById("modallistmemberagenvoucher"));
+        myModal_memberagen.show();
+    };
+    const TabPartisipasi = (e) => {
+        switch (e){
+            case "LISTALL":
+                panel_footer_listall = true;
+                panel_footer_member = false;
+                call_listpartisipasi(idevent_global,0);break;
+            case "MEMBER":
+                panel_footer_member = true;
+                panel_footer_listall = false;
+                call_listpartisipasimembergroup(idevent_global);break;
+        }
+    };
     const InsertPartisipasi = (id,e) => {
         idmemberagen_partisipasi_field = parseInt(id);
         username_partisipasi_field = e;
@@ -111,10 +156,75 @@
     const RefreshHalaman = () => {
         dispatch("handleRefreshData", "call");
     };
-    async function call_listpartisipasi(idevent) {
-        listpartisipasi_db = [];
-        listpartisipasi_total = 0;
+    async function call_listpartisipasi(idevent,idmember) {
+        if(idmember > 0){     
+            listpartisipasivoucher_db = [];
+            listpartisipasivoucher_total = 0;
+        }else{
+            listpartisipasi_db = [];
+            listpartisipasi_total = 0;
+        }
+        
         const res = await fetch("/api/eventdetail", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: "Bearer " + token,
+            },
+            body: JSON.stringify({
+                sdata: sData,
+                page: "MOVIEALBUM-VIEW",
+                event_id: idevent,
+                event_idmemberagen: parseInt(idmember),
+            }),
+        });
+        const json = await res.json();
+        if (json.status == 200) {
+            let record = json.record;
+            if (record != null) {
+                let no = 0;
+                for (var i = 0; i < record.length; i++) {
+                    no = no + 1;
+                    if(idmember > 0){
+                        listpartisipasivoucher_total = listpartisipasivoucher_total + record[i]["eventdetail_deposit"];
+                        listpartisipasivoucher_db = [
+                            ...listpartisipasivoucher_db,
+                            {
+                                eventdetail_no: no,
+                                eventdetail_id: record[i]["eventdetail_id"],
+                                eventdetail_phone: record[i]["eventdetail_phone"],
+                                eventdetail_username: record[i]["eventdetail_username"],
+                                eventdetail_voucher: record[i]["eventdetail_voucher"],
+                                eventdetail_deposit: record[i]["eventdetail_deposit"],
+                                eventdetail_create: record[i]["eventdetail_create"],
+                                eventdetail_update: record[i]["eventdetail_update"],
+                            },
+                        ];
+                    }else{
+                        listpartisipasi_total = listpartisipasi_total + record[i]["eventdetail_deposit"];
+                        listpartisipasi_db = [
+                            ...listpartisipasi_db,
+                            {
+                                eventdetail_no: no,
+                                eventdetail_id: record[i]["eventdetail_id"],
+                                eventdetail_phone: record[i]["eventdetail_phone"],
+                                eventdetail_username: record[i]["eventdetail_username"],
+                                eventdetail_voucher: record[i]["eventdetail_voucher"],
+                                eventdetail_deposit: record[i]["eventdetail_deposit"],
+                                eventdetail_create: record[i]["eventdetail_create"],
+                                eventdetail_update: record[i]["eventdetail_update"],
+                            },
+                        ];
+                    }
+                    
+                }
+            }
+        }
+    }
+    async function call_listpartisipasimembergroup(idevent) {
+        listmembergroup_db = [];
+        listmembergroup_total = 0;
+        const res = await fetch("/api/eventgroupdetail", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -133,18 +243,15 @@
                 let no = 0;
                 for (var i = 0; i < record.length; i++) {
                     no = no + 1;
-                    listpartisipasi_total = listpartisipasi_total + record[i]["eventdetail_deposit"];
-                    listpartisipasi_db = [
-                        ...listpartisipasi_db,
+                    listmembergroup_total = listmembergroup_total + record[i]["eventdetailgroup_deposit"];
+                    listmembergroup_db = [
+                        ...listmembergroup_db,
                         {
-                            eventdetail_no: no,
-                            eventdetail_id: record[i]["eventdetail_id"],
-                            eventdetail_phone: record[i]["eventdetail_phone"],
-                            eventdetail_username: record[i]["eventdetail_username"],
-                            eventdetail_voucher: record[i]["eventdetail_voucher"],
-                            eventdetail_deposit: record[i]["eventdetail_deposit"],
-                            eventdetail_create: record[i]["eventdetail_create"],
-                            eventdetail_update: record[i]["eventdetail_update"],
+                            eventdetailgroup_no: no,
+                            eventdetailgroup_idmember: record[i]["eventdetailgroup_idmember"],
+                            eventdetailgroup_phone: record[i]["eventdetailgroup_phone"],
+                            eventdetailgroup_username: record[i]["eventdetailgroup_username"],
+                            eventdetailgroup_deposit: record[i]["eventdetailgroup_deposit"],
                         },
                     ];
                 }
@@ -362,6 +469,7 @@
         idevent_global = 0;
         idwebsite_global = 0;
         nmwebsite_global = "";
+        nmwevent_global = "";
         deposit_global = 0;
         idwebsite_field = 0;
         nmevent_field = "";
@@ -477,6 +585,7 @@
                                 <th NOWRAP width="1%" style="text-align: center;vertical-align: top;font-weight:bold;font-size:{table_header_font};">NO</th>
                                 <th NOWRAP width="8%" style="text-align: center;vertical-align: top;font-weight:bold;font-size: {table_header_font};">START</th>
                                 <th NOWRAP width="8%" style="text-align: center;vertical-align: top;font-weight:bold;font-size: {table_header_font};">END</th>
+                                <th NOWRAP width="5%" style="text-align: right;vertical-align: top;font-weight:bold;font-size: {table_header_font};">DURATION</th>
                                 <th NOWRAP width="10%" style="text-align: left;vertical-align: top;font-weight:bold;font-size: {table_header_font};">WEBSITE AGEN</th>
                                 <th NOWRAP width="*" style="text-align: left;vertical-align: top;font-weight:bold;font-size: {table_header_font};">NAMA</th>
                                 <th NOWRAP width="10%" style="text-align: right;vertical-align: top;font-weight:bold;font-size: {table_header_font};">MINDEPOSIT</th>
@@ -501,13 +610,14 @@
                                     <td NOWRAP style="text-align: center;vertical-align: top;cursor:pointer;">
                                         <i 
                                             on:click={() => {
-                                                ListPartisipasi(rec.home_id,rec.home_idwebsite,rec.home_websiteagen,rec.home_mindeposit);
+                                                ListPartisipasi(rec.home_id,rec.home_idwebsite,rec.home_websiteagen,rec.home_name,rec.home_mindeposit);
                                             }} 
                                             class="bi bi-person-badge"></i>
                                     </td>
                                     <td NOWRAP style="text-align: center;vertical-align: top;font-size: {table_body_font};">{rec.home_no}</td>
                                     <td  NOWRAP style="text-align: center;vertical-align: top;font-size: {table_body_font};">{rec.home_start}</td>
                                     <td  NOWRAP style="text-align: center;vertical-align: top;font-size: {table_body_font};">{rec.home_end}</td>
+                                    <td  NOWRAP style="text-align: right;vertical-align: top;font-size: {table_body_font};{rec.home_durationcss}">{rec.home_duration}</td>
                                     <td  style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.home_websiteagen}</td>
                                     <td  style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.home_name}</td>
                                     <td  NOWRAP style="text-align: right;vertical-align: top;font-size: {table_body_font};color:blue;font-weight:bold;">
@@ -637,20 +747,39 @@
 	modal_id="modallistpartisipasi"
 	modal_size="modal-dialog-centered modal-lg"
 	modal_title="List Partisipasi - {nmwebsite_global}"
-    modal_body_css="height:400px;overflow-y: scroll;"
-    modal_footer_css="padding:5px;"
+    modal_body_css="height:500px;overflow-y: scroll;"
+    modal_footer_css="padding:2px;"
 	modal_footer={true}>
 	<slot:template slot="body">
+        <div class="alert alert-primary" role="alert">
+            {nmwevent_global}
+        </div>
         <ul class="nav nav-tabs" role="tablist">
-            <li class="nav-item" role="presentation">
-              <a class="nav-link active" data-bs-toggle="tab" href="#homepanel" aria-selected="true" role="tab">ListAll</a>
+            <li on:click={() => {
+                    TabPartisipasi("LISTALL");
+                }} class="nav-item" role="presentation">
+                <a class="nav-link active" data-bs-toggle="tab" href="#homepanel" aria-selected="true" role="tab">ListAll</a>
+            </li>
+            <li on:click={() => {
+                    TabPartisipasi("MEMBER");
+                }} class="nav-item" role="presentation">
+                <a class="nav-link" data-bs-toggle="tab" href="#grouppanel" aria-selected="false" tabindex="-1" role="tab">Member</a>
             </li>
             <li class="nav-item" role="presentation">
-              <a class="nav-link" data-bs-toggle="tab" href="#grouppanel" aria-selected="false" tabindex="-1" role="tab">Group</a>
+                <a class="nav-link" data-bs-toggle="tab" href="#winnerpannel" aria-selected="false" tabindex="-1" role="tab">Winner</a>
             </li>
-          </ul>
-          <div id="myTabContent" class="tab-content">
+        </ul>
+        <div id="myTabContent" class="tab-content">
             <div class="tab-pane fade show active" id="homepanel" role="tabpanel">
+                <div class="col-lg-12" style="padding: 5px;">
+                    <input
+                        bind:value={searchListpartisipasi}
+                        on:keypress={handleKeyboard_checkenter}
+                        type="text"
+                        class="form-control"
+                        placeholder="Search Event"
+                        aria-label="Search"/>
+                </div>
                 <table class="table table-striped ">
                     <thead>
                         <tr>
@@ -659,36 +788,69 @@
                             <th NOWRAP width="15%" style="text-align: left;vertical-align: top;font-weight:bold;font-size: {table_header_font};">PHONE</th>
                             <th NOWRAP width="*" style="text-align: left;vertical-align: top;font-weight:bold;font-size: {table_header_font};">VOUCHER</th>
                             <th NOWRAP width="15%" style="text-align: right;vertical-align: top;font-weight:bold;font-size: {table_header_font};">DEPOSIT</th>
+                            <th NOWRAP width="15%" style="text-align: left;vertical-align: top;font-weight:bold;font-size: {table_header_font};">CREATE</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {#each listpartisipasi_db as rec}
+                        {#each filterListpartisipasi as rec}
                         <tr>
                             <td  NOWRAP style="text-align: center;vertical-align: top;font-size: {table_body_font};">{rec.eventdetail_no}</td>
                             <td  NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.eventdetail_username}</td>
-                            <td  NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.eventdetail_phone}</td>
+                            <td  NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">
+                                <a href="https://wa.me/{rec.eventdetail_phone}" target="_blank">
+                                    {rec.eventdetail_phone}
+                                </a>
+                            </td>
                             <td  NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.eventdetail_voucher}</td>
                             <td  NOWRAP style="text-align: right;vertical-align: top;font-size: {table_body_font};color:blue;">{new Intl.NumberFormat().format(rec.eventdetail_deposit)}</td>
+                            <td  NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.eventdetail_create}</td>
                         </tr>
                         {/each}
                     </tbody>
                 </table>
             </div>
             <div class="tab-pane fade" id="grouppanel" role="tabpanel">
-              <p>Food truck fixie locavore, accusamus mcsweeney's marfa nulla single-origin coffee squid. Exercitation +1 labore velit, blog sartorial PBR leggings next level wes anderson artisan four loko farm-to-table craft beer twee. Qui photo booth letterpress, commodo enim craft beer mlkshk aliquip jean shorts ullamco ad vinyl cillum PBR. Homo nostrud organic, assumenda labore aesthetic magna delectus mollit.</p>
+                <table class="table table-striped ">
+                    <thead>
+                        <tr>
+                            <th NOWRAP width="1%" style="text-align: center;vertical-align: top;font-weight:bold;font-size:{table_header_font};">NO</th>
+                            <th NOWRAP width="10%" style="text-align: left;vertical-align: top;font-weight:bold;font-size: {table_header_font};">USERNAME</th>
+                            <th NOWRAP width="15%" style="text-align: left;vertical-align: top;font-weight:bold;font-size: {table_header_font};">PHONE</th>
+                            <th NOWRAP width="*" style="text-align: right;vertical-align: top;font-weight:bold;font-size: {table_header_font};">DEPOSIT</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {#each listmembergroup_db as rec}
+                        <tr>
+                            <td  NOWRAP style="text-align: center;vertical-align: top;font-size: {table_body_font};">{rec.eventdetailgroup_no}</td>
+                            <td  on:click={() => {
+                                ListMemberAgenVoucher(rec.eventdetailgroup_idmember,rec.eventdetailgroup_username);
+                            }} NOWRAP style="cursor:pointer;text-decoration:underline;text-align: left;vertical-align: top;font-size: {table_body_font};"> {rec.eventdetailgroup_username}</td>
+                            <td  NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">
+                                <a href="https://wa.me/{rec.eventdetailgroup_phone}" target="_blank">
+                                    {rec.eventdetailgroup_phone}
+                                </a>
+                            </td>
+                            <td  NOWRAP style="text-align: right;vertical-align: top;font-size: {table_body_font};color:blue;">{new Intl.NumberFormat().format(rec.eventdetailgroup_deposit)}</td>
+                        </tr>
+                        {/each}
+                    </tbody>
+                </table>
             </div>
-          </div>
+        </div>
         
 	</slot:template>
 	<slot:template slot="footer">
-        <div style="font-size: 12px;">
-            SUBTOTAL : <span style="color:blue;font-weight:bold;">{new Intl.NumberFormat().format(listpartisipasi_total)}</span>
-        </div>
-        <Button
-            on:click={callFunction}
-            button_function="FORM_PARTISIPASI"
-            button_title="New Partisipasi"
-            button_css="btn-warning"/>
+        {#if panel_footer_listall}
+            <div style="font-size: 12px;">
+                SUBTOTAL : <span style="color:blue;font-weight:bold;">{new Intl.NumberFormat().format(listpartisipasi_total)}</span>
+            </div>
+            <Button
+                on:click={callFunction}
+                button_function="FORM_PARTISIPASI"
+                button_title="New Partisipasi"
+                button_css="btn-warning"/>
+        {/if}
 	</slot:template>
 </Modal>
 
@@ -791,5 +953,40 @@
             button_function="FORM_PARTISIPASI"
             button_title="New Partisipasi"
             button_css="btn-warning"/>
+	</slot:template>
+</Modal>
+
+<Modal
+	modal_id="modallistmemberagenvoucher"
+	modal_size="modal-dialog-centered"
+	modal_title="List Voucher : {username_global}"
+    modal_body_css="height:500px;overflow-y: scroll;"
+    modal_footer_css="padding:5px;"
+	modal_footer={false}>
+	<slot:template slot="body">
+        <table class="table table-striped ">
+            <thead>
+                <tr>
+                    <th NOWRAP width="1%" style="text-align: center;vertical-align: top;font-weight:bold;font-size:{table_header_font};">NO</th>
+                    <th NOWRAP width="10%" style="text-align: left;vertical-align: top;font-weight:bold;font-size: {table_header_font};">USERNAME</th>
+                    <th NOWRAP width="10%" style="text-align: left;vertical-align: top;font-weight:bold;font-size: {table_header_font};">PHONE</th>
+                    <th NOWRAP width="*" style="text-align: left;vertical-align: top;font-weight:bold;font-size: {table_header_font};">VOUCHER</th>
+                    <th NOWRAP width="10%" style="text-align: right;vertical-align: top;font-weight:bold;font-size: {table_header_font};">DEPOSIT</th>
+                </tr>
+            </thead>
+            <tbody>
+                {#each listpartisipasivoucher_db as rec}
+                <tr>
+                    <td  NOWRAP style="text-align: center;vertical-align: top;font-size: {table_body_font};">{rec.eventdetail_no}</td>
+                    <td  NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.eventdetail_username}</td>
+                    <td  NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.eventdetail_phone}</td>
+                    <td  NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.eventdetail_voucher}</td>
+                    <td  NOWRAP style="text-align: right;vertical-align: top;font-size: {table_body_font};color:blue;">{new Intl.NumberFormat().format(rec.eventdetail_deposit)}</td>
+                </tr>
+                {/each}
+            </tbody>
+        </table>
+	</slot:template>
+	<slot:template slot="footer">
 	</slot:template>
 </Modal>

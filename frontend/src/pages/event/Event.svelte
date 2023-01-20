@@ -50,8 +50,17 @@
             if (record != null) {
                 totalrecord = record.length;
                 let no = 0
+                let duration = 0;
+                let duration_css = "";
                 for (var i = 0; i < record.length; i++) {
                     no = no + 1;
+                    duration = diffdate(dayjs().format("YYYY-MM-DD HH:MM"),dayjs(record[i]["event_endevent"]).format("YYYY-MM-DD HH:MM"));
+                    if(duration < 0){
+                        duration = 0;
+                        duration_css = "color:red;font-weight:bold;";
+                    }else{
+                        duration_css = "color:biru;font-weight:bold;";
+                    }
                     listHome = [
                         ...listHome,
                         {
@@ -62,6 +71,8 @@
                             home_name: record[i]["event_name"],
                             home_start: dayjs(record[i]["event_startevent"]).format("YYYY-MM-DD HH:MM"),
                             home_end: dayjs(record[i]["event_endevent"]).format("YYYY-MM-DD HH:MM"),
+                            home_duration: duration,
+                            home_durationcss: duration_css,
                             home_mindeposit: record[i]["event_mindeposit"],
                             home_create: record[i]["event_create"],
                             home_update: record[i]["event_update"],
@@ -84,6 +95,17 @@
             initHome();
         }, 500);
     };
+    function diffdate(data1,data2){
+        // const date1 = dayjs(data1).format("YYYY-MM-DD HH:MM")
+        // const date2 = dayjs(data2).format("YYYY-MM-DD HH:MM")
+        // let temp =date1.diff(date2,'day',true);
+        // return temp;
+        const date1 = dayjs(data2)
+        const date2 = dayjs(data1)
+        let temp = date1.diff(date2,'day',true);
+      
+        return parseInt(temp);
+    }
     initapp()
 </script>
 
