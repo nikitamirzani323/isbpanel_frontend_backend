@@ -74,6 +74,7 @@
                             home_duration: duration,
                             home_durationcss: duration_css,
                             home_mindeposit: record[i]["event_mindeposit"],
+                            home_money_in: record[i]["event_money_in"],
                             home_create: record[i]["event_create"],
                             home_update: record[i]["event_update"],
                         },

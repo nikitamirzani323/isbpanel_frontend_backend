@@ -581,7 +581,8 @@
                                 <th NOWRAP width="5%" style="text-align: right;vertical-align: top;font-weight:bold;font-size: {table_header_font};">DURATION</th>
                                 <th NOWRAP width="10%" style="text-align: left;vertical-align: top;font-weight:bold;font-size: {table_header_font};">WEBSITE AGEN</th>
                                 <th NOWRAP width="*" style="text-align: left;vertical-align: top;font-weight:bold;font-size: {table_header_font};">NAMA</th>
-                                <th NOWRAP width="10%" style="text-align: right;vertical-align: top;font-weight:bold;font-size: {table_header_font};">MINDEPOSIT</th>
+                                <th NOWRAP width="10%" style="text-align: right;vertical-align: top;font-weight:bold;font-size: {table_header_font};">MIN DEPOSIT</th>
+                                <th NOWRAP width="10%" style="text-align: right;vertical-align: top;font-weight:bold;font-size: {table_header_font};">CASH IN</th>
                                 <th NOWRAP width="15%" style="text-align: left;vertical-align: top;font-weight:bold;font-size: {table_header_font};">CREATE</th>
                                 <th NOWRAP width="15%" style="text-align: left;vertical-align: top;font-weight:bold;font-size: {table_header_font};">UPDATE</th>
                             </tr>
@@ -615,6 +616,9 @@
                                     <td  style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.home_name}</td>
                                     <td  NOWRAP style="text-align: right;vertical-align: top;font-size: {table_body_font};color:blue;font-weight:bold;">
                                         {new Intl.NumberFormat().format(rec.home_mindeposit)}
+                                    </td>
+                                    <td  NOWRAP style="text-align: right;vertical-align: top;font-size: {table_body_font};color:blue;font-weight:bold;">
+                                        {new Intl.NumberFormat().format(rec.home_money_in)}
                                     </td>
                                     <td  NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.home_create}</td>
                                     <td  NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.home_update}</td>
@@ -881,7 +885,8 @@
             <label for="exampleForm" class="form-label">Qty</label>
             <input
                 bind:value={qty_partisipasi_field}
-                on:keyup={handleKeyboard_format}
+                on:keyup={handleKeyboard_format} 
+				maxlength="3" 
                 class="form-control required"
                 type="text"
                 style="text-align:right;"
@@ -963,20 +968,18 @@
             <thead>
                 <tr>
                     <th NOWRAP width="1%" style="text-align: center;vertical-align: top;font-weight:bold;font-size:{table_header_font};">NO</th>
-                    <th NOWRAP width="10%" style="text-align: left;vertical-align: top;font-weight:bold;font-size: {table_header_font};">USERNAME</th>
-                    <th NOWRAP width="10%" style="text-align: left;vertical-align: top;font-weight:bold;font-size: {table_header_font};">PHONE</th>
                     <th NOWRAP width="*" style="text-align: left;vertical-align: top;font-weight:bold;font-size: {table_header_font};">VOUCHER</th>
                     <th NOWRAP width="10%" style="text-align: right;vertical-align: top;font-weight:bold;font-size: {table_header_font};">DEPOSIT</th>
+                    <th NOWRAP width="10%" style="text-align: left;vertical-align: top;font-weight:bold;font-size: {table_header_font};">CREATE</th>
                 </tr>
             </thead>
             <tbody>
                 {#each listpartisipasivoucher_db as rec}
                 <tr>
                     <td  NOWRAP style="text-align: center;vertical-align: top;font-size: {table_body_font};">{rec.eventdetail_no}</td>
-                    <td  NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.eventdetail_username}</td>
-                    <td  NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.eventdetail_phone}</td>
                     <td  NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.eventdetail_voucher}</td>
                     <td  NOWRAP style="text-align: right;vertical-align: top;font-size: {table_body_font};color:blue;">{new Intl.NumberFormat().format(rec.eventdetail_deposit)}</td>
+                    <td  NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.eventdetail_create}</td>
                 </tr>
                 {/each}
             </tbody>
