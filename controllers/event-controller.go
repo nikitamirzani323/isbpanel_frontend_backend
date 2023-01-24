@@ -270,7 +270,7 @@ func EventDetailSave(c *fiber.Ctx) error {
 		Eventdetail_id           int    `json:"eventdetail_id" `
 		Eventdetail_idevent      int    `json:"eventdetail_idevent" `
 		Eventdetail_idmemberagen int    `json:"eventdetail_idmemberagen" `
-		Eventdetail_deposit      int    `json:"eventdetail_deposit" `
+		Eventdetail_qty          int    `json:"eventdetail_qty" `
 	}
 	hostname := c.Hostname()
 	bearToken := c.Get("Authorization")
@@ -300,7 +300,7 @@ func EventDetailSave(c *fiber.Ctx) error {
 			"eventdetail_id":           client.Eventdetail_id,
 			"eventdetail_idevent":      client.Eventdetail_idevent,
 			"eventdetail_idmemberagen": client.Eventdetail_idmemberagen,
-			"eventdetail_deposit":      client.Eventdetail_deposit,
+			"eventdetail_qty":          client.Eventdetail_qty,
 		}).
 		Post(PATH + "api/eventdetailsave")
 	if err != nil {

@@ -48,7 +48,7 @@
     
     let idmemberagen_partisipasi_field = 0;
     let username_partisipasi_field = "";
-    let deposito_partisipasi_field = 0;
+    let qty_partisipasi_field = 0;
 
     let panel_footer_listall = true;
     let panel_footer_member = false;
@@ -252,6 +252,7 @@
                             eventdetailgroup_phone: record[i]["eventdetailgroup_phone"],
                             eventdetailgroup_username: record[i]["eventdetailgroup_username"],
                             eventdetailgroup_deposit: record[i]["eventdetailgroup_deposit"],
+                            eventdetailgroup_voucher: record[i]["eventdetailgroup_voucher"],
                         },
                     ];
                 }
@@ -406,26 +407,18 @@
                 flag = false
                 msg += "The Member is required\n"
             }
-            if(deposito_partisipasi_field == ""){
+            if(qty_partisipasi_field == ""){
                 flag = false
-                msg += "The Deposit is required\n"
-            }
-            if(parseInt(deposito_partisipasi_field) < parseInt(deposit_global)){
-                flag = false
-                msg += "This Deposit cannot exceeds the initial minimal deposit\n"
+                msg += "The Qty is required\n"
             }
         }else{
             if(idmemberagen_partisipasi_field == 0){
                 flag = false
                 msg += "The Member is required\n"
             }
-            if(deposito_partisipasi_field == ""){
+            if(qty_partisipasi_field == ""){
                 flag = false
-                msg += "The Deposit is required\n"
-            }
-            if(parseInt(deposito_partisipasi_field) < parseInt(deposit_global)){
-                flag = false
-                msg += "This Deposit cannot exceeds the initial minimal deposit\n"
+                msg += "The Qty is required\n"
             }
         }
         
@@ -444,7 +437,7 @@
                     eventdetail_id: idwebsite_field,
                     eventdetail_idevent: parseInt(idevent_global),
                     eventdetail_idmemberagen: parseInt(idmemberagen_partisipasi_field),
-                    eventdetail_deposit: parseInt(deposito_partisipasi_field),
+                    eventdetail_qty: parseInt(qty_partisipasi_field),
                 }),
             });
             const json = await res.json();
@@ -484,7 +477,7 @@
     function clearFieldPartisipasi(){
         idmemberagen_partisipasi_field = 0;
         username_partisipasi_field = "";
-        deposito_partisipasi_field = 0;
+        qty_partisipasi_field = 0;
     }
     function callFunction(event){
         switch(event.detail){
@@ -527,10 +520,10 @@
                 mindeposit_field = 0;
             }
         }
-        for (let i = 0; i < deposito_partisipasi_field.length; i++) {
-            numbera = parseInt(deposito_partisipasi_field[i]);
+        for (let i = 0; i < qty_partisipasi_field.length; i++) {
+            numbera = parseInt(qty_partisipasi_field[i]);
             if (isNaN(numbera)) {
-                deposito_partisipasi_field = 0;
+                qty_partisipasi_field = 0;
             }
         }
     };
@@ -816,6 +809,7 @@
                             <th NOWRAP width="1%" style="text-align: center;vertical-align: top;font-weight:bold;font-size:{table_header_font};">NO</th>
                             <th NOWRAP width="10%" style="text-align: left;vertical-align: top;font-weight:bold;font-size: {table_header_font};">USERNAME</th>
                             <th NOWRAP width="15%" style="text-align: left;vertical-align: top;font-weight:bold;font-size: {table_header_font};">PHONE</th>
+                            <th NOWRAP width="10%" style="text-align: right;vertical-align: top;font-weight:bold;font-size: {table_header_font};">TOTAL</th>
                             <th NOWRAP width="*" style="text-align: right;vertical-align: top;font-weight:bold;font-size: {table_header_font};">DEPOSIT</th>
                         </tr>
                     </thead>
@@ -831,6 +825,7 @@
                                     {rec.eventdetailgroup_phone}
                                 </a>
                             </td>
+                            <td  NOWRAP style="text-align: right;vertical-align: top;font-size: {table_body_font};color:blue;">{new Intl.NumberFormat().format(rec.eventdetailgroup_voucher)}</td>
                             <td  NOWRAP style="text-align: right;vertical-align: top;font-size: {table_body_font};color:blue;">{new Intl.NumberFormat().format(rec.eventdetailgroup_deposit)}</td>
                         </tr>
                         {/each}
@@ -883,16 +878,16 @@
             </div>
         </div>
         <div class="mb-3">
-            <label for="exampleForm" class="form-label">Deposit</label>
+            <label for="exampleForm" class="form-label">Qty</label>
             <input
-                bind:value={deposito_partisipasi_field}
+                bind:value={qty_partisipasi_field}
                 on:keyup={handleKeyboard_format}
                 class="form-control required"
                 type="text"
                 style="text-align:right;"
                 placeholder=""/>
             <div id="emailHelp" class="form-text" style="color:blue;text-align: right;font-size: 11px;">
-                {new Intl.NumberFormat().format(deposito_partisipasi_field)}
+                {new Intl.NumberFormat().format(qty_partisipasi_field)}
             </div>
 
         </div>
