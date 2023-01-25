@@ -1,5 +1,7 @@
 <script>
     import { Input } from "sveltestrap";
+    import { initializeApp } from "firebase/app";
+    import { getDatabase, ref, set } from "firebase/database";
     import dayjs from "dayjs";
     import Panel from "../../components/Panel.svelte";
     import Loader from "../../components/Loader.svelte";
@@ -19,6 +21,18 @@
     let sDataNewPartisipasi = "";
     let myModal_newentry = "";
     let myModal_memberagen = "";
+    const firebaseConfig = {
+        apiKey: "AIzaSyDgzVaNSmYg80ycxn2fA_Rsbgji2jUbqf8",
+        authDomain: "isbproject-5028a.firebaseapp.com",
+        databaseURL: "https://isbproject-5028a-default-rtdb.asia-southeast1.firebasedatabase.app",
+        projectId: "isbproject-5028a",
+        storageBucket: "isbproject-5028a.appspot.com",
+        messagingSenderId: "181461320518",
+        appId: "1:181461320518:web:a3280cd5dde31b9ebe5b47",
+        measurementId: "G-RYBN4R3HVH"
+    };
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
 
     let idevent_global = 0;
     let idwebsite_global = 0;
@@ -49,6 +63,67 @@
     let idmemberagen_partisipasi_field = 0;
     let username_partisipasi_field = "";
     let qty_partisipasi_field = 0;
+
+    let prize1_winner  = "";
+    let prize1_winner_flag  = false;
+    let prize1_winner_save_flag  = false;
+    let prize2_winner = "";
+    let prize2_winner_flag  = false;
+    let prize2_winner_save_flag  = false;
+    let prize3_winner = "";
+    let prize3_winner_flag  = false;
+    let prize3_winner_save_flag  = false;
+    let prize4_winner = "";
+    let prize4_winner_flag  = false;
+    let prize4_winner_save_flag  = false;
+    let prize5_winner = "";
+    let prize5_winner_flag  = false;
+    let prize5_winner_save_flag  = false;
+    let prize6_winner = "";
+    let prize6_winner_flag  = false;
+    let prize6_winner_save_flag  = false;
+    let prize7_winner = "";
+    let prize7_winner_flag  = false;
+    let prize7_winner_save_flag  = false;
+    let prize8_winner = "";
+    let prize8_winner_flag  = false;
+    let prize8_winner_save_flag  = false;
+    let prize9_winner = "";
+    let prize9_winner_flag  = false;
+    let prize9_winner_save_flag  = false;
+    let prize10_winner = "";
+    let prize10_winner_flag  = false;
+    let prize10_winner_save_flag  = false;
+    let prize11_winner = "";
+    let prize11_winner_flag  = false;
+    let prize11_winner_save_flag  = false;
+    let prize12_winner = "";
+    let prize12_winner_flag  = false;
+    let prize12_winner_save_flag  = false;
+    let prize13_winner = "";
+    let prize13_winner_flag  = false;
+    let prize13_winner_save_flag  = false;
+    let prize14_winner = "";
+    let prize14_winner_flag  = false;
+    let prize14_winner_save_flag  = false;
+    let prize15_winner = "";
+    let prize15_winner_flag  = false;
+    let prize15_winner_save_flag  = false;
+    let prize16_winner = "";
+    let prize16_winner_flag  = false;
+    let prize16_winner_save_flag  = false;
+    let prize17_winner = "";
+    let prize17_winner_flag  = false;
+    let prize17_winner_save_flag  = false;
+    let prize18_winner = "";
+    let prize18_winner_flag  = false;
+    let prize18_winner_save_flag  = false;
+    let prize19_winner = "";
+    let prize19_winner_flag  = false;
+    let prize19_winner_save_flag  = false;
+    let prize20_winner = "";
+    let prize20_winner_flag  = false;
+    let prize20_winner_save_flag  = false;
 
     let panel_footer_listall = true;
     let panel_footer_member = false;
@@ -135,6 +210,112 @@
         call_listpartisipasi(idevent_global,e)
         myModal_memberagen = new bootstrap.Modal(document.getElementById("modallistmemberagenvoucher"));
         myModal_memberagen.show();
+    };
+    const handleFirebase = (e) => {
+        switch (e){
+            case "prize1":
+                prize1_winner_flag = true;
+                prize1_winner_save_flag = true;
+                break;
+            case "prize2":
+                prize2_winner_flag = true;
+                prize2_winner_save_flag = true;
+                break;
+            case "prize3":
+                prize3_winner_flag = true;
+                prize3_winner_save_flag = true;
+                break;
+            case "prize4":
+                prize4_winner_flag = true;
+                prize4_winner_save_flag = true;
+                break;
+            case "prize5":
+                prize5_winner_flag = true;
+                prize5_winner_save_flag = true;
+                break;
+            case "prize6":
+                prize6_winner_flag = true;
+                prize6_winner_save_flag = true;
+                break;
+            case "prize7":
+                prize7_winner_flag = true;
+                prize7_winner_save_flag = true;
+                break;
+            case "prize8":
+                prize8_winner_flag = true;
+                prize8_winner_save_flag = true;
+                break;
+            case "prize9":
+                prize9_winner_flag = true;
+                prize9_winner_save_flag = true;
+                break;
+            case "prize10":
+                prize10_winner_flag = true;
+                prize10_winner_save_flag = true;
+                break;
+            case "prize11":
+                prize11_winner_flag = true;
+                prize11_winner_save_flag = true;
+                break;
+            case "prize12":
+                prize12_winner_flag = true;
+                prize12_winner_save_flag = true;
+                break;
+            case "prize13":
+                prize13_winner_flag = true;
+                prize13_winner_save_flag = true;
+                break;
+            case "prize14":
+                prize14_winner_flag = true;
+                prize14_winner_save_flag = true;
+                break;
+            case "prize15":
+                prize15_winner_flag = true;
+                prize15_winner_save_flag = true;
+                break;
+            case "prize16":
+                prize16_winner_flag = true;
+                prize16_winner_save_flag = true;
+                break;
+            case "prize17":
+                prize17_winner_flag = true;
+                prize17_winner_save_flag = true;
+                break;
+            case "prize18":
+                prize18_winner_flag = true;
+                prize18_winner_save_flag = true;
+                break;
+            case "prize19":
+                prize19_winner_flag = true;
+                prize19_winner_save_flag = true;
+                break;
+            case "prize20":
+                prize20_winner_flag = true;
+                prize20_winner_save_flag = true;
+                break;
+        }
+        set(ref(db, 'eventisbproject'), {
+            prize1: prize1_winner,
+            prize2: prize2_winner,
+            prize3: prize3_winner,
+            prize4: prize4_winner,
+            prize5: prize5_winner,
+            prize6: prize6_winner,
+            prize7: prize7_winner,
+            prize8: prize8_winner,
+            prize9: prize9_winner,
+            prize10: prize10_winner,
+            prize11: prize11_winner,
+            prize12: prize12_winner,
+            prize13: prize13_winner,
+            prize14: prize14_winner,
+            prize15: prize15_winner,
+            prize16: prize16_winner,
+            prize17: prize17_winner,
+            prize18: prize18_winner,
+            prize19: prize19_winner,
+            prize20: prize20_winner,
+        });
     };
     const TabPartisipasi = (e) => {
         switch (e){
@@ -744,7 +925,7 @@
 	modal_id="modallistpartisipasi"
 	modal_size="modal-dialog-centered modal-lg"
 	modal_title="List Partisipasi - {nmwebsite_global}"
-    modal_body_css="height:500px;overflow-y: scroll;"
+    modal_body_css="height:600px;overflow-y: scroll;"
     modal_footer_css="padding:2px;"
 	modal_footer={true}>
 	<slot:template slot="body">
@@ -835,6 +1016,356 @@
                         {/each}
                     </tbody>
                 </table>
+            </div>
+            <div class="tab-pane fade" id="winnerpannel" role="tabpanel">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <div class="mb-3">
+                            <label for="exampleForm" class="form-label">Prize 1</label>
+                            <div class="input-group mb-3">
+                                <Input
+                                    bind:value={prize1_winner}
+                                    on:keyup={handleKeyboard_format}    
+                                    disabled='{prize1_winner_flag}'
+                                    type="text"
+                                    placeholder="Prize 1"/>
+                                <button
+                                    on:click={() => {
+                                        handleFirebase("prize1");
+                                    }} 
+                                    disabled='{prize1_winner_save_flag}' 
+                                    type="button" class="btn btn-warning">Save</button>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="exampleForm" class="form-label">Prize 2</label>
+                            <div class="input-group mb-3">
+                                <Input
+                                    bind:value={prize2_winner}
+                                    on:keyup={handleKeyboard_format}    
+                                    disabled='{prize2_winner_flag}'
+                                    type="text"
+                                    placeholder="Prize 2"/>
+                                <button
+                                    on:click={() => {
+                                        handleFirebase("prize2");
+                                    }} 
+                                    disabled='{prize2_winner_save_flag}' 
+                                    type="button" class="btn btn-warning">Save</button>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="exampleForm" class="form-label">Prize 3</label>
+                            <div class="input-group mb-3">
+                                <Input
+                                    bind:value={prize3_winner}
+                                    on:keyup={handleKeyboard_format}    
+                                    disabled='{prize3_winner_flag}'
+                                    type="text"
+                                    placeholder="Prize 3"/>
+                                <button
+                                    on:click={() => {
+                                        handleFirebase("prize3");
+                                    }} 
+                                    disabled='{prize3_winner_save_flag}' 
+                                    type="button" class="btn btn-warning">Save</button>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="exampleForm" class="form-label">Prize 4</label>
+                            <div class="input-group mb-3">
+                                <Input
+                                    bind:value={prize4_winner}
+                                    on:keyup={handleKeyboard_format}    
+                                    disabled='{prize4_winner_flag}'
+                                    type="text"
+                                    placeholder="Prize 4"/>
+                                <button
+                                    on:click={() => {
+                                        handleFirebase("prize4");
+                                    }} 
+                                    disabled='{prize4_winner_save_flag}' 
+                                    type="button" class="btn btn-warning">Save</button>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="exampleForm" class="form-label">Prize 5</label>
+                            <div class="input-group mb-3">
+                                <Input
+                                    bind:value={prize5_winner}
+                                    on:keyup={handleKeyboard_format}    
+                                    disabled='{prize5_winner_flag}'
+                                    type="text"
+                                    placeholder="Prize 5"/>
+                                <button
+                                    on:click={() => {
+                                        handleFirebase("prize5");
+                                    }} 
+                                    disabled='{prize5_winner_save_flag}' 
+                                    type="button" class="btn btn-warning">Save</button>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="exampleForm" class="form-label">Prize 6</label>
+                            <div class="input-group mb-3">
+                                <Input
+                                    bind:value={prize6_winner}
+                                    on:keyup={handleKeyboard_format}    
+                                    disabled='{prize6_winner_flag}'
+                                    type="text"
+                                    placeholder="Prize 6"/>
+                                <button
+                                    on:click={() => {
+                                        handleFirebase("prize6");
+                                    }} 
+                                    disabled='{prize6_winner_save_flag}' 
+                                    type="button" class="btn btn-warning">Save</button>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="exampleForm" class="form-label">Prize 7</label>
+                            <div class="input-group mb-3">
+                                <Input
+                                    bind:value={prize7_winner}
+                                    on:keyup={handleKeyboard_format}    
+                                    disabled='{prize7_winner_flag}'
+                                    type="text"
+                                    placeholder="Prize 7"/>
+                                <button
+                                    on:click={() => {
+                                        handleFirebase("prize7");
+                                    }} 
+                                    disabled='{prize7_winner_save_flag}' 
+                                    type="button" class="btn btn-warning">Save</button>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="exampleForm" class="form-label">Prize 8</label>
+                            <div class="input-group mb-3">
+                                <Input
+                                    bind:value={prize8_winner}
+                                    on:keyup={handleKeyboard_format}    
+                                    disabled='{prize8_winner_flag}'
+                                    type="text"
+                                    placeholder="Prize 8"/>
+                                <button
+                                    on:click={() => {
+                                        handleFirebase("prize8");
+                                    }} 
+                                    disabled='{prize8_winner_save_flag}' 
+                                    type="button" class="btn btn-warning">Save</button>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="exampleForm" class="form-label">Prize 9</label>
+                            <div class="input-group mb-3">
+                                <Input
+                                    bind:value={prize9_winner}
+                                    on:keyup={handleKeyboard_format}    
+                                    disabled='{prize9_winner_flag}'
+                                    type="text"
+                                    placeholder="Prize 9"/>
+                                <button
+                                    on:click={() => {
+                                        handleFirebase("prize9");
+                                    }} 
+                                    disabled='{prize9_winner_save_flag}' 
+                                    type="button" class="btn btn-warning">Save</button>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="exampleForm" class="form-label">Prize 10</label>
+                            <div class="input-group mb-3">
+                                <Input
+                                    bind:value={prize10_winner}
+                                    on:keyup={handleKeyboard_format}    
+                                    disabled='{prize10_winner_flag}'
+                                    type="text"
+                                    placeholder="Prize 10"/>
+                                <button
+                                    on:click={() => {
+                                        handleFirebase("prize10");
+                                    }} 
+                                    disabled='{prize10_winner_save_flag}' 
+                                    type="button" class="btn btn-warning">Save</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="mb-3">
+                            <label for="exampleForm" class="form-label">Prize 11</label>
+                            <div class="input-group mb-3">
+                                <Input
+                                    bind:value={prize11_winner}
+                                    on:keyup={handleKeyboard_format}    
+                                    disabled='{prize11_winner_flag}'
+                                    type="text"
+                                    placeholder="Prize 11"/>
+                                <button
+                                    on:click={() => {
+                                        handleFirebase("prize11");
+                                    }} 
+                                    disabled='{prize11_winner_save_flag}' 
+                                    type="button" class="btn btn-warning">Save</button>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="exampleForm" class="form-label">Prize 12</label>
+                            <div class="input-group mb-3">
+                                <Input
+                                    bind:value={prize12_winner}
+                                    on:keyup={handleKeyboard_format}    
+                                    disabled='{prize12_winner_flag}'
+                                    type="text"
+                                    placeholder="Prize 12"/>
+                                <button
+                                    on:click={() => {
+                                        handleFirebase("prize12");
+                                    }} 
+                                    disabled='{prize12_winner_save_flag}' 
+                                    type="button" class="btn btn-warning">Save</button>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="exampleForm" class="form-label">Prize 13</label>
+                            <div class="input-group mb-3">
+                                <Input
+                                    bind:value={prize13_winner}
+                                    on:keyup={handleKeyboard_format}    
+                                    disabled='{prize13_winner_flag}'
+                                    type="text"
+                                    placeholder="Prize 13"/>
+                                <button
+                                    on:click={() => {
+                                        handleFirebase("prize13");
+                                    }} 
+                                    disabled='{prize13_winner_save_flag}' 
+                                    type="button" class="btn btn-warning">Save</button>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="exampleForm" class="form-label">Prize 14</label>
+                            <div class="input-group mb-3">
+                                <Input
+                                    bind:value={prize14_winner}
+                                    on:keyup={handleKeyboard_format}    
+                                    disabled='{prize14_winner_flag}'
+                                    type="text"
+                                    placeholder="Prize 14"/>
+                                <button
+                                    on:click={() => {
+                                        handleFirebase("prize14");
+                                    }} 
+                                    disabled='{prize14_winner_save_flag}' 
+                                    type="button" class="btn btn-warning">Save</button>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="exampleForm" class="form-label">Prize 15</label>
+                            <div class="input-group mb-3">
+                                <Input
+                                    bind:value={prize15_winner}
+                                    on:keyup={handleKeyboard_format}    
+                                    disabled='{prize15_winner_flag}'
+                                    type="text"
+                                    placeholder="Prize 15"/>
+                                <button
+                                    on:click={() => {
+                                        handleFirebase("prize15");
+                                    }} 
+                                    disabled='{prize15_winner_save_flag}' 
+                                    type="button" class="btn btn-warning">Save</button>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="exampleForm" class="form-label">Prize 16</label>
+                            <div class="input-group mb-3">
+                                <Input
+                                    bind:value={prize16_winner}
+                                    on:keyup={handleKeyboard_format}    
+                                    disabled='{prize16_winner_flag}'
+                                    type="text"
+                                    placeholder="Prize 16"/>
+                                <button
+                                    on:click={() => {
+                                        handleFirebase("prize16");
+                                    }} 
+                                    disabled='{prize16_winner_save_flag}' 
+                                    type="button" class="btn btn-warning">Save</button>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="exampleForm" class="form-label">Prize 17</label>
+                            <div class="input-group mb-3">
+                                <Input
+                                    bind:value={prize17_winner}
+                                    on:keyup={handleKeyboard_format}    
+                                    disabled='{prize17_winner_flag}'
+                                    type="text"
+                                    placeholder="Prize 17"/>
+                                <button
+                                    on:click={() => {
+                                        handleFirebase("prize17");
+                                    }} 
+                                    disabled='{prize17_winner_save_flag}' 
+                                    type="button" class="btn btn-warning">Save</button>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="exampleForm" class="form-label">Prize 18</label>
+                            <div class="input-group mb-3">
+                                <Input
+                                    bind:value={prize18_winner}
+                                    on:keyup={handleKeyboard_format}    
+                                    disabled='{prize18_winner_flag}'
+                                    type="text"
+                                    placeholder="Prize 18"/>
+                                <button
+                                    on:click={() => {
+                                        handleFirebase("prize18");
+                                    }} 
+                                    disabled='{prize18_winner_save_flag}' 
+                                    type="button" class="btn btn-warning">Save</button>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="exampleForm" class="form-label">Prize 19</label>
+                            <div class="input-group mb-3">
+                                <Input
+                                    bind:value={prize19_winner}
+                                    on:keyup={handleKeyboard_format}    
+                                    disabled='{prize19_winner_flag}'
+                                    type="text"
+                                    placeholder="Prize 19"/>
+                                <button
+                                    on:click={() => {
+                                        handleFirebase("prize19");
+                                    }} 
+                                    disabled='{prize19_winner_save_flag}' 
+                                    type="button" class="btn btn-warning">Save</button>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="exampleForm" class="form-label">Prize 20</label>
+                            <div class="input-group mb-3">
+                                <Input
+                                    bind:value={prize20_winner}
+                                    on:keyup={handleKeyboard_format}    
+                                    disabled='{prize20_winner_flag}'
+                                    type="text"
+                                    placeholder="Prize 20"/>
+                                <button
+                                    on:click={() => {
+                                        handleFirebase("prize20");
+                                    }} 
+                                    disabled='{prize20_winner_save_flag}' 
+                                    type="button" class="btn btn-warning">Save</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                
             </div>
         </div>
         
