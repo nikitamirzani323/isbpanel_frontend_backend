@@ -59,6 +59,7 @@
     let listmembergroup_db = [];
     let listwebsiteagen_db = [];
     let listmemberagen_db = [];
+    let listmemberagenwinner_db = [];
     
     let idmemberagen_partisipasi_field = 0;
     let username_partisipasi_field = "";
@@ -205,12 +206,18 @@
         myModal_memberagen = new bootstrap.Modal(document.getElementById("modallistmemberagen"));
         myModal_memberagen.show();
     };
-    const ListMemberAgenVoucher = (e,f) => {
+    const ListMemberAgenVoucher = (e,f,tipe) => {
         username_global = f;
         call_listpartisipasi(idevent_global,e)
-        myModal_memberagen = new bootstrap.Modal(document.getElementById("modallistmemberagenvoucher"));
-        myModal_memberagen.show();
+        if(tipe == ""){
+            myModal_memberagen = new bootstrap.Modal(document.getElementById("modallistmemberagenvoucher"));
+            myModal_memberagen.show();
+        }else{
+            myModal_memberagen = new bootstrap.Modal(document.getElementById("modallistmemberagenvoucherwinner"));
+            myModal_memberagen.show();
+        }
     };
+  
     const handleFirebase = (e) => {
         switch (e){
             case "prize1":
@@ -327,6 +334,9 @@
                 panel_footer_member = true;
                 panel_footer_listall = false;
                 call_listpartisipasimembergroup(idevent_global);break;
+            case "WINNER":
+                panel_footer_member = false;
+                panel_footer_listall = false;break;
         }
     };
     const InsertPartisipasi = (id,e) => {
@@ -639,6 +649,12 @@
             alert(msg)
         }
     }
+    function handleMemberPopup(e){
+        
+        call_listpartisipasimembergroup(idevent_global)
+        myModal_memberagen = new bootstrap.Modal(document.getElementById("modallistmembervoucher"));
+        myModal_memberagen.show();
+    }
     function clearField(){
         idevent_global = 0;
         idwebsite_global = 0;
@@ -943,7 +959,9 @@
                 }} class="nav-item" role="presentation">
                 <a class="nav-link" data-bs-toggle="tab" href="#grouppanel" aria-selected="false" tabindex="-1" role="tab">Member</a>
             </li>
-            <li class="nav-item" role="presentation">
+            <li on:click={() => {
+                    TabPartisipasi("WINNER");
+                }} class="nav-item" role="presentation">
                 <a class="nav-link" data-bs-toggle="tab" href="#winnerpannel" aria-selected="false" tabindex="-1" role="tab">Winner</a>
             </li>
         </ul>
@@ -1031,10 +1049,10 @@
                                     placeholder="Prize 1"/>
                                 <button
                                     on:click={() => {
-                                        handleFirebase("prize1");
+                                        handleMemberPopup("PRIZE_1");
                                     }} 
                                     disabled='{prize1_winner_save_flag}' 
-                                    type="button" class="btn btn-warning">Save</button>
+                                    type="button" class="btn btn-info">Info</button>
                             </div>
                         </div>
                         <div class="mb-3">
@@ -1510,6 +1528,84 @@
                     <td  NOWRAP style="text-align: center;vertical-align: top;font-size: {table_body_font};">{rec.eventdetail_no}</td>
                     <td  NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.eventdetail_voucher}</td>
                     <td  NOWRAP style="text-align: right;vertical-align: top;font-size: {table_body_font};color:blue;">{new Intl.NumberFormat().format(rec.eventdetail_deposit)}</td>
+                    <td  NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.eventdetail_create}</td>
+                </tr>
+                {/each}
+            </tbody>
+        </table>
+	</slot:template>
+	<slot:template slot="footer">
+	</slot:template>
+</Modal>
+
+
+<Modal
+	modal_id="modallistmembervoucher"
+	modal_size="modal-dialog-centered"
+	modal_title="List Member Agen"
+    modal_body_css="height:500px;overflow-y: scroll;"
+    modal_footer_css="padding:5px;"
+	modal_footer={false}>
+	<slot:template slot="body">
+        <table class="table table-striped ">
+            <thead>
+                <tr>
+                    <th NOWRAP width="1%" style="text-align: center;vertical-align: top;font-weight:bold;font-size:{table_header_font};">NO</th>
+                    <th NOWRAP width="10%" style="text-align: left;vertical-align: top;font-weight:bold;font-size: {table_header_font};">USERNAME</th>
+                    <th NOWRAP width="15%" style="text-align: left;vertical-align: top;font-weight:bold;font-size: {table_header_font};">PHONE</th>
+                    <th NOWRAP width="10%" style="text-align: right;vertical-align: top;font-weight:bold;font-size: {table_header_font};">TOTAL</th>
+                    <th NOWRAP width="*" style="text-align: right;vertical-align: top;font-weight:bold;font-size: {table_header_font};">DEPOSIT</th>
+                </tr>
+            </thead>
+            <tbody>
+                {#each listmembergroup_db as rec}
+                <tr>
+                    <td  NOWRAP style="text-align: center;vertical-align: top;font-size: {table_body_font};">{rec.eventdetailgroup_no}</td>
+                    <td  on:click={() => {
+                        ListMemberAgenVoucher(rec.eventdetailgroup_idmember,rec.eventdetailgroup_username,"WINNER");
+                    }} NOWRAP style="cursor:pointer;text-decoration:underline;text-align: left;vertical-align: top;font-size: {table_body_font};"> {rec.eventdetailgroup_username}</td>
+                    <td  NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">
+                        <a href="https://wa.me/{rec.eventdetailgroup_phone}" target="_blank">
+                            {rec.eventdetailgroup_phone}
+                        </a>
+                    </td>
+                    <td  NOWRAP style="text-align: right;vertical-align: top;font-size: {table_body_font};color:blue;">{new Intl.NumberFormat().format(rec.eventdetailgroup_voucher)}</td>
+                    <td  NOWRAP style="text-align: right;vertical-align: top;font-size: {table_body_font};color:blue;">{new Intl.NumberFormat().format(rec.eventdetailgroup_deposit)}</td>
+                </tr>
+                {/each}
+            </tbody>
+        </table>
+	</slot:template>
+	<slot:template slot="footer">
+
+        <Button
+            on:click={callFunction}
+            button_function="FORM_PARTISIPASI"
+            button_title="New Partisipasi"
+            button_css="btn-warning"/>
+	</slot:template>
+</Modal>
+<Modal
+	modal_id="modallistmemberagenvoucherwinner"
+	modal_size="modal-dialog-centered"
+	modal_title="List Voucher : {username_global}"
+    modal_body_css="height:500px;overflow-y: scroll;"
+    modal_footer_css="padding:5px;"
+	modal_footer={false}>
+	<slot:template slot="body">
+        <table class="table table-striped ">
+            <thead>
+                <tr>
+                    <th NOWRAP width="1%" style="text-align: center;vertical-align: top;font-weight:bold;font-size:{table_header_font};">NO</th>
+                    <th NOWRAP width="*" style="text-align: left;vertical-align: top;font-weight:bold;font-size: {table_header_font};">VOUCHER</th>
+                    <th NOWRAP width="10%" style="text-align: left;vertical-align: top;font-weight:bold;font-size: {table_header_font};">CREATE</th>
+                </tr>
+            </thead>
+            <tbody>
+                {#each listpartisipasivoucher_db as rec}
+                <tr>
+                    <td  NOWRAP style="text-align: center;vertical-align: top;font-size: {table_body_font};">{rec.eventdetail_no}</td>
+                    <td  NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font}; cursor:pointer;text-decoration:underline;">{rec.eventdetail_voucher}</td>
                     <td  NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.eventdetail_create}</td>
                 </tr>
                 {/each}
