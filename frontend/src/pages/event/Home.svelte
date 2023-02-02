@@ -61,6 +61,7 @@
     let listmembergroup_db = [];
     let listwebsiteagen_db = [];
     let listmemberagen_db = [];
+    let listfirebase_db = [];
 
     
     let idmemberagen_partisipasi_field = 0;
@@ -220,112 +221,7 @@
         }
     };
   
-    const handleFirebase = (e) => {
-        switch (e){
-            case "prize1":
-                prize1_winner_flag = true;
-                prize1_winner_save_flag = true;
-                break;
-            case "prize2":
-                prize2_winner_flag = true;
-                prize2_winner_save_flag = true;
-                break;
-            case "prize3":
-                prize3_winner_flag = true;
-                prize3_winner_save_flag = true;
-                break;
-            case "prize4":
-                prize4_winner_flag = true;
-                prize4_winner_save_flag = true;
-                break;
-            case "prize5":
-                prize5_winner_flag = true;
-                prize5_winner_save_flag = true;
-                break;
-            case "prize6":
-                prize6_winner_flag = true;
-                prize6_winner_save_flag = true;
-                break;
-            case "prize7":
-                prize7_winner_flag = true;
-                prize7_winner_save_flag = true;
-                break;
-            case "prize8":
-                prize8_winner_flag = true;
-                prize8_winner_save_flag = true;
-                break;
-            case "prize9":
-                prize9_winner_flag = true;
-                prize9_winner_save_flag = true;
-                break;
-            case "prize10":
-                prize10_winner_flag = true;
-                prize10_winner_save_flag = true;
-                break;
-            case "prize11":
-                prize11_winner_flag = true;
-                prize11_winner_save_flag = true;
-                break;
-            case "prize12":
-                prize12_winner_flag = true;
-                prize12_winner_save_flag = true;
-                break;
-            case "prize13":
-                prize13_winner_flag = true;
-                prize13_winner_save_flag = true;
-                break;
-            case "prize14":
-                prize14_winner_flag = true;
-                prize14_winner_save_flag = true;
-                break;
-            case "prize15":
-                prize15_winner_flag = true;
-                prize15_winner_save_flag = true;
-                break;
-            case "prize16":
-                prize16_winner_flag = true;
-                prize16_winner_save_flag = true;
-                break;
-            case "prize17":
-                prize17_winner_flag = true;
-                prize17_winner_save_flag = true;
-                break;
-            case "prize18":
-                prize18_winner_flag = true;
-                prize18_winner_save_flag = true;
-                break;
-            case "prize19":
-                prize19_winner_flag = true;
-                prize19_winner_save_flag = true;
-                break;
-            case "prize20":
-                prize20_winner_flag = true;
-                prize20_winner_save_flag = true;
-                break;
-        }
-        set(ref(db, 'eventisbproject'), {
-            prize1: prize1_winner,
-            prize2: prize2_winner,
-            prize3: prize3_winner,
-            prize4: prize4_winner,
-            prize5: prize5_winner,
-            prize6: prize6_winner,
-            prize7: prize7_winner,
-            prize8: prize8_winner,
-            prize9: prize9_winner,
-            prize10: prize10_winner,
-            prize11: prize11_winner,
-            prize12: prize12_winner,
-            prize13: prize13_winner,
-            prize14: prize14_winner,
-            prize15: prize15_winner,
-            prize16: prize16_winner,
-            prize17: prize17_winner,
-            prize18: prize18_winner,
-            prize19: prize19_winner,
-            prize20: prize20_winner,
-        });
-    };
+  
     const TabPartisipasi = (e) => {
         switch (e){
             case "LISTALL":
@@ -347,113 +243,146 @@
         myModal_memberagen.hide();
     };
     const InsertFirebase = (e) => {
-        switch (fieldwinner_global){
-            case "PRIZE_1":
-                prize1_winner = e;
-                prize1_winner_flag = true;
-                prize1_winner_save_flag = true;
-                break;
-            case "prize2":
-                prize2_winner_flag = true;
-                prize2_winner_save_flag = true;
-                break;
-            case "prize3":
-                prize3_winner_flag = true;
-                prize3_winner_save_flag = true;
-                break;
-            case "prize4":
-                prize4_winner_flag = true;
-                prize4_winner_save_flag = true;
-                break;
-            case "prize5":
-                prize5_winner_flag = true;
-                prize5_winner_save_flag = true;
-                break;
-            case "prize6":
-                prize6_winner_flag = true;
-                prize6_winner_save_flag = true;
-                break;
-            case "prize7":
-                prize7_winner_flag = true;
-                prize7_winner_save_flag = true;
-                break;
-            case "prize8":
-                prize8_winner_flag = true;
-                prize8_winner_save_flag = true;
-                break;
-            case "prize9":
-                prize9_winner_flag = true;
-                prize9_winner_save_flag = true;
-                break;
-            case "prize10":
-                prize10_winner_flag = true;
-                prize10_winner_save_flag = true;
-                break;
-            case "prize11":
-                prize11_winner_flag = true;
-                prize11_winner_save_flag = true;
-                break;
-            case "prize12":
-                prize12_winner_flag = true;
-                prize12_winner_save_flag = true;
-                break;
-            case "prize13":
-                prize13_winner_flag = true;
-                prize13_winner_save_flag = true;
-                break;
-            case "prize14":
-                prize14_winner_flag = true;
-                prize14_winner_save_flag = true;
-                break;
-            case "prize15":
-                prize15_winner_flag = true;
-                prize15_winner_save_flag = true;
-                break;
-            case "prize16":
-                prize16_winner_flag = true;
-                prize16_winner_save_flag = true;
-                break;
-            case "prize17":
-                prize17_winner_flag = true;
-                prize17_winner_save_flag = true;
-                break;
-            case "prize18":
-                prize18_winner_flag = true;
-                prize18_winner_save_flag = true;
-                break;
-            case "prize19":
-                prize19_winner_flag = true;
-                prize19_winner_save_flag = true;
-                break;
-            case "prize20":
-                prize20_winner_flag = true;
-                prize20_winner_save_flag = true;
-                break;
+        let flag = true;
+        if(listfirebase_db.length > 0){
+            for(let i=0;i<listfirebase_db.length;i++){
+                if(listfirebase_db[i]==e){
+                    flag = false;
+                }
+            }
         }
-        set(ref(db, 'eventisbproject'), {
-            prize1: prize1_winner,
-            prize2: prize2_winner,
-            prize3: prize3_winner,
-            prize4: prize4_winner,
-            prize5: prize5_winner,
-            prize6: prize6_winner,
-            prize7: prize7_winner,
-            prize8: prize8_winner,
-            prize9: prize9_winner,
-            prize10: prize10_winner,
-            prize11: prize11_winner,
-            prize12: prize12_winner,
-            prize13: prize13_winner,
-            prize14: prize14_winner,
-            prize15: prize15_winner,
-            prize16: prize16_winner,
-            prize17: prize17_winner,
-            prize18: prize18_winner,
-            prize19: prize19_winner,
-            prize20: prize20_winner,
-        });
-        myModal_memberagen.hide();
-        myModal_memberagenwinner.hide();
+        if(flag){
+            listfirebase_db.push(e)
+            switch (fieldwinner_global){
+                case "PRIZE_1":
+                    prize1_winner = e;
+                    prize1_winner_flag = true;
+                    prize1_winner_save_flag = true;
+                    break;
+                case "PRIZE_2":
+                    prize2_winner = e;
+                    prize2_winner_flag = true;
+                    prize2_winner_save_flag = true;
+                    break;
+                case "PRIZE_3":
+                    prize3_winner = e;
+                    prize3_winner_flag = true;
+                    prize3_winner_save_flag = true;
+                    break;
+                case "PRIZE_4":
+                    prize4_winner = e;
+                    prize4_winner_flag = true;
+                    prize4_winner_save_flag = true;
+                    break;
+                case "PRIZE_5":
+                    prize5_winner = e;
+                    prize5_winner_flag = true;
+                    prize5_winner_save_flag = true;
+                    break;
+                case "PRIZE_6":
+                    prize6_winner = e;
+                    prize6_winner_flag = true;
+                    prize6_winner_save_flag = true;
+                    break;
+                case "PRIZE_7":
+                    prize7_winner = e;
+                    prize7_winner_flag = true;
+                    prize7_winner_save_flag = true;
+                    break;
+                case "PRIZE_8":
+                    prize8_winner = e;
+                    prize8_winner_flag = true;
+                    prize8_winner_save_flag = true;
+                    break;
+                case "PRIZE_9":
+                    prize9_winner = e;
+                    prize9_winner_flag = true;
+                    prize9_winner_save_flag = true;
+                    break;
+                case "PRIZE_10":
+                    prize10_winner = e;
+                    prize10_winner_flag = true;
+                    prize10_winner_save_flag = true;
+                    break;
+                case "PRIZE_11":
+                    prize11_winner = e;
+                    prize11_winner_flag = true;
+                    prize11_winner_save_flag = true;
+                    break;
+                case "PRIZE_12":
+                    prize12_winner = e;
+                    prize12_winner_flag = true;
+                    prize12_winner_save_flag = true;
+                    break;
+                case "PRIZE_13":
+                    prize13_winner = e;
+                    prize13_winner_flag = true;
+                    prize13_winner_save_flag = true;
+                    break;
+                case "PRIZE_14":
+                    prize14_winner = e;
+                    prize14_winner_flag = true;
+                    prize14_winner_save_flag = true;
+                    break;
+                case "PRIZE_15":
+                    prize15_winner = e;
+                    prize15_winner_flag = true;
+                    prize15_winner_save_flag = true;
+                    break;
+                case "PRIZE_16":
+                    prize16_winner = e;                
+                    prize16_winner_flag = true;
+                    prize16_winner_save_flag = true;
+                    break;
+                case "PRIZE_17":
+                    prize17_winner = e;
+                    prize17_winner_flag = true;
+                    prize17_winner_save_flag = true;
+                    break;
+                case "PRIZE_18":
+                    prize18_winner = e;
+                    prize18_winner_flag = true;
+                    prize18_winner_save_flag = true;
+                    break;
+                case "PRIZE_19":
+                    prize19_winner = e;
+                    prize19_winner_flag = true;
+                    prize19_winner_save_flag = true;
+                    break;
+                case "PRIZE_20":
+                    prize20_winner = e;
+                    prize20_winner_flag = true;
+                    prize20_winner_save_flag = true;
+                    break;
+            }
+            set(ref(db, 'eventisbproject'), {
+                prize1: prize1_winner,
+                prize2: prize2_winner,
+                prize3: prize3_winner,
+                prize4: prize4_winner,
+                prize5: prize5_winner,
+                prize6: prize6_winner,
+                prize7: prize7_winner,
+                prize8: prize8_winner,
+                prize9: prize9_winner,
+                prize10: prize10_winner,
+                prize11: prize11_winner,
+                prize12: prize12_winner,
+                prize13: prize13_winner,
+                prize14: prize14_winner,
+                prize15: prize15_winner,
+                prize16: prize16_winner,
+                prize17: prize17_winner,
+                prize18: prize18_winner,
+                prize19: prize19_winner,
+                prize20: prize20_winner,
+            });
+            myModal_memberagen.hide();
+            myModal_memberagenwinner.hide();
+        }else{
+            alert("Duplicate Voucher")
+        }
+        
     };
     const RefreshHalaman = () => {
         dispatch("handleRefreshData", "call");
@@ -885,15 +814,14 @@
                             <tr>
                                 <th NOWRAP width="1%" style="text-align: center;vertical-align: top;" colspan="2">&nbsp;</th>
                                 <th NOWRAP width="1%" style="text-align: center;vertical-align: top;font-weight:bold;font-size:{table_header_font};">NO</th>
-                                <th NOWRAP width="8%" style="text-align: center;vertical-align: top;font-weight:bold;font-size: {table_header_font};">START</th>
-                                <th NOWRAP width="8%" style="text-align: center;vertical-align: top;font-weight:bold;font-size: {table_header_font};">END</th>
-                                <th NOWRAP width="5%" style="text-align: right;vertical-align: top;font-weight:bold;font-size: {table_header_font};">DURATION</th>
+                                <th NOWRAP width="5%" style="text-align: center;vertical-align: top;font-weight:bold;font-size: {table_header_font};">START</th>
+                                <th NOWRAP width="5%" style="text-align: center;vertical-align: top;font-weight:bold;font-size: {table_header_font};">END</th>
+                                <th NOWRAP width="3%" style="text-align: right;vertical-align: top;font-weight:bold;font-size: {table_header_font};">D</th>
                                 <th NOWRAP width="10%" style="text-align: left;vertical-align: top;font-weight:bold;font-size: {table_header_font};">WEBSITE AGEN</th>
                                 <th NOWRAP width="*" style="text-align: left;vertical-align: top;font-weight:bold;font-size: {table_header_font};">NAMA</th>
                                 <th NOWRAP width="10%" style="text-align: right;vertical-align: top;font-weight:bold;font-size: {table_header_font};">MIN DEPOSIT</th>
                                 <th NOWRAP width="10%" style="text-align: right;vertical-align: top;font-weight:bold;font-size: {table_header_font};">CASH IN</th>
-                                <th NOWRAP width="15%" style="text-align: left;vertical-align: top;font-weight:bold;font-size: {table_header_font};">CREATE</th>
-                                <th NOWRAP width="15%" style="text-align: left;vertical-align: top;font-weight:bold;font-size: {table_header_font};">UPDATE</th>
+                                <th NOWRAP width="15%" style="text-align: left;vertical-align: top;font-weight:bold;font-size: {table_header_font};">INFORMASI</th>
                             </tr>
                         </thead>
                         {#if totalrecord > 0}
@@ -929,8 +857,10 @@
                                     <td  NOWRAP style="text-align: right;vertical-align: top;font-size: {table_body_font};color:blue;font-weight:bold;">
                                         {new Intl.NumberFormat().format(rec.home_money_in)}
                                     </td>
-                                    <td  NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.home_create}</td>
-                                    <td  NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.home_update}</td>
+                                    <td  NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">
+                                        CREATE : {rec.home_create}<br />
+                                        UPDATE : {rec.home_update}
+                                    </td>
                                 </tr>
                             {/each}
                         </tbody>
@@ -1178,10 +1108,10 @@
                                     placeholder="Prize 2"/>
                                 <button
                                     on:click={() => {
-                                        handleFirebase("prize2");
+                                        handleMemberPopup("PRIZE_2");
                                     }} 
                                     disabled='{prize2_winner_save_flag}' 
-                                    type="button" class="btn btn-warning">Save</button>
+                                    type="button" class="btn btn-info">Info</button>
                             </div>
                         </div>
                         <div class="mb-3">
@@ -1195,10 +1125,10 @@
                                     placeholder="Prize 3"/>
                                 <button
                                     on:click={() => {
-                                        handleFirebase("prize3");
+                                        handleMemberPopup("PRIZE_3");
                                     }} 
                                     disabled='{prize3_winner_save_flag}' 
-                                    type="button" class="btn btn-warning">Save</button>
+                                    type="button" class="btn btn-info">Info</button>
                             </div>
                         </div>
                         <div class="mb-3">
@@ -1212,10 +1142,10 @@
                                     placeholder="Prize 4"/>
                                 <button
                                     on:click={() => {
-                                        handleFirebase("prize4");
+                                        handleMemberPopup("PRIZE_4");
                                     }} 
                                     disabled='{prize4_winner_save_flag}' 
-                                    type="button" class="btn btn-warning">Save</button>
+                                    type="button" class="btn btn-info">Info</button>
                             </div>
                         </div>
                         <div class="mb-3">
@@ -1229,10 +1159,10 @@
                                     placeholder="Prize 5"/>
                                 <button
                                     on:click={() => {
-                                        handleFirebase("prize5");
+                                        handleMemberPopup("PRIZE_5");
                                     }} 
                                     disabled='{prize5_winner_save_flag}' 
-                                    type="button" class="btn btn-warning">Save</button>
+                                    type="button" class="btn btn-info">Info</button>
                             </div>
                         </div>
                         <div class="mb-3">
@@ -1246,10 +1176,10 @@
                                     placeholder="Prize 6"/>
                                 <button
                                     on:click={() => {
-                                        handleFirebase("prize6");
+                                        handleMemberPopup("PRIZE_6");
                                     }} 
                                     disabled='{prize6_winner_save_flag}' 
-                                    type="button" class="btn btn-warning">Save</button>
+                                    type="button" class="btn btn-info">Info</button>
                             </div>
                         </div>
                         <div class="mb-3">
@@ -1263,10 +1193,10 @@
                                     placeholder="Prize 7"/>
                                 <button
                                     on:click={() => {
-                                        handleFirebase("prize7");
+                                        handleMemberPopup("PRIZE_7");
                                     }} 
                                     disabled='{prize7_winner_save_flag}' 
-                                    type="button" class="btn btn-warning">Save</button>
+                                    type="button" class="btn btn-info">Info</button>
                             </div>
                         </div>
                         <div class="mb-3">
@@ -1280,10 +1210,10 @@
                                     placeholder="Prize 8"/>
                                 <button
                                     on:click={() => {
-                                        handleFirebase("prize8");
+                                        handleMemberPopup("PRIZE_8");
                                     }} 
                                     disabled='{prize8_winner_save_flag}' 
-                                    type="button" class="btn btn-warning">Save</button>
+                                    type="button" class="btn btn-info">Info</button>
                             </div>
                         </div>
                         <div class="mb-3">
@@ -1297,10 +1227,10 @@
                                     placeholder="Prize 9"/>
                                 <button
                                     on:click={() => {
-                                        handleFirebase("prize9");
+                                        handleMemberPopup("PRIZE_9");
                                     }} 
                                     disabled='{prize9_winner_save_flag}' 
-                                    type="button" class="btn btn-warning">Save</button>
+                                    type="button" class="btn btn-info">Info</button>
                             </div>
                         </div>
                         <div class="mb-3">
@@ -1314,10 +1244,10 @@
                                     placeholder="Prize 10"/>
                                 <button
                                     on:click={() => {
-                                        handleFirebase("prize10");
+                                        handleMemberPopup("PRIZE_10");
                                     }} 
                                     disabled='{prize10_winner_save_flag}' 
-                                    type="button" class="btn btn-warning">Save</button>
+                                    type="button" class="btn btn-info">Info</button>
                             </div>
                         </div>
                     </div>
@@ -1333,10 +1263,10 @@
                                     placeholder="Prize 11"/>
                                 <button
                                     on:click={() => {
-                                        handleFirebase("prize11");
+                                        handleMemberPopup("PRIZE_11");
                                     }} 
                                     disabled='{prize11_winner_save_flag}' 
-                                    type="button" class="btn btn-warning">Save</button>
+                                    type="button" class="btn btn-info">Info</button>
                             </div>
                         </div>
                         <div class="mb-3">
@@ -1350,10 +1280,10 @@
                                     placeholder="Prize 12"/>
                                 <button
                                     on:click={() => {
-                                        handleFirebase("prize12");
+                                        handleMemberPopup("PRIZE_12");
                                     }} 
                                     disabled='{prize12_winner_save_flag}' 
-                                    type="button" class="btn btn-warning">Save</button>
+                                    type="button" class="btn btn-info">Info</button>
                             </div>
                         </div>
                         <div class="mb-3">
@@ -1367,10 +1297,10 @@
                                     placeholder="Prize 13"/>
                                 <button
                                     on:click={() => {
-                                        handleFirebase("prize13");
+                                        handleMemberPopup("PRIZE_13");
                                     }} 
                                     disabled='{prize13_winner_save_flag}' 
-                                    type="button" class="btn btn-warning">Save</button>
+                                    type="button" class="btn btn-info">Info</button>
                             </div>
                         </div>
                         <div class="mb-3">
@@ -1384,10 +1314,10 @@
                                     placeholder="Prize 14"/>
                                 <button
                                     on:click={() => {
-                                        handleFirebase("prize14");
+                                        handleMemberPopup("PRIZE_14");
                                     }} 
                                     disabled='{prize14_winner_save_flag}' 
-                                    type="button" class="btn btn-warning">Save</button>
+                                    type="button" class="btn btn-info">Info</button>
                             </div>
                         </div>
                         <div class="mb-3">
@@ -1401,10 +1331,10 @@
                                     placeholder="Prize 15"/>
                                 <button
                                     on:click={() => {
-                                        handleFirebase("prize15");
+                                        handleMemberPopup("PRIZE_15");
                                     }} 
                                     disabled='{prize15_winner_save_flag}' 
-                                    type="button" class="btn btn-warning">Save</button>
+                                    type="button" class="btn btn-info">Info</button>
                             </div>
                         </div>
                         <div class="mb-3">
@@ -1418,10 +1348,10 @@
                                     placeholder="Prize 16"/>
                                 <button
                                     on:click={() => {
-                                        handleFirebase("prize16");
+                                        handleMemberPopup("PRIZE_16");
                                     }} 
                                     disabled='{prize16_winner_save_flag}' 
-                                    type="button" class="btn btn-warning">Save</button>
+                                    type="button" class="btn btn-info">Info</button>
                             </div>
                         </div>
                         <div class="mb-3">
@@ -1435,10 +1365,10 @@
                                     placeholder="Prize 17"/>
                                 <button
                                     on:click={() => {
-                                        handleFirebase("prize17");
+                                        handleMemberPopup("PRIZE_17");
                                     }} 
                                     disabled='{prize17_winner_save_flag}' 
-                                    type="button" class="btn btn-warning">Save</button>
+                                    type="button" class="btn btn-info">Info</button>
                             </div>
                         </div>
                         <div class="mb-3">
@@ -1452,10 +1382,10 @@
                                     placeholder="Prize 18"/>
                                 <button
                                     on:click={() => {
-                                        handleFirebase("prize18");
+                                        handleMemberPopup("PRIZE_18");
                                     }} 
                                     disabled='{prize18_winner_save_flag}' 
-                                    type="button" class="btn btn-warning">Save</button>
+                                    type="button" class="btn btn-info">Info</button>
                             </div>
                         </div>
                         <div class="mb-3">
@@ -1469,10 +1399,10 @@
                                     placeholder="Prize 19"/>
                                 <button
                                     on:click={() => {
-                                        handleFirebase("prize19");
+                                        handleMemberPopup("PRIZE_19");
                                     }} 
                                     disabled='{prize19_winner_save_flag}' 
-                                    type="button" class="btn btn-warning">Save</button>
+                                    type="button" class="btn btn-info">Info</button>
                             </div>
                         </div>
                         <div class="mb-3">
@@ -1486,10 +1416,10 @@
                                     placeholder="Prize 20"/>
                                 <button
                                     on:click={() => {
-                                        handleFirebase("prize20");
+                                        handleMemberPopup("PRIZE_20");
                                     }} 
                                     disabled='{prize20_winner_save_flag}' 
-                                    type="button" class="btn btn-warning">Save</button>
+                                    type="button" class="btn btn-info">Info</button>
                             </div>
                         </div>
                     </div>
