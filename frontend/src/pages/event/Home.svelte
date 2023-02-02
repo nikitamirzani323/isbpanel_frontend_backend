@@ -21,6 +21,7 @@
     let sDataNewPartisipasi = "";
     let myModal_newentry = "";
     let myModal_memberagen = "";
+    let myModal_memberagenwinner = "";
     const firebaseConfig = {
         apiKey: "AIzaSyDgzVaNSmYg80ycxn2fA_Rsbgji2jUbqf8",
         authDomain: "isbproject-5028a.firebaseapp.com",
@@ -40,6 +41,7 @@
     let nmwevent_global = "";
     let deposit_global = 0;
     let username_global = "";
+    let fieldwinner_global = "";
 
     let idwebsite_field = 0;
     let nmevent_field = "";
@@ -59,7 +61,7 @@
     let listmembergroup_db = [];
     let listwebsiteagen_db = [];
     let listmemberagen_db = [];
-    let listmemberagenwinner_db = [];
+
     
     let idmemberagen_partisipasi_field = 0;
     let username_partisipasi_field = "";
@@ -208,13 +210,13 @@
     };
     const ListMemberAgenVoucher = (e,f,tipe) => {
         username_global = f;
-        call_listpartisipasi(idevent_global,e)
+        call_listpartisipasi(idevent_global,e)   
         if(tipe == ""){
             myModal_memberagen = new bootstrap.Modal(document.getElementById("modallistmemberagenvoucher"));
             myModal_memberagen.show();
         }else{
-            myModal_memberagen = new bootstrap.Modal(document.getElementById("modallistmemberagenvoucherwinner"));
-            myModal_memberagen.show();
+            myModal_memberagenwinner = new bootstrap.Modal(document.getElementById("modallistmemberagenvoucherwinner"));
+            myModal_memberagenwinner.show();
         }
     };
   
@@ -343,6 +345,115 @@
         idmemberagen_partisipasi_field = parseInt(id);
         username_partisipasi_field = e;
         myModal_memberagen.hide();
+    };
+    const InsertFirebase = (e) => {
+        switch (fieldwinner_global){
+            case "PRIZE_1":
+                prize1_winner = e;
+                prize1_winner_flag = true;
+                prize1_winner_save_flag = true;
+                break;
+            case "prize2":
+                prize2_winner_flag = true;
+                prize2_winner_save_flag = true;
+                break;
+            case "prize3":
+                prize3_winner_flag = true;
+                prize3_winner_save_flag = true;
+                break;
+            case "prize4":
+                prize4_winner_flag = true;
+                prize4_winner_save_flag = true;
+                break;
+            case "prize5":
+                prize5_winner_flag = true;
+                prize5_winner_save_flag = true;
+                break;
+            case "prize6":
+                prize6_winner_flag = true;
+                prize6_winner_save_flag = true;
+                break;
+            case "prize7":
+                prize7_winner_flag = true;
+                prize7_winner_save_flag = true;
+                break;
+            case "prize8":
+                prize8_winner_flag = true;
+                prize8_winner_save_flag = true;
+                break;
+            case "prize9":
+                prize9_winner_flag = true;
+                prize9_winner_save_flag = true;
+                break;
+            case "prize10":
+                prize10_winner_flag = true;
+                prize10_winner_save_flag = true;
+                break;
+            case "prize11":
+                prize11_winner_flag = true;
+                prize11_winner_save_flag = true;
+                break;
+            case "prize12":
+                prize12_winner_flag = true;
+                prize12_winner_save_flag = true;
+                break;
+            case "prize13":
+                prize13_winner_flag = true;
+                prize13_winner_save_flag = true;
+                break;
+            case "prize14":
+                prize14_winner_flag = true;
+                prize14_winner_save_flag = true;
+                break;
+            case "prize15":
+                prize15_winner_flag = true;
+                prize15_winner_save_flag = true;
+                break;
+            case "prize16":
+                prize16_winner_flag = true;
+                prize16_winner_save_flag = true;
+                break;
+            case "prize17":
+                prize17_winner_flag = true;
+                prize17_winner_save_flag = true;
+                break;
+            case "prize18":
+                prize18_winner_flag = true;
+                prize18_winner_save_flag = true;
+                break;
+            case "prize19":
+                prize19_winner_flag = true;
+                prize19_winner_save_flag = true;
+                break;
+            case "prize20":
+                prize20_winner_flag = true;
+                prize20_winner_save_flag = true;
+                break;
+        }
+        set(ref(db, 'eventisbproject'), {
+            prize1: prize1_winner,
+            prize2: prize2_winner,
+            prize3: prize3_winner,
+            prize4: prize4_winner,
+            prize5: prize5_winner,
+            prize6: prize6_winner,
+            prize7: prize7_winner,
+            prize8: prize8_winner,
+            prize9: prize9_winner,
+            prize10: prize10_winner,
+            prize11: prize11_winner,
+            prize12: prize12_winner,
+            prize13: prize13_winner,
+            prize14: prize14_winner,
+            prize15: prize15_winner,
+            prize16: prize16_winner,
+            prize17: prize17_winner,
+            prize18: prize18_winner,
+            prize19: prize19_winner,
+            prize20: prize20_winner,
+        });
+        myModal_memberagen.hide();
+        myModal_memberagenwinner.hide();
     };
     const RefreshHalaman = () => {
         dispatch("handleRefreshData", "call");
@@ -650,8 +761,9 @@
         }
     }
     function handleMemberPopup(e){
-        
+        fieldwinner_global = e;
         call_listpartisipasimembergroup(idevent_global)
+        
         myModal_memberagen = new bootstrap.Modal(document.getElementById("modallistmembervoucher"));
         myModal_memberagen.show();
     }
@@ -660,7 +772,7 @@
         idwebsite_global = 0;
         nmwebsite_global = "";
         nmwevent_global = "";
-        deposit_global = 0;
+        fieldwinner_global = "";
         idwebsite_field = 0;
         nmevent_field = "";
         startevent_field = "";
@@ -1605,7 +1717,9 @@
                 {#each listpartisipasivoucher_db as rec}
                 <tr>
                     <td  NOWRAP style="text-align: center;vertical-align: top;font-size: {table_body_font};">{rec.eventdetail_no}</td>
-                    <td  NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font}; cursor:pointer;text-decoration:underline;">{rec.eventdetail_voucher}</td>
+                    <td  on:click={() => {
+                        InsertFirebase(rec.eventdetail_voucher);
+                    }} NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font}; cursor:pointer;text-decoration:underline;">{rec.eventdetail_voucher}</td>
                     <td  NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.eventdetail_create}</td>
                 </tr>
                 {/each}
