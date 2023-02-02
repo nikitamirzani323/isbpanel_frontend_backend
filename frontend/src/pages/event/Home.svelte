@@ -42,6 +42,7 @@
     let deposit_global = 0;
     let username_global = "";
     let fieldwinner_global = "";
+    let fieldwinnerusername_global = "";
 
     let idwebsite_field = 0;
     let nmevent_field = "";
@@ -68,63 +69,83 @@
     let username_partisipasi_field = "";
     let qty_partisipasi_field = 0;
 
+    let prize1_username  = "";
     let prize1_winner  = "";
     let prize1_winner_flag  = false;
     let prize1_winner_save_flag  = false;
+    let prize2_username = "";
     let prize2_winner = "";
     let prize2_winner_flag  = false;
     let prize2_winner_save_flag  = false;
+    let prize3_username = "";
     let prize3_winner = "";
     let prize3_winner_flag  = false;
     let prize3_winner_save_flag  = false;
+    let prize4_username = "";
     let prize4_winner = "";
     let prize4_winner_flag  = false;
     let prize4_winner_save_flag  = false;
+    let prize5_username = "";
     let prize5_winner = "";
     let prize5_winner_flag  = false;
     let prize5_winner_save_flag  = false;
+    let prize6_username = "";
     let prize6_winner = "";
     let prize6_winner_flag  = false;
     let prize6_winner_save_flag  = false;
+    let prize7_username = "";
     let prize7_winner = "";
     let prize7_winner_flag  = false;
     let prize7_winner_save_flag  = false;
+    let prize8_username = "";
     let prize8_winner = "";
     let prize8_winner_flag  = false;
     let prize8_winner_save_flag  = false;
+    let prize9_username = "";
     let prize9_winner = "";
     let prize9_winner_flag  = false;
     let prize9_winner_save_flag  = false;
+    let prize10_username = "";
     let prize10_winner = "";
     let prize10_winner_flag  = false;
     let prize10_winner_save_flag  = false;
+    let prize11_username = "";
     let prize11_winner = "";
     let prize11_winner_flag  = false;
     let prize11_winner_save_flag  = false;
+    let prize12_username = "";
     let prize12_winner = "";
     let prize12_winner_flag  = false;
     let prize12_winner_save_flag  = false;
+    let prize13_username = "";
     let prize13_winner = "";
     let prize13_winner_flag  = false;
     let prize13_winner_save_flag  = false;
+    let prize14_username = "";
     let prize14_winner = "";
     let prize14_winner_flag  = false;
     let prize14_winner_save_flag  = false;
+    let prize15_username = "";
     let prize15_winner = "";
     let prize15_winner_flag  = false;
     let prize15_winner_save_flag  = false;
+    let prize16_username = "";
     let prize16_winner = "";
     let prize16_winner_flag  = false;
     let prize16_winner_save_flag  = false;
+    let prize17_username = "";
     let prize17_winner = "";
     let prize17_winner_flag  = false;
     let prize17_winner_save_flag  = false;
+    let prize18_username = "";
     let prize18_winner = "";
     let prize18_winner_flag  = false;
     let prize18_winner_save_flag  = false;
+    let prize19_username = "";
     let prize19_winner = "";
     let prize19_winner_flag  = false;
     let prize19_winner_save_flag  = false;
+    let prize20_username = "";
     let prize20_winner = "";
     let prize20_winner_flag  = false;
     let prize20_winner_save_flag  = false;
@@ -216,6 +237,7 @@
             myModal_memberagen = new bootstrap.Modal(document.getElementById("modallistmemberagenvoucher"));
             myModal_memberagen.show();
         }else{
+            fieldwinnerusername_global = f;
             myModal_memberagenwinner = new bootstrap.Modal(document.getElementById("modallistmemberagenvoucherwinner"));
             myModal_memberagenwinner.show();
         }
@@ -255,101 +277,121 @@
             listfirebase_db.push(e)
             switch (fieldwinner_global){
                 case "PRIZE_1":
+                    prize1_username = fieldwinnerusername_global;
                     prize1_winner = e;
                     prize1_winner_flag = true;
                     prize1_winner_save_flag = true;
                     break;
                 case "PRIZE_2":
+                    prize2_username = fieldwinnerusername_global;
                     prize2_winner = e;
                     prize2_winner_flag = true;
                     prize2_winner_save_flag = true;
                     break;
                 case "PRIZE_3":
+                    prize3_username = fieldwinnerusername_global;
                     prize3_winner = e;
                     prize3_winner_flag = true;
                     prize3_winner_save_flag = true;
                     break;
                 case "PRIZE_4":
+                    prize4_username = fieldwinnerusername_global;
                     prize4_winner = e;
                     prize4_winner_flag = true;
                     prize4_winner_save_flag = true;
                     break;
                 case "PRIZE_5":
+                    prize5_username = fieldwinnerusername_global;
                     prize5_winner = e;
                     prize5_winner_flag = true;
                     prize5_winner_save_flag = true;
                     break;
                 case "PRIZE_6":
+                    prize6_username = fieldwinnerusername_global;
                     prize6_winner = e;
                     prize6_winner_flag = true;
                     prize6_winner_save_flag = true;
                     break;
                 case "PRIZE_7":
+                    prize7_username = fieldwinnerusername_global;
                     prize7_winner = e;
                     prize7_winner_flag = true;
                     prize7_winner_save_flag = true;
                     break;
                 case "PRIZE_8":
+                    prize8_username = fieldwinnerusername_global;
                     prize8_winner = e;
                     prize8_winner_flag = true;
                     prize8_winner_save_flag = true;
                     break;
                 case "PRIZE_9":
+                    prize9_username = fieldwinnerusername_global;
                     prize9_winner = e;
                     prize9_winner_flag = true;
                     prize9_winner_save_flag = true;
                     break;
                 case "PRIZE_10":
+                    prize10_username = fieldwinnerusername_global;
                     prize10_winner = e;
                     prize10_winner_flag = true;
                     prize10_winner_save_flag = true;
                     break;
                 case "PRIZE_11":
+                    prize11_username = fieldwinnerusername_global;
                     prize11_winner = e;
                     prize11_winner_flag = true;
                     prize11_winner_save_flag = true;
                     break;
                 case "PRIZE_12":
+                    prize12_username = fieldwinnerusername_global;
                     prize12_winner = e;
                     prize12_winner_flag = true;
                     prize12_winner_save_flag = true;
                     break;
                 case "PRIZE_13":
+                    prize13_username = fieldwinnerusername_global;
                     prize13_winner = e;
                     prize13_winner_flag = true;
                     prize13_winner_save_flag = true;
                     break;
                 case "PRIZE_14":
+                    prize14_username = fieldwinnerusername_global;
                     prize14_winner = e;
                     prize14_winner_flag = true;
                     prize14_winner_save_flag = true;
                     break;
                 case "PRIZE_15":
+                    prize15_username = fieldwinnerusername_global;
                     prize15_winner = e;
                     prize15_winner_flag = true;
                     prize15_winner_save_flag = true;
                     break;
                 case "PRIZE_16":
+                    prize16_username = fieldwinnerusername_global;
                     prize16_winner = e;                
                     prize16_winner_flag = true;
                     prize16_winner_save_flag = true;
                     break;
                 case "PRIZE_17":
+                    prize17_username = fieldwinnerusername_global;
                     prize17_winner = e;
                     prize17_winner_flag = true;
                     prize17_winner_save_flag = true;
                     break;
                 case "PRIZE_18":
+                    prize18_username = fieldwinnerusername_global;
                     prize18_winner = e;
                     prize18_winner_flag = true;
                     prize18_winner_save_flag = true;
                     break;
                 case "PRIZE_19":
+                    prize19_username = fieldwinnerusername_global;
                     prize19_winner = e;
                     prize19_winner_flag = true;
                     prize19_winner_save_flag = true;
                     break;
                 case "PRIZE_20":
+                    prize20_username = fieldwinnerusername_global;
                     prize20_winner = e;
                     prize20_winner_flag = true;
                     prize20_winner_save_flag = true;
@@ -1081,7 +1123,7 @@
                 <div class="row">
                     <div class="col-sm-6">
                         <div class="mb-3">
-                            <label for="exampleForm" class="form-label">Prize 1</label>
+                            <label for="exampleForm" class="form-label">Prize 1 - {prize1_username}</label>
                             <div class="input-group mb-3">
                                 <Input
                                     bind:value={prize1_winner}
@@ -1098,7 +1140,7 @@
                             </div>
                         </div>
                         <div class="mb-3">
-                            <label for="exampleForm" class="form-label">Prize 2</label>
+                            <label for="exampleForm" class="form-label">Prize 2 - {prize2_username}</label>
                             <div class="input-group mb-3">
                                 <Input
                                     bind:value={prize2_winner}
@@ -1115,7 +1157,7 @@
                             </div>
                         </div>
                         <div class="mb-3">
-                            <label for="exampleForm" class="form-label">Prize 3</label>
+                            <label for="exampleForm" class="form-label">Prize 3 - {prize3_username}</label>
                             <div class="input-group mb-3">
                                 <Input
                                     bind:value={prize3_winner}
@@ -1132,7 +1174,7 @@
                             </div>
                         </div>
                         <div class="mb-3">
-                            <label for="exampleForm" class="form-label">Prize 4</label>
+                            <label for="exampleForm" class="form-label">Prize 4 - {prize4_username}</label>
                             <div class="input-group mb-3">
                                 <Input
                                     bind:value={prize4_winner}
@@ -1149,7 +1191,7 @@
                             </div>
                         </div>
                         <div class="mb-3">
-                            <label for="exampleForm" class="form-label">Prize 5</label>
+                            <label for="exampleForm" class="form-label">Prize 5 - {prize5_username}</label>
                             <div class="input-group mb-3">
                                 <Input
                                     bind:value={prize5_winner}
@@ -1166,7 +1208,7 @@
                             </div>
                         </div>
                         <div class="mb-3">
-                            <label for="exampleForm" class="form-label">Prize 6</label>
+                            <label for="exampleForm" class="form-label">Prize 6 - {prize6_username}</label>
                             <div class="input-group mb-3">
                                 <Input
                                     bind:value={prize6_winner}
@@ -1183,7 +1225,7 @@
                             </div>
                         </div>
                         <div class="mb-3">
-                            <label for="exampleForm" class="form-label">Prize 7</label>
+                            <label for="exampleForm" class="form-label">Prize 7 - {prize7_username}</label>
                             <div class="input-group mb-3">
                                 <Input
                                     bind:value={prize7_winner}
@@ -1200,7 +1242,7 @@
                             </div>
                         </div>
                         <div class="mb-3">
-                            <label for="exampleForm" class="form-label">Prize 8</label>
+                            <label for="exampleForm" class="form-label">Prize 8 - {prize8_username}</label>
                             <div class="input-group mb-3">
                                 <Input
                                     bind:value={prize8_winner}
@@ -1217,7 +1259,7 @@
                             </div>
                         </div>
                         <div class="mb-3">
-                            <label for="exampleForm" class="form-label">Prize 9</label>
+                            <label for="exampleForm" class="form-label">Prize 9 - {prize9_username}</label>
                             <div class="input-group mb-3">
                                 <Input
                                     bind:value={prize9_winner}
@@ -1234,7 +1276,7 @@
                             </div>
                         </div>
                         <div class="mb-3">
-                            <label for="exampleForm" class="form-label">Prize 10</label>
+                            <label for="exampleForm" class="form-label">Prize 10 - {prize10_username}</label>
                             <div class="input-group mb-3">
                                 <Input
                                     bind:value={prize10_winner}
@@ -1253,7 +1295,7 @@
                     </div>
                     <div class="col-sm-6">
                         <div class="mb-3">
-                            <label for="exampleForm" class="form-label">Prize 11</label>
+                            <label for="exampleForm" class="form-label">Prize 11 - {prize11_username}</label>
                             <div class="input-group mb-3">
                                 <Input
                                     bind:value={prize11_winner}
@@ -1270,7 +1312,7 @@
                             </div>
                         </div>
                         <div class="mb-3">
-                            <label for="exampleForm" class="form-label">Prize 12</label>
+                            <label for="exampleForm" class="form-label">Prize 12 - {prize12_username}</label>
                             <div class="input-group mb-3">
                                 <Input
                                     bind:value={prize12_winner}
@@ -1287,7 +1329,7 @@
                             </div>
                         </div>
                         <div class="mb-3">
-                            <label for="exampleForm" class="form-label">Prize 13</label>
+                            <label for="exampleForm" class="form-label">Prize 13 - {prize13_username}</label>
                             <div class="input-group mb-3">
                                 <Input
                                     bind:value={prize13_winner}
@@ -1304,7 +1346,7 @@
                             </div>
                         </div>
                         <div class="mb-3">
-                            <label for="exampleForm" class="form-label">Prize 14</label>
+                            <label for="exampleForm" class="form-label">Prize 14 - {prize14_username}</label>
                             <div class="input-group mb-3">
                                 <Input
                                     bind:value={prize14_winner}
@@ -1321,7 +1363,7 @@
                             </div>
                         </div>
                         <div class="mb-3">
-                            <label for="exampleForm" class="form-label">Prize 15</label>
+                            <label for="exampleForm" class="form-label">Prize 15 - {prize15_username}</label>
                             <div class="input-group mb-3">
                                 <Input
                                     bind:value={prize15_winner}
@@ -1338,7 +1380,7 @@
                             </div>
                         </div>
                         <div class="mb-3">
-                            <label for="exampleForm" class="form-label">Prize 16</label>
+                            <label for="exampleForm" class="form-label">Prize 16 - {prize16_username}</label>
                             <div class="input-group mb-3">
                                 <Input
                                     bind:value={prize16_winner}
@@ -1355,7 +1397,7 @@
                             </div>
                         </div>
                         <div class="mb-3">
-                            <label for="exampleForm" class="form-label">Prize 17</label>
+                            <label for="exampleForm" class="form-label">Prize 17 - {prize17_username}</label>
                             <div class="input-group mb-3">
                                 <Input
                                     bind:value={prize17_winner}
@@ -1372,7 +1414,7 @@
                             </div>
                         </div>
                         <div class="mb-3">
-                            <label for="exampleForm" class="form-label">Prize 18</label>
+                            <label for="exampleForm" class="form-label">Prize 18 - {prize18_username}</label>
                             <div class="input-group mb-3">
                                 <Input
                                     bind:value={prize18_winner}
@@ -1389,7 +1431,7 @@
                             </div>
                         </div>
                         <div class="mb-3">
-                            <label for="exampleForm" class="form-label">Prize 19</label>
+                            <label for="exampleForm" class="form-label">Prize 19 - {prize19_username}</label>
                             <div class="input-group mb-3">
                                 <Input
                                     bind:value={prize19_winner}
@@ -1406,7 +1448,7 @@
                             </div>
                         </div>
                         <div class="mb-3">
-                            <label for="exampleForm" class="form-label">Prize 20</label>
+                            <label for="exampleForm" class="form-label">Prize 20 - {prize20_username}</label>
                             <div class="input-group mb-3">
                                 <Input
                                     bind:value={prize20_winner}
