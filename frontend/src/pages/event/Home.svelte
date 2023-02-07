@@ -256,7 +256,7 @@
                 panel_footer_listall = false;
                 call_listpartisipasimembergroup(idevent_global);break;
             case "WINNER":
-                mappingwinner();
+                mappingwinner(idevent_global);
                 panel_footer_member = false;
                 panel_footer_listall = false;break;
         }
@@ -443,7 +443,6 @@
             listpartisipasi_db = [];
             listpartisipasi_total = 0;
         }
-        listpartisipasivoucherwinner_db = [];
         const res = await fetch("/api/eventdetail", {
             method: "POST",
             headers: {
@@ -484,22 +483,6 @@
                         listpartisipasi_total = listpartisipasi_total + record[i]["eventdetail_deposit"];
                         listpartisipasi_db = [
                             ...listpartisipasi_db,
-                            {
-                                eventdetail_no: no,
-                                eventdetail_id: record[i]["eventdetail_id"],
-                                eventdetail_phone: record[i]["eventdetail_phone"],
-                                eventdetail_username: record[i]["eventdetail_username"],
-                                eventdetail_voucher: record[i]["eventdetail_voucher"],
-                                eventdetail_deposit: record[i]["eventdetail_deposit"],
-                                eventdetail_status: record[i]["eventdetail_status"],
-                                eventdetail_create: record[i]["eventdetail_create"],
-                                eventdetail_update: record[i]["eventdetail_update"],
-                            },
-                        ];
-                    }
-                    if(record[i]["eventdetail_status"] != ""){
-                        listpartisipasivoucherwinner_db = [
-                            ...listpartisipasivoucherwinner_db,
                             {
                                 eventdetail_no: no,
                                 eventdetail_id: record[i]["eventdetail_id"],
@@ -776,7 +759,7 @@
             });
             const json = await res.json();
             if (json.status == 200) {
-                
+                mappingwinner(idevent);
                 msgloader = json.message;
             } else if(json.status == 403){
                 alert(json.message)
@@ -790,133 +773,171 @@
             alert(msg)
         }
     }
-    function mappingwinner(){
-        console.log(listpartisipasivoucherwinner_db.length)
-        for(let i=0;i<listpartisipasivoucherwinner_db.length;i++){
-            switch(listpartisipasivoucherwinner_db[i].eventdetail_status){
-                case "PRIZE_1":
-                    prize1_username = listpartisipasivoucherwinner_db[i].eventdetail_username;
-                    prize1_winner  = listpartisipasivoucherwinner_db[i].eventdetail_voucher;
-                    prize1_winner_flag  = true;
-                    prize1_winner_save_flag  = true;
-                    break;
-                case "PRIZE_2":
-                    prize2_username = listpartisipasivoucherwinner_db[i].eventdetail_username;
-                    prize2_winner  = listpartisipasivoucherwinner_db[i].eventdetail_voucher;
-                    prize2_winner_flag  = true;
-                    prize2_winner_save_flag  = true;
-                    break;
-                case "PRIZE_3":
-                    prize3_username = listpartisipasivoucherwinner_db[i].eventdetail_username;
-                    prize3_winner  = listpartisipasivoucherwinner_db[i].eventdetail_voucher;
-                    prize3_winner_flag  = true;
-                    prize3_winner_save_flag  = true;
-                    break;
-                case "PRIZE_4":
-                    prize4_username = listpartisipasivoucherwinner_db[i].eventdetail_username;
-                    prize4_winner  = listpartisipasivoucherwinner_db[i].eventdetail_voucher;
-                    prize4_winner_flag  = true;
-                    prize4_winner_save_flag  = true;
-                    break;
-                case "PRIZE_5":
-                    prize5_username = listpartisipasivoucherwinner_db[i].eventdetail_username;
-                    prize5_winner  = listpartisipasivoucherwinner_db[i].eventdetail_voucher;
-                    prize5_winner_flag  = true;
-                    prize5_winner_save_flag  = true;
-                    break;
-                case "PRIZE_6":
-                    prize6_username = listpartisipasivoucherwinner_db[i].eventdetail_username;
-                    prize6_winner  = listpartisipasivoucherwinner_db[i].eventdetail_voucher;
-                    prize6_winner_flag  = true;
-                    prize6_winner_save_flag  = true;
-                    break;
-                case "PRIZE_7":
-                    prize7_username = listpartisipasivoucherwinner_db[i].eventdetail_username;
-                    prize7_winner  = listpartisipasivoucherwinner_db[i].eventdetail_voucher;
-                    prize7_winner_flag  = true;
-                    prize7_winner_save_flag  = true;
-                    break;
-                case "PRIZE_8":
-                    prize8_username = listpartisipasivoucherwinner_db[i].eventdetail_username;
-                    prize8_winner  = listpartisipasivoucherwinner_db[i].eventdetail_voucher;
-                    prize8_winner_flag  = true;
-                    prize8_winner_save_flag  = true;
-                    break;
-                case "PRIZE_9":
-                    prize9_username = listpartisipasivoucherwinner_db[i].eventdetail_username;
-                    prize9_winner  = listpartisipasivoucherwinner_db[i].eventdetail_voucher;
-                    prize9_winner_flag  = true;
-                    prize9_winner_save_flag  = true;
-                    break;
-                case "PRIZE_10":
-                    prize10_username = listpartisipasivoucherwinner_db[i].eventdetail_username;
-                    prize10_winner  = listpartisipasivoucherwinner_db[i].eventdetail_voucher;
-                    prize10_winner_flag  = true;
-                    prize10_winner_save_flag  = true;
-                    break;
-                case "PRIZE_11":
-                    prize11_username = listpartisipasivoucherwinner_db[i].eventdetail_username;
-                    prize11_winner  = listpartisipasivoucherwinner_db[i].eventdetail_voucher;
-                    prize11_winner_flag  = true;
-                    prize11_winner_save_flag  = true;
-                    break;
-                case "PRIZE_12":
-                    prize12_username = listpartisipasivoucherwinner_db[i].eventdetail_username;
-                    prize12_winner  = listpartisipasivoucherwinner_db[i].eventdetail_voucher;
-                    prize12_winner_flag  = true;
-                    prize12_winner_save_flag  = true;
-                    break;
-                case "PRIZE_13":
-                    prize13_username = listpartisipasivoucherwinner_db[i].eventdetail_username;
-                    prize13_winner  = listpartisipasivoucherwinner_db[i].eventdetail_voucher;
-                    prize13_winner_flag  = true;
-                    prize13_winner_save_flag  = true;
-                    break;
-                case "PRIZE_14":
-                    prize14_username = listpartisipasivoucherwinner_db[i].eventdetail_username;
-                    prize14_winner  = listpartisipasivoucherwinner_db[i].eventdetail_voucher;
-                    prize14_winner_flag  = true;
-                    prize14_winner_save_flag  = true;
-                    break;
-                case "PRIZE_15":
-                    prize15_username = listpartisipasivoucherwinner_db[i].eventdetail_username;
-                    prize15_winner  = listpartisipasivoucherwinner_db[i].eventdetail_voucher;
-                    prize15_winner_flag  = true;
-                    prize15_winner_save_flag  = true;
-                    break;
-                case "PRIZE_16":
-                    prize16_username = listpartisipasivoucherwinner_db[i].eventdetail_username;
-                    prize16_winner  = listpartisipasivoucherwinner_db[i].eventdetail_voucher;
-                    prize16_winner_flag  = true;
-                    prize16_winner_save_flag  = true;
-                    break;
-                case "PRIZE_17":
-                    prize17_username = listpartisipasivoucherwinner_db[i].eventdetail_username;
-                    prize17_winner  = listpartisipasivoucherwinner_db[i].eventdetail_voucher;
-                    prize17_winner_flag  = true;
-                    prize17_winner_save_flag  = true;
-                    break;
-                case "PRIZE_18":
-                    prize18_username = listpartisipasivoucherwinner_db[i].eventdetail_username;
-                    prize18_winner  = listpartisipasivoucherwinner_db[i].eventdetail_voucher;
-                    prize18_winner_flag  = true;
-                    prize18_winner_save_flag  = true;
-                    break;
-                case "PRIZE_19":
-                    prize19_username = listpartisipasivoucherwinner_db[i].eventdetail_username;
-                    prize19_winner  = listpartisipasivoucherwinner_db[i].eventdetail_voucher;
-                    prize19_winner_flag  = true;
-                    prize19_winner_save_flag  = true;
-                    break;
-                case "PRIZE_20":
-                    prize20_username = listpartisipasivoucherwinner_db[i].eventdetail_username;
-                    prize20_winner  = listpartisipasivoucherwinner_db[i].eventdetail_voucher;
-                    prize20_winner_flag  = true;
-                    prize20_winner_save_flag  = true;
-                    break;
+    async function mappingwinner(idevent) {
+        listpartisipasivoucherwinner_db = [];
+        const res = await fetch("/api/eventdetailwinner", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: "Bearer " + token,
+            },
+            body: JSON.stringify({
+                sdata: 'New',
+                page: "MOVIEALBUM-VIEW",
+                event_id: idevent,
+            }),
+        });
+        const json = await res.json();
+        if (json.status == 200) {
+            let record = json.record;
+            if (record != null) {
+                let no = 0;
+                for (var i = 0; i < record.length; i++) {
+                    no = no + 1;
+                    
+                    listpartisipasivoucherwinner_db = [
+                            ...listpartisipasivoucherwinner_db,
+                            {
+                                eventdetail_no: no,
+                                eventdetail_id: record[i]["eventdetail_id"],
+                                eventdetail_phone: record[i]["eventdetail_phone"],
+                                eventdetail_username: record[i]["eventdetail_username"],
+                                eventdetail_voucher: record[i]["eventdetail_voucher"],
+                                eventdetail_deposit: record[i]["eventdetail_deposit"],
+                                eventdetail_status: record[i]["eventdetail_status"],
+                                eventdetail_create: record[i]["eventdetail_create"],
+                                eventdetail_update: record[i]["eventdetail_update"],
+                            },
+                        ];
+                }
+                for(let i=0;i<listpartisipasivoucherwinner_db.length;i++){
+                    switch(listpartisipasivoucherwinner_db[i].eventdetail_status){
+                        case "PRIZE_1":
+                            prize1_username = listpartisipasivoucherwinner_db[i].eventdetail_username;
+                            prize1_winner  = listpartisipasivoucherwinner_db[i].eventdetail_voucher;
+                            prize1_winner_flag  = true;
+                            prize1_winner_save_flag  = true;
+                            break;
+                        case "PRIZE_2":
+                            prize2_username = listpartisipasivoucherwinner_db[i].eventdetail_username;
+                            prize2_winner  = listpartisipasivoucherwinner_db[i].eventdetail_voucher;
+                            prize2_winner_flag  = true;
+                            prize2_winner_save_flag  = true;
+                            break;
+                        case "PRIZE_3":
+                            prize3_username = listpartisipasivoucherwinner_db[i].eventdetail_username;
+                            prize3_winner  = listpartisipasivoucherwinner_db[i].eventdetail_voucher;
+                            prize3_winner_flag  = true;
+                            prize3_winner_save_flag  = true;
+                            break;
+                        case "PRIZE_4":
+                            prize4_username = listpartisipasivoucherwinner_db[i].eventdetail_username;
+                            prize4_winner  = listpartisipasivoucherwinner_db[i].eventdetail_voucher;
+                            prize4_winner_flag  = true;
+                            prize4_winner_save_flag  = true;
+                            break;
+                        case "PRIZE_5":
+                            prize5_username = listpartisipasivoucherwinner_db[i].eventdetail_username;
+                            prize5_winner  = listpartisipasivoucherwinner_db[i].eventdetail_voucher;
+                            prize5_winner_flag  = true;
+                            prize5_winner_save_flag  = true;
+                            break;
+                        case "PRIZE_6":
+                            prize6_username = listpartisipasivoucherwinner_db[i].eventdetail_username;
+                            prize6_winner  = listpartisipasivoucherwinner_db[i].eventdetail_voucher;
+                            prize6_winner_flag  = true;
+                            prize6_winner_save_flag  = true;
+                            break;
+                        case "PRIZE_7":
+                            prize7_username = listpartisipasivoucherwinner_db[i].eventdetail_username;
+                            prize7_winner  = listpartisipasivoucherwinner_db[i].eventdetail_voucher;
+                            prize7_winner_flag  = true;
+                            prize7_winner_save_flag  = true;
+                            break;
+                        case "PRIZE_8":
+                            prize8_username = listpartisipasivoucherwinner_db[i].eventdetail_username;
+                            prize8_winner  = listpartisipasivoucherwinner_db[i].eventdetail_voucher;
+                            prize8_winner_flag  = true;
+                            prize8_winner_save_flag  = true;
+                            break;
+                        case "PRIZE_9":
+                            prize9_username = listpartisipasivoucherwinner_db[i].eventdetail_username;
+                            prize9_winner  = listpartisipasivoucherwinner_db[i].eventdetail_voucher;
+                            prize9_winner_flag  = true;
+                            prize9_winner_save_flag  = true;
+                            break;
+                        case "PRIZE_10":
+                            prize10_username = listpartisipasivoucherwinner_db[i].eventdetail_username;
+                            prize10_winner  = listpartisipasivoucherwinner_db[i].eventdetail_voucher;
+                            prize10_winner_flag  = true;
+                            prize10_winner_save_flag  = true;
+                            break;
+                        case "PRIZE_11":
+                            prize11_username = listpartisipasivoucherwinner_db[i].eventdetail_username;
+                            prize11_winner  = listpartisipasivoucherwinner_db[i].eventdetail_voucher;
+                            prize11_winner_flag  = true;
+                            prize11_winner_save_flag  = true;
+                            break;
+                        case "PRIZE_12":
+                            prize12_username = listpartisipasivoucherwinner_db[i].eventdetail_username;
+                            prize12_winner  = listpartisipasivoucherwinner_db[i].eventdetail_voucher;
+                            prize12_winner_flag  = true;
+                            prize12_winner_save_flag  = true;
+                            break;
+                        case "PRIZE_13":
+                            prize13_username = listpartisipasivoucherwinner_db[i].eventdetail_username;
+                            prize13_winner  = listpartisipasivoucherwinner_db[i].eventdetail_voucher;
+                            prize13_winner_flag  = true;
+                            prize13_winner_save_flag  = true;
+                            break;
+                        case "PRIZE_14":
+                            prize14_username = listpartisipasivoucherwinner_db[i].eventdetail_username;
+                            prize14_winner  = listpartisipasivoucherwinner_db[i].eventdetail_voucher;
+                            prize14_winner_flag  = true;
+                            prize14_winner_save_flag  = true;
+                            break;
+                        case "PRIZE_15":
+                            prize15_username = listpartisipasivoucherwinner_db[i].eventdetail_username;
+                            prize15_winner  = listpartisipasivoucherwinner_db[i].eventdetail_voucher;
+                            prize15_winner_flag  = true;
+                            prize15_winner_save_flag  = true;
+                            break;
+                        case "PRIZE_16":
+                            prize16_username = listpartisipasivoucherwinner_db[i].eventdetail_username;
+                            prize16_winner  = listpartisipasivoucherwinner_db[i].eventdetail_voucher;
+                            prize16_winner_flag  = true;
+                            prize16_winner_save_flag  = true;
+                            break;
+                        case "PRIZE_17":
+                            prize17_username = listpartisipasivoucherwinner_db[i].eventdetail_username;
+                            prize17_winner  = listpartisipasivoucherwinner_db[i].eventdetail_voucher;
+                            prize17_winner_flag  = true;
+                            prize17_winner_save_flag  = true;
+                            break;
+                        case "PRIZE_18":
+                            prize18_username = listpartisipasivoucherwinner_db[i].eventdetail_username;
+                            prize18_winner  = listpartisipasivoucherwinner_db[i].eventdetail_voucher;
+                            prize18_winner_flag  = true;
+                            prize18_winner_save_flag  = true;
+                            break;
+                        case "PRIZE_19":
+                            prize19_username = listpartisipasivoucherwinner_db[i].eventdetail_username;
+                            prize19_winner  = listpartisipasivoucherwinner_db[i].eventdetail_voucher;
+                            prize19_winner_flag  = true;
+                            prize19_winner_save_flag  = true;
+                            break;
+                        case "PRIZE_20":
+                            prize20_username = listpartisipasivoucherwinner_db[i].eventdetail_username;
+                            prize20_winner  = listpartisipasivoucherwinner_db[i].eventdetail_voucher;
+                            prize20_winner_flag  = true;
+                            prize20_winner_save_flag  = true;
+                            break;
+                    }
+                }
             }
         }
     }
+    
     function handleMemberPopup(e){
         fieldwinner_global = e;
         call_listpartisipasimembergroup(idevent_global)
