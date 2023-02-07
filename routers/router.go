@@ -154,6 +154,7 @@ func Init() *fiber.App {
 	app.Post("/api/eventgroupdetail", controllers.Eventdetailmemberhome)
 	app.Post("/api/eventsave", controllers.EventSave)
 	app.Post("/api/eventdetailsave", controllers.EventDetailSave)
+	app.Post("/api/eventdetailstatussave", controllers.EventDetailSaveStatus)
 	app.Post("/api/member", controllers.Memberhome)
 	app.Post("/api/memberselect", controllers.MemberSelecthome)
 	app.Post("/api/membersave", controllers.MemberSave)
