@@ -25,7 +25,7 @@
 	import Crmisbtv from "./pages/crmisbtv/Crmisbtv.svelte";
 	import Crmduniafilm from "./pages/crmduniafilm/Crmduniafilm.svelte";
 	import Websiteagen from "./pages/websiteagen/Websiteagen.svelte";
-	import Member from "./pages/member/member.svelte";
+	import Member from "./pages/member/Member.svelte";
 	import Event from "./pages/event/Event.svelte";
 	import Game from "./pages/game/Game.svelte";
 	import Login from "./pages/Login.svelte";
