@@ -259,12 +259,14 @@ func Eventdetailmemberhome(c *fiber.Ctx) error {
 }
 func EventSave(c *fiber.Ctx) error {
 	type payload_eventsave struct {
-		Page            string `json:"page"`
-		Sdata           string `json:"sdata" `
-		Event_idwebagen int    `json:"event_idwebagen" `
-		Event_name      string `json:"event_name" `
-		Event_start     string `json:"event_startevent" `
-		Event_end       string `json:"event_endevent" `
+		Page             string `json:"page"`
+		Sdata            string `json:"sdata" `
+		Event_id         int    `json:"event_id" `
+		Event_idwebagen  int    `json:"event_idwebagen" `
+		Event_name       string `json:"event_name" `
+		Event_mindeposit int    `json:"event_mindeposit" `
+		Event_start      string `json:"event_startevent" `
+		Event_end        string `json:"event_endevent" `
 	}
 	hostname := c.Hostname()
 	bearToken := c.Get("Authorization")
@@ -291,8 +293,10 @@ func EventSave(c *fiber.Ctx) error {
 			"client_hostname":  hostname,
 			"page":             client.Page,
 			"sdata":            client.Sdata,
+			"event_id":         client.Event_id,
 			"event_idwebagen":  client.Event_idwebagen,
 			"event_name":       client.Event_name,
+			"event_mindeposit": client.Event_mindeposit,
 			"event_startevent": client.Event_start,
 			"event_endevent":   client.Event_end,
 		}).

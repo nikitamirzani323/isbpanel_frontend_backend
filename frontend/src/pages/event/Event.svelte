@@ -52,6 +52,7 @@
                 let no = 0
                 let duration = 0;
                 let duration_css = "";
+                let status_css = "";
                 for (var i = 0; i < record.length; i++) {
                     no = no + 1;
                     duration = diffdate(dayjs().format("YYYY-MM-DD HH:MM"),dayjs(record[i]["event_endevent"]).format("YYYY-MM-DD HH:MM"));
@@ -60,6 +61,11 @@
                         duration_css = "color:red;font-weight:bold;";
                     }else{
                         duration_css = "color:biru;font-weight:bold;";
+                    }
+                    if(record[i]["event_status"] == "ONLINE"){
+                        status_css = "background:#FFEB3B;font-weight:bold;color:black;"
+                    }else{
+                        status_css = "background:#E91E63;font-weight:bold;color:white;"
                     }
                     listHome = [
                         ...listHome,
@@ -75,6 +81,8 @@
                             home_durationcss: duration_css,
                             home_mindeposit: record[i]["event_mindeposit"],
                             home_money_in: record[i]["event_money_in"],
+                            home_status: record[i]["event_status"],
+                            home_status_css: status_css,
                             home_create: record[i]["event_create"],
                             home_update: record[i]["event_update"],
                         },

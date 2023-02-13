@@ -51,6 +51,7 @@
     let endevent_field = "";
     let endevent_jam_field = "00:00";
     let mindeposit_field = 0;
+    let flag_buttonsave = true;
     let create_field = "";
     let update_field = "";
 
@@ -188,13 +189,18 @@
             filterListpartisipasi = [...listpartisipasi_db];
         }
     }
-    const NewData = (e,idwebsite,event,start,end,deposit, create,update) => {
+    const NewData = (e,idevent, idwebsite,event,start,end,deposit, status, create,update) => {
         sData = e
         call_websiteagen()
         if(sData == "New"){
             clearField()
         }else{
-            // alert(idwebsite)
+            if(status == "OFFLINE"){
+                flag_buttonsave = false;
+            }else{
+                flag_buttonsave = true;
+            }
+            idevent_global = idevent
             idwebsite_field = idwebsite;
             nmevent_field = event;
             startevent_field = dayjs(start).format("YYYY-MM-DD");
@@ -210,8 +216,13 @@
         myModal_newentry.show();
         
     };
-    const ListPartisipasi = (idevent,idwebsite,nmwebsite,nmevent,deposit) => {
+    const ListPartisipasi = (idevent,idwebsite,nmwebsite,nmevent,deposit,status) => {
         call_listpartisipasi(idevent,0)
+        if(status == "OFFLINE"){
+            flag_buttonsave = false;
+        }else{
+            flag_buttonsave = true;
+        }
         idevent_global = idevent
         idwebsite_global = idwebsite
         nmwebsite_global = nmwebsite
@@ -622,6 +633,10 @@
                 flag = false
                 msg += "The End Event is required\n"
             }
+            if(mindeposit_field == 0){
+                flag = false
+                msg += "The Minimal Deposit is required\n"
+            }
         }else{
             if(idwebsite_field == 0){
                 flag = false
@@ -639,6 +654,10 @@
                 flag = false
                 msg += "The End Event is required\n"
             }
+            if(mindeposit_field == 0){
+                flag = false
+                msg += "The Minimal Deposit is required\n"
+            }
         }
         
         if(flag){
@@ -653,8 +672,10 @@
                 body: JSON.stringify({
                     sdata: sData,
                     page:"DOMAIN-SAVE",
+                    event_id: idevent_global,
                     event_idwebagen: idwebsite_field,
                     event_name: nmevent_field,
+                    event_mindeposit: parseInt(mindeposit_field),
                     event_startevent: startevent_field+" "+startevent_jam_field,
                     event_endevent: endevent_field+" "+endevent_jam_field,
                 }),
@@ -958,6 +979,7 @@
         endevent_field = "";
         endevent_jam_field = "00:00";
         mindeposit_field = 0;
+        flag_buttonsave = true;
         create_field = "";
         update_field = "";
     }
@@ -1063,11 +1085,10 @@
                             <tr>
                                 <th NOWRAP width="1%" style="text-align: center;vertical-align: top;" colspan="2">&nbsp;</th>
                                 <th NOWRAP width="1%" style="text-align: center;vertical-align: top;font-weight:bold;font-size:{table_header_font};">NO</th>
-                                <th NOWRAP width="5%" style="text-align: center;vertical-align: top;font-weight:bold;font-size: {table_header_font};">START</th>
-                                <th NOWRAP width="5%" style="text-align: center;vertical-align: top;font-weight:bold;font-size: {table_header_font};">END</th>
+                                <th NOWRAP width="5%" style="text-align: center;vertical-align: top;font-weight:bold;font-size: {table_header_font};">&nbsp;</th>
+                                <th NOWRAP width="5%" style="text-align: center;vertical-align: top;font-weight:bold;font-size: {table_header_font};">DATE</th>
                                 <th NOWRAP width="3%" style="text-align: right;vertical-align: top;font-weight:bold;font-size: {table_header_font};">D</th>
-                                <th NOWRAP width="10%" style="text-align: left;vertical-align: top;font-weight:bold;font-size: {table_header_font};">WEBSITE AGEN</th>
-                                <th NOWRAP width="*" style="text-align: left;vertical-align: top;font-weight:bold;font-size: {table_header_font};">NAMA</th>
+                                <th NOWRAP width="*" style="text-align: left;vertical-align: top;font-weight:bold;font-size: {table_header_font};">INFO</th>
                                 <th NOWRAP width="10%" style="text-align: right;vertical-align: top;font-weight:bold;font-size: {table_header_font};">MIN DEPOSIT</th>
                                 <th NOWRAP width="10%" style="text-align: right;vertical-align: top;font-weight:bold;font-size: {table_header_font};">CASH IN</th>
                                 <th NOWRAP width="15%" style="text-align: left;vertical-align: top;font-weight:bold;font-size: {table_header_font};">INFORMASI</th>
@@ -1080,9 +1101,10 @@
                                     <td NOWRAP style="text-align: center;vertical-align: top;cursor:pointer;">
                                         <i 
                                             on:click={() => {
-                                                NewData("Edit",rec.home_idwebsite, rec.home_name,
+                                                NewData("Edit",rec.home_id,rec.home_idwebsite, rec.home_name,
                                                 rec.home_start, rec.home_end,
                                                 rec.home_mindeposit,
+                                                rec.home_status,
                                                 rec.home_create,rec.home_update);
                                             }} 
                                             class="bi bi-pencil"></i>
@@ -1090,16 +1112,25 @@
                                     <td NOWRAP style="text-align: center;vertical-align: top;cursor:pointer;">
                                         <i 
                                             on:click={() => {
-                                                ListPartisipasi(rec.home_id,rec.home_idwebsite,rec.home_websiteagen,rec.home_name,rec.home_mindeposit);
+                                                ListPartisipasi(rec.home_id,rec.home_idwebsite,rec.home_websiteagen,rec.home_name,rec.home_mindeposit,rec.home_status);
                                             }} 
                                             class="bi bi-person-badge"></i>
                                     </td>
                                     <td NOWRAP style="text-align: center;vertical-align: top;font-size: {table_body_font};">{rec.home_no}</td>
-                                    <td  NOWRAP style="text-align: center;vertical-align: top;font-size: {table_body_font};">{rec.home_start}</td>
-                                    <td  NOWRAP style="text-align: center;vertical-align: top;font-size: {table_body_font};">{rec.home_end}</td>
+                                    <td NOWRAP style="text-align: center;vertical-align: top;font-size: {table_body_font};">
+                                        <span style="padding: 5px;border-radius: 10px;padding-right:10px;padding-left:10px;{rec.home_status_css}">
+                                            {rec.home_status}
+                                        </span>
+                                    </td>
+                                    <td  NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">
+                                        START : {rec.home_start}<br />
+                                        END : {rec.home_end}
+                                    </td>
                                     <td  NOWRAP style="text-align: right;vertical-align: top;font-size: {table_body_font};{rec.home_durationcss}">{rec.home_duration}</td>
-                                    <td  style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.home_websiteagen}</td>
-                                    <td  style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.home_name}</td>
+                                    <td  style="text-align: left;vertical-align: top;font-size: {table_body_font};">
+                                        WEBSITE AGEN : {rec.home_websiteagen}<br />
+                                        {rec.home_name}
+                                    </td>
                                     <td  NOWRAP style="text-align: right;vertical-align: top;font-size: {table_body_font};color:blue;font-weight:bold;">
                                         {new Intl.NumberFormat().format(rec.home_mindeposit)}
                                     </td>
@@ -1135,7 +1166,7 @@
 	modal_id="modalentrycrud"
 	modal_size="modal-dialog-centered"
 	modal_title="{title_page+"/"+sData}"
-    modal_body_css="height:490px;overflow-y: scroll;"
+    modal_body_css="height:550px;overflow-y: scroll;"
     modal_footer_css="padding:5px;"
 	modal_footer={true}>
 	<slot:template slot="body">
@@ -1218,6 +1249,7 @@
         {/if}
 	</slot:template>
 	<slot:template slot="footer">
+        {#if flag_buttonsave}
         <Button
             on:click={() => {
                 handleSave();
@@ -1225,6 +1257,8 @@
             button_function="SAVE"
             button_title="Save"
             button_css="btn-warning"/>
+        {/if}
+        
 	</slot:template>
 </Modal>
 
@@ -1686,11 +1720,13 @@
             <div style="font-size: 12px;">
                 SUBTOTAL : <span style="color:blue;font-weight:bold;">{new Intl.NumberFormat().format(listpartisipasi_total)}</span>
             </div>
-            <Button
-                on:click={callFunction}
-                button_function="FORM_PARTISIPASI"
-                button_title="New Partisipasi"
-                button_css="btn-warning"/>
+            {#if flag_buttonsave}
+                <Button
+                    on:click={callFunction}
+                    button_function="FORM_PARTISIPASI"
+                    button_title="New Partisipasi"
+                    button_css="btn-warning"/>
+            {/if}
         {/if}
 	</slot:template>
 </Modal>
