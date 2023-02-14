@@ -155,6 +155,7 @@
     let panel_footer_listall = true;
     let panel_footer_member = false;
 
+    let listvoucher_view = [];
     let searchListpartisipasi = "";
     let filterListpartisipasi = [];
     let searchMember = "";
@@ -723,6 +724,7 @@
         }
         
         if(flag){
+            listvoucher_view = [];
             css_loader = "display: inline-block;";
             msgloader = "Sending...";
             const res = await fetch("/api/eventdetailsave", {
@@ -742,7 +744,19 @@
             });
             const json = await res.json();
             if (json.status == 200) {
-                
+                let record = json.record;
+                if (record != null) {
+                    for (var i = 0; i < record.length; i++) {
+                        listvoucher_view = [
+                            ...listvoucher_view,
+                            {
+                                event_voucher: record[i]["event_voucher"],
+                            },
+                        ];
+                    }
+                    myModal_newentry = new bootstrap.Modal(document.getElementById("modalviewvoucher"));
+                    myModal_newentry.show();
+                }
                 msgloader = json.message;
                 call_listpartisipasi(idevent_global)
                 clearFieldPartisipasi();
@@ -1942,6 +1956,24 @@
                 {/each}
             </tbody>
         </table>
+	</slot:template>
+	<slot:template slot="footer">
+	</slot:template>
+</Modal>
+
+<Modal
+	modal_id="modalviewvoucher"
+	modal_size="modal-dialog-centered"
+	modal_title="VOUCHER"
+    modal_body_css="height:400px;overflow-y: scroll;"
+    modal_footer_css="padding:5px;"
+	modal_footer={false}>
+	<slot:template slot="body">
+        <ul style="list-style: none;font-size:12px;">
+            {#each listvoucher_view as rec}
+                <li>{rec.event_voucher}</li>
+            {/each}
+        </ul>
 	</slot:template>
 	<slot:template slot="footer">
 	</slot:template>
