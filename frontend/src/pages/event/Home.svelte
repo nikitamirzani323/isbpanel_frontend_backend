@@ -1362,7 +1362,7 @@
                         <tr>
                             <td  NOWRAP style="text-align: center;vertical-align: top;font-size: {table_body_font};">{rec.eventdetailgroup_no}</td>
                             <td  on:click={() => {
-                                ListMemberAgenVoucher(rec.eventdetailgroup_idmember,rec.eventdetailgroup_username);
+                                ListMemberAgenVoucher(rec.eventdetailgroup_idmember,rec.eventdetailgroup_username,"");
                             }} NOWRAP style="cursor:pointer;text-decoration:underline;text-align: left;vertical-align: top;font-size: {table_body_font};"> {rec.eventdetailgroup_username}</td>
                             <td  NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">
                                 <a href="https://wa.me/{rec.eventdetailgroup_phone}" target="_blank">
@@ -1861,7 +1861,6 @@
                 <tr>
                     <th NOWRAP width="1%" style="text-align: center;vertical-align: top;font-weight:bold;font-size:{table_header_font};">NO</th>
                     <th NOWRAP width="*" style="text-align: left;vertical-align: top;font-weight:bold;font-size: {table_header_font};">VOUCHER</th>
-                    <th NOWRAP width="10%" style="text-align: right;vertical-align: top;font-weight:bold;font-size: {table_header_font};">DEPOSIT</th>
                     <th NOWRAP width="10%" style="text-align: left;vertical-align: top;font-weight:bold;font-size: {table_header_font};">CREATE</th>
                 </tr>
             </thead>
@@ -1870,7 +1869,6 @@
                 <tr>
                     <td  NOWRAP style="text-align: center;vertical-align: top;font-size: {table_body_font};">{rec.eventdetail_no}</td>
                     <td  NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.eventdetail_voucher}</td>
-                    <td  NOWRAP style="text-align: right;vertical-align: top;font-size: {table_body_font};color:blue;">{new Intl.NumberFormat().format(rec.eventdetail_deposit)}</td>
                     <td  NOWRAP style="text-align: left;vertical-align: top;font-size: {table_body_font};">{rec.eventdetail_create}</td>
                 </tr>
                 {/each}
