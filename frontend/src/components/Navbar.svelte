@@ -54,6 +54,9 @@
                     <li class="nav-item">
                         <a class="nav-link" aria-current="page" use:link href="/providerslot" style="font-size: 13px;">SLOT</a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link" aria-current="page" use:link href="/livescore" style="font-size: 13px;">LIVESCORE</a>
+                    </li>
                     <li class="nav-item dropdown">
                         <a
                             class="nav-link dropdown-toggle"

@@ -15,6 +15,9 @@ type responseinit struct {
 	Status int    `json:"status"`
 	Token  string `json:"token"`
 }
+type responselivescore struct {
+	Record interface{} `json:"record"`
+}
 type responsedefault struct {
 	Status  int         `json:"status"`
 	Message string      `json:"message"`

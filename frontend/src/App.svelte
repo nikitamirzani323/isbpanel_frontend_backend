@@ -28,6 +28,7 @@
 	import Member from "./pages/member/Member.svelte";
 	import Event from "./pages/event/Event.svelte";
 	import Game from "./pages/game/Game.svelte";
+	import Livescore from "./pages/livescore/Livescore.svelte";
 	import Login from "./pages/Login.svelte";
 	import NotFound from "./pages/NotFound.svelte";
 	export let table_header_font;
@@ -51,6 +52,13 @@
 					table_body_font: table_body_font,
 				},
 				component: Dashboard,
+			}),
+			"/livescore": wrap({
+				component: Livescore,
+				props: {
+					table_header_font: table_header_font,
+					table_body_font: table_body_font,
+				},
 			}),
 			"/event": wrap({
 				component: Event,
